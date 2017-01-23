@@ -1,3 +1,8 @@
+# mari-bot
+This bot is based on Discord's open source "airhorn bot" project
+
+
+# Original airhorn bot readme:
 # Airhorn Bot
 Airhorn is an example implementation of the [Discord API](https://discordapp.com/developers/docs/intro). Airhorn bot utilizes the [discordgo](https://github.com/bwmarrin/discordgo) library, a free and open source library. Airhorn Bot requires Go 1.4 or higher.
 
