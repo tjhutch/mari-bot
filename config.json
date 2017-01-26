@@ -1,4 +1,64 @@
 {
 	"token": "MjczNDk4NDcwMDQyODI4ODAx.C2nUaA.SWIl7OZ-oQyFIlPEe-LWhhjPyTM",
-	"prefix": "!"
+	"prefix": "!",
+	"commands": {
+		"bitch": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Bitch.mp3"
+		},
+		"goddamnit": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "God Damnit.mp3, God Damnit 2.mp3"
+		},
+		"Monkey": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Monkey.mp3, Monkey Please.mp3"
+		},
+		"noyes": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "No yes.mp3"
+		},
+		"wtf": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "WTF.mp3, WTF-2.mp3"
+		},
+		"yeah": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "yeeeeuh.mp3"
+		},
+		"butt": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Buttplugs.mp3"
+		},
+		"freddy": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Freddy Buttplug.mp3"
+		},
+		"ayy": {
+			"type": "text",
+			"response": "ayy lmao"
+		},
+		"broken": {
+			"type": "broken"
+		},
+		"rome": {
+			"type": "text",
+			"response": "Fuck Caesar!"
+		},
+		"otp": {
+			"type": "text",
+			"response": "PharMercy"
+		},
+		"come": {
+			"type": "move"
+		}
+	}
 }
