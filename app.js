@@ -5,9 +5,7 @@ var bot = new Discord.Client();
 var prefix = config.prefix;
 
 bot.on("message", msg => {
-	if (msg.content.startsWith(prefix + "ping")) {
-		msg.channel.sendMessage("pong!");
-	} else if (msg.content.startsWith(prefix + "ayy")) {
+	if (msg.content.startsWith(prefix + "ayy")) {
 		msg.channel.sendMessage("ayy lmao");
 	}
 });
