@@ -7,6 +7,8 @@ var commands = config.commands;
 var receiver = null;
 var voiceConnection = null;
 
+bot.login(config.token);
+
 bot.on("message", msg => {
 	for (var command in commands) {
 		if (msg.content.startsWith(prefix + command)) {
@@ -19,13 +21,16 @@ function handleCommand(command, msg) {
 	var type = command.type.toLowerCase();
 	switch(type) {
 		case "audio":
-			//TODO: create audio handler
-			var file = command.files.split(", ")[0];
-			var path = "C:\\Repos\\mari-bot\\" + command.folder + "\\" + file;
 			if (voiceConnection === null) {
-				msg.channel.sendMessage("connection was not active");
-				break;
+				var hasConnection = getActiveVoiceConnection;
+				if (!hasConnection) {
+					break;
+				}
 			}
+			var files = command.files.split(", ");
+			var file = files[Math.floor(Math.random()*files.length)];
+			var path = command.folder + "/" + file;
+			
 			voiceConnection.playFile(path);
 			break;
 		case "text":
@@ -35,7 +40,7 @@ function handleCommand(command, msg) {
 			moveToChannel(msg);
 			break;
 		default:
-			msg.channel.sendMessage("Sorry, there's something wrong with the config for that command. Please contact Taylor or Bhaven and yell at them to fix it.")
+			msg.channel.sendMessage("Config's fucked. Yell at Taylor or Bhaven to have them fix it.")
 			break;
 	}
 }
@@ -50,19 +55,42 @@ function moveToChannel(msg) {
 		if (!(receiver === null || receiver === undefined)) {
 			receiver.destroy;
 		}
-		const dispatcher = connection.playFile("C:\\Repos\\mari-bot\\MariRecordings\\yeeeeuh.wav");
-		dispatcher.ac
+		//TODO: replace with "hello" recording (don't have yet)
+		connection.playFile("MariRecordings/yeeeeuh.mp3");
 		voiceConnection = connection;
  		receiver = connection.createReceiver();
-	})
-	.catch(console.error);
+	});
+}
+
+function getActiveVoiceConnection() {
+	try {
+		voiceConnection = bot.voiceConnections.first();
+		if (voiceConnection === null || voiceConnection === undefined) {
+			msg.channel.sendMessage("No voice connection could be made");
+			return false;
+		}
+		return true;
+	} catch (e) {
+		msg.channel.sendMessage("No voice connection could be made");
+		return false;
+	}
 }
 
 bot.on('ready', () => {
 	console.log('I am ready!');
 });
 
-// user joins server
+bot.on('voiceStateUpdate' (oldMember, newMember) => {
+	if (!(voiceConnection === null || voiceConnection === undefined)) {
+		if (newMember.voiceChannel.name === voiceConnection.channel.name) {
+			//TODO: insert "new phone who dis" voice line
+		} else if (oldMember.voiceChannel.name === voiceConnection.channel.name) {
+			//TODO: insert "new phone who died" voice line (or don't, could be annoying)
+		}
+	}
+});
+
+// when a user joins the server
 //bot.on("guildMemberAdd", (member) => {
 //	console.log(`New User "${member.user.username}" has joined "${member.guild.name}"`);
 //	member.guild.defaultChannel.sendMessage(`"${member.user.username}" has joined this server`);
@@ -70,4 +98,3 @@ bot.on('ready', () => {
 
 
 
-bot.login(config.token);
