@@ -5,42 +5,117 @@
 		"bitch": {
 			"type": "audio",
 			"folder": "MariRecordings",
-			"files": "Bitch.mp3"
+			"files": "Bitch"
 		},
 		"goddamnit": {
 			"type": "audio",
 			"folder": "MariRecordings",
-			"files": "God Damnit.mp3, God Damnit 2.mp3"
+			"files": "God Damnit,God Damnit 2,God Damnit 3"
 		},
-		"Monkey": {
+		"monkey": {
 			"type": "audio",
 			"folder": "MariRecordings",
-			"files": "Monkey.mp3, Monkey Please.mp3"
+			"files": "Monkey,Monkey Please"
 		},
 		"noyes": {
 			"type": "audio",
 			"folder": "MariRecordings",
-			"files": "No yes.mp3"
+			"files": "No yes"
 		},
 		"wtf": {
 			"type": "audio",
 			"folder": "MariRecordings",
-			"files": "WTF.mp3, WTF-2.mp3"
+			"files": "WTF,WTF-2"
 		},
 		"yeah": {
 			"type": "audio",
 			"folder": "MariRecordings",
-			"files": "yeeeeuh.mp3"
+			"files": "yeeeeuh"
 		},
 		"butt": {
 			"type": "audio",
 			"folder": "MariRecordings",
-			"files": "Buttplugs.mp3"
+			"files": "Buttplugs,Freddy Buttplug"
 		},
 		"freddy": {
 			"type": "audio",
 			"folder": "MariRecordings",
-			"files": "Freddy Buttplug.mp3"
+			"files": "Fuck Freddy 1,Fuck Freddy 2,Fuck Freddy 3,Fuck Freddy 4,Fuck Freddy 5,Fuck Freddy 6,Fuck Freddy 7"
+		},
+		"divorce": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Divorce"
+		},
+		"disgusting": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Disgusting"
+		},
+		"newphone": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "New Phone,New Phone Short,New Phone 2,New Phone 3,New Phone 4,New Phone 5,New Phone 6"
+		},
+		"laugh": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Cackle,Giggle,Giggle 2,Giggle 3,Giggle 4"
+		},
+		"denmother": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Always Right"
+		},
+		"caesar": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Fuck Caesar,Fuck Both"
+		},
+		"geneva": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Fuck Both,Fuck Geneva"
+		},
+		"eek": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "EEEE,EEEE2"
+		},
+		"omg": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "OMG"
+		},
+		"lisa": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Lisa"
+		},
+		"house": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Out of my house"
+		},
+		"interesting": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Interesting"
+		},
+		"thisgame": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Hate this game"
+		},
+		"died": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Who died"
+		},
+		"thanks": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Thank you"
 		},
 		"ayy": {
 			"type": "text",
@@ -59,6 +134,9 @@
 		},
 		"come": {
 			"type": "move"
+		},
+		"commands": {
+			"type": "help"
 		}
 	}
 }
