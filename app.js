@@ -1,5 +1,6 @@
 var Discord = require("discord.js");
 const config = require("./config.json");
+const js = require('fs');
 
 var bot = new Discord.Client();
 var prefix = config.prefix;
@@ -38,6 +39,12 @@ function handleCommand(command, msg) {
 			break;
 		case "move":
 			moveToChannel(msg);
+			break;
+		case "meme":
+			var files = fs.readdirSync("./Memes");
+			var file = files[Math.floor(Math.random()*files.length)];
+			//TODO: Figure how to send a file (or replace these with links)
+			msg.channel.sendMessage("I haven't learned to meme properly yet");
 			break;
 		default:
 			msg.channel.sendMessage("Config's fucked. Yell at Taylor or Bhaven to have them fix it.")
