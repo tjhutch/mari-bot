@@ -22,14 +22,12 @@ function handleCommand(command, msg) {
 	switch(type) {
 		case "audio":
 			if (voiceConnection === null) {
-				var hasConnection = getActiveVoiceConnection;
-				if (!hasConnection) {
-					break;
-				}
+				moveToChannel(msg);
 			}
-			var files = command.files.split(", ");
+			var files = command.files.split(",");
 			var file = files[Math.floor(Math.random()*files.length)];
-			var path = command.folder + "/" + file;
+			var path = command.folder + "/" + file + ".mp3";
+			console.log(path);
 			
 			voiceConnection.playFile(path);
 			break;
@@ -38,6 +36,16 @@ function handleCommand(command, msg) {
 			break;
 		case "move":
 			moveToChannel(msg);
+			break;
+		case "help":
+			msg.channel.sendMessage("Commands: ")
+			var commandMessage = "";
+			for (var command in commands) {
+				if (!(command === "broken")) {
+					commandMessage += "\"" + command + "\"" + ": " + commands[command].type + "\n";
+				}
+			}
+			msg.channel.sendMessage(commandMessage);
 			break;
 		default:
 			msg.channel.sendMessage("Config's fucked. Yell at Taylor or Bhaven to have them fix it.")
@@ -52,13 +60,11 @@ function moveToChannel(msg) {
 	}
 	var guildUser = msg.guild.member(msg.author);
 	guildUser.voiceChannel.join().then(connection => {
-		if (!(receiver === null || receiver === undefined)) {
-			receiver.destroy;
+		if (!(voiceConnection === null || voiceConnection === undefined)) {
+			voiceConnection.disconnect;
 		}
-		//TODO: replace with "hello" recording (don't have yet)
-		connection.playFile("MariRecordings/yeeeeuh.mp3");
+
 		voiceConnection = connection;
- 		receiver = connection.createReceiver();
 	});
 }
 
@@ -76,16 +82,16 @@ function getActiveVoiceConnection() {
 	}
 }
 
+
 bot.on('ready', () => {
 	console.log('I am ready!');
 });
 
-bot.on('voiceStateUpdate' (oldMember, newMember) => {
+bot.on("voiceStateUpdate", (oldMember, newMember) => {
 	if (!(voiceConnection === null || voiceConnection === undefined)) {
 		if (newMember.voiceChannel.name === voiceConnection.channel.name) {
-			//TODO: insert "new phone who dis" voice line
-		} else if (oldMember.voiceChannel.name === voiceConnection.channel.name) {
-			//TODO: insert "new phone who died" voice line (or don't, could be annoying)
+
+			voiceConnection.playFile
 		}
 	}
 });
