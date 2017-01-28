@@ -22,15 +22,16 @@ function handleCommand(command, msg) {
 	var type = command.type.toLowerCase();
 	switch(type) {
 		case "audio":
-			if (voiceConnection === null) {
-				moveToChannel(msg);
-			}
 			var files = command.files.split(",");
 			var file = files[Math.floor(Math.random()*files.length)];
 			var path = command.folder + "/" + file + ".mp3";
 			console.log(path);
 			
-			voiceConnection.playFile(path);
+			if (voiceConnection === null) {
+				moveToChannel(msg, path);
+			} else {
+				voiceConnection.playFile(path);
+			}
 			break;
 		case "text":
 			msg.channel.sendMessage(command.response);
@@ -59,7 +60,7 @@ function handleCommand(command, msg) {
 	}
 }
 
-function moveToChannel(msg) {
+function moveToChannel(msg, file) {
 	if (msg.guild === null) {
 		msg.channel.sendMessage("No guild attached to this message");
 		return;
@@ -69,25 +70,12 @@ function moveToChannel(msg) {
 		if (!(voiceConnection === null || voiceConnection === undefined)) {
 			voiceConnection.disconnect;
 		}
-
 		voiceConnection = connection;
+		if (file !== undefined) {
+			voiceConnection.playFile(file);
+		}
 	});
 }
-
-function getActiveVoiceConnection() {
-	try {
-		voiceConnection = bot.voiceConnections.first();
-		if (voiceConnection === null || voiceConnection === undefined) {
-			msg.channel.sendMessage("No voice connection could be made");
-			return false;
-		}
-		return true;
-	} catch (e) {
-		msg.channel.sendMessage("No voice connection could be made");
-		return false;
-	}
-}
-
 
 bot.on('ready', () => {
 	console.log('I am ready!');
@@ -96,17 +84,14 @@ bot.on('ready', () => {
 bot.on("voiceStateUpdate", (oldMember, newMember) => {
 	if (!(voiceConnection === null || voiceConnection === undefined)) {
 		if (newMember.voiceChannel.name === voiceConnection.channel.name) {
-
-			voiceConnection.playFile
+			var command = commands["newPhone"];
+			var files = command.files.split(",");
+			var file = files[Math.floor(Math.random()*files.length)];
+			var path = command.folder + "/" + file + ".mp3";
+			voiceConnection.playFile(path);
 		}
 	}
 });
-
-// when a user joins the server
-//bot.on("guildMemberAdd", (member) => {
-//	console.log(`New User "${member.user.username}" has joined "${member.guild.name}"`);
-//	member.guild.defaultChannel.sendMessage(`"${member.user.username}" has joined this server`);
-//});
 
 
 
