@@ -117,6 +117,21 @@
 			"folder": "MariRecordings",
 			"files": "Thank you"
 		},
+		"dinner": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Italian Dinner,Italian Dinner 2"
+		},
+		"italian": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Italian,Italian 2"
+		},
+		"raa": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Raaaa"
+		},
 		"ayy": {
 			"type": "text",
 			"response": "ayy lmao"
@@ -137,6 +152,9 @@
 		},
 		"commands": {
 			"type": "help"
+		},
+		"leave": {
+			"type": "leave"
 		}
 	}
 }

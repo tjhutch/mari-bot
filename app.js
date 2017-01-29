@@ -39,6 +39,10 @@ function handleCommand(command, msg) {
 		case "move":
 			moveToChannel(msg);
 			break;
+		case "leave":
+			voiceConnection.disconnect();
+			voiceConnection = null;
+			break;
 		case "meme":
 			var files = fs.readdirSync("./Memes");
 			var file = files[Math.floor(Math.random()*files.length)];
@@ -82,9 +86,10 @@ bot.on('ready', () => {
 });
 
 bot.on("voiceStateUpdate", (oldMember, newMember) => {
-	if (!(voiceConnection === null || voiceConnection === undefined)) {
+	if (!(voiceConnection === null || voiceConnection === undefined 
+		|| newMember.voiceChannel === undefined || oldMember.voiceChannel === undefined)) {
 		if (newMember.voiceChannel.name === voiceConnection.channel.name) {
-			var command = commands["newPhone"];
+			var command = commands["newphone"];
 			var files = command.files.split(",");
 			var file = files[Math.floor(Math.random()*files.length)];
 			var path = command.folder + "/" + file + ".mp3";
