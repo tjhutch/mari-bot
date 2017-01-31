@@ -147,6 +147,10 @@
 			"type": "text",
 			"response": "PharMercy"
 		},
+		"forthehorde": {
+			"type": "text",
+			"response": "Fuck the Horde"
+		},
 		"come": {
 			"type": "move"
 		},

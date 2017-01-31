@@ -26,12 +26,26 @@ function handleCommand(command, msg) {
 			var file = files[Math.floor(Math.random()*files.length)];
 			var path = command.folder + "/" + file + ".mp3";
 			console.log(path);
-			
-			if (voiceConnection === null) {
+			if (voiceConnection === undefined || voiceConnection === null) {
 				moveToChannel(msg, path);
 			} else {
-				voiceConnection.playFile(path);
+				try {
+					var voice = getUserActiveVoiceChannel(msg.guild, msg.author);
+					if (voice !== undefined && voice !== null) {
+						if (voice.channel.name !== voiceConnection.channel.name) {
+							moveToChannel(msg, path);
+						} else {
+							voiceConnection.playFile(path);
+						}
+					}
+				} catch (ex) {
+					if (voiceConnection !== null) {
+						voiceConnection.playFile(path);
+					}
+				}
 			}
+			
+			
 			break;
 		case "text":
 			msg.channel.sendMessage(command.response);
@@ -69,8 +83,9 @@ function moveToChannel(msg, file) {
 		msg.channel.sendMessage("No guild attached to this message");
 		return;
 	}
-	var guildUser = msg.guild.member(msg.author);
-	guildUser.voiceChannel.join().then(connection => {
+	var voice = getUserActiveVoiceChannel(msg.guild, msg.author);
+
+	voice.join().then(connection => {
 		if (!(voiceConnection === null || voiceConnection === undefined)) {
 			voiceConnection.disconnect;
 		}
@@ -81,14 +96,20 @@ function moveToChannel(msg, file) {
 	});
 }
 
+function getUserActiveVoiceChannel(guild, user) {
+	var guildUser = guild.member(user);
+	return guildUser.voiceChannel;
+}
+
 bot.on('ready', () => {
-	console.log('I am ready!');
+	console.log('Mari bot ready for combat!');
 });
 
 bot.on("voiceStateUpdate", (oldMember, newMember) => {
 	if (!(voiceConnection === null || voiceConnection === undefined 
 		|| newMember.voiceChannel === undefined || oldMember.voiceChannel === undefined)) {
-		if (newMember.voiceChannel.name === voiceConnection.channel.name) {
+		if (newMember.voiceChannel.name === voiceConnection.channel.name 
+			&& newMember.voiceChannel.name !== oldMember.voiceChannel.name) {
 			var command = commands["newphone"];
 			var files = command.files.split(",");
 			var file = files[Math.floor(Math.random()*files.length)];
