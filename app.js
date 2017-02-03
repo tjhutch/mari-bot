@@ -7,6 +7,7 @@ var prefix = config.prefix;
 var commands = config.commands;
 var receiver = null;
 var voiceConnection = null;
+var dispatch = null;
 
 bot.login(config.token);
 
@@ -35,17 +36,26 @@ function handleCommand(command, msg) {
 						if (voice.channel.name !== voiceConnection.channel.name) {
 							moveToChannel(msg, path);
 						} else {
-							voiceConnection.playFile(path);
+							playAudioFile(path);
 						}
 					}
 				} catch (ex) {
 					if (voiceConnection !== null) {
-						voiceConnection.playFile(path);
+						playAudioFile(path);
 					}
 				}
 			}
 			
 			
+			break;
+		case "stop":
+			if (dispatch !== null) {
+				try {
+					dispatch.end();
+				} catch (e) {
+					//nothing to do here, just a rejected promise
+				}
+			}
 			break;
 		case "text":
 			msg.channel.sendMessage(command.response);
@@ -91,7 +101,7 @@ function moveToChannel(msg, file) {
 		}
 		voiceConnection = connection;
 		if (file !== undefined) {
-			voiceConnection.playFile(file);
+			playAudioFile(file);
 		}
 	});
 }
@@ -114,10 +124,14 @@ bot.on("voiceStateUpdate", (oldMember, newMember) => {
 			var files = command.files.split(",");
 			var file = files[Math.floor(Math.random()*files.length)];
 			var path = command.folder + "/" + file + ".mp3";
-			voiceConnection.playFile(path);
+			playAudioFile(path);
 		}
 	}
 });
+
+function playAudioFile(file) {
+	dispatch = voiceConnection.playFile(file);
+}
 
 
 

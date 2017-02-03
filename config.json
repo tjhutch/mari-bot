@@ -132,6 +132,11 @@
 			"folder": "MariRecordings",
 			"files": "Raaaa"
 		},
+		"myimmortal": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Story Time"
+		},
 		"ayy": {
 			"type": "text",
 			"response": "ayy lmao"
@@ -150,6 +155,9 @@
 		"forthehorde": {
 			"type": "text",
 			"response": "Fuck the Horde"
+		},
+		"stop": {
+			"type": "stop"
 		},
 		"come": {
 			"type": "move"
