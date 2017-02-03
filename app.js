@@ -8,12 +8,13 @@ var commands = config.commands;
 var receiver = null;
 var voiceConnection = null;
 var dispatch = null;
+var queue = new Array(10);
 
 bot.login(config.token);
 
 bot.on("message", msg => {
 	for (var command in commands) {
-		if (msg.content.startsWith(prefix + command)) {
+		if (msg.content === prefix + command) {
 			handleCommand(commands[command], msg);
 		}
 	}
@@ -23,10 +24,7 @@ function handleCommand(command, msg) {
 	var type = command.type.toLowerCase();
 	switch(type) {
 		case "audio":
-			var files = command.files.split(",");
-			var file = files[Math.floor(Math.random()*files.length)];
-			var path = command.folder + "/" + file + ".mp3";
-			console.log(path);
+			var path = getFileForCommand(command);
 			if (voiceConnection === undefined || voiceConnection === null) {
 				moveToChannel(msg, path);
 			} else {
@@ -120,17 +118,32 @@ bot.on("voiceStateUpdate", (oldMember, newMember) => {
 		|| newMember.voiceChannel === undefined || oldMember.voiceChannel === undefined)) {
 		if (newMember.voiceChannel.name === voiceConnection.channel.name 
 			&& newMember.voiceChannel.name !== oldMember.voiceChannel.name) {
-			var command = commands["newphone"];
-			var files = command.files.split(",");
-			var file = files[Math.floor(Math.random()*files.length)];
-			var path = command.folder + "/" + file + ".mp3";
-			playAudioFile(path);
+			playAudioFile(getFileForCommand(commands["newphone"]));
 		}
 	}
 });
 
+function getFileForCommand(command) {
+	var files = command.files.split(",");
+	var file = files[Math.floor(Math.random()*files.length)];
+	return command.folder + "/" + file + ".mp3";
+}
+
+function playFromQueue() {
+	if (queue.length > 0) {
+		playAudioFile(queue.splice(0, 1));
+	} else {
+		dispatch = null;
+	}
+}
+
 function playAudioFile(file) {
+	console.log(file);
+	if (dispatch != null) {
+		queue.push(file);
+	}
 	dispatch = voiceConnection.playFile(file);
+	dispatch.on('end', playFromQueue);
 }
 
 
