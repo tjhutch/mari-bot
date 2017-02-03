@@ -51,7 +51,7 @@ function handleCommand(command, msg) {
 				try {
 					dispatch.end();
 				} catch (e) {
-					//nothing to do here, just a rejected promise
+					// nothing to do here, just an unfulfilled promise
 				}
 			}
 			break;
@@ -66,10 +66,10 @@ function handleCommand(command, msg) {
 			voiceConnection = null;
 			break;
 		case "meme":
-			var files = fs.readdirSync("./Memes");
-			var file = files[Math.floor(Math.random()*files.length)];
-			//TODO: Figure how to send a file (or replace these with links)
-			msg.channel.sendMessage("I haven't learned to meme properly yet");
+			var urls = command.urls.split(",");
+			var url = urls[Math.floor(Math.random()*urls.length)];
+			msg.channel.sendMessage(url);
+			break;
 		case "help":
 			msg.channel.sendMessage("Commands: ")
 			var commandMessage = "";
@@ -130,7 +130,7 @@ function getFileForCommand(command) {
 }
 
 function playFromQueue() {
-	if (queue.length > 0) {
+	if (queue[0] !== undefined && queue[0] !== null) {
 		playAudioFile(queue.splice(0, 1));
 	} else {
 		dispatch = null;

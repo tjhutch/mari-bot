@@ -321,6 +321,10 @@
 			"type": "text",
 			"response": "Fuck the Horde"
 		},
+		"meme": {
+			"type": "meme",
+			"urls": "https://i.imgur.com/fbFwEej.gifv,https://media.giphy.com/media/3oz8xRoO8jO01VVEju/giphy.gif,http://imgur.com/JaRLWsu.gifv,https://i.redd.it/0jvfq4v080cy.jpg"
+		},
 		"stop": {
 			"type": "stop"
 		},
