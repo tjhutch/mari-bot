@@ -25,7 +25,7 @@
 		"wtf": {
 			"type": "audio",
 			"folder": "MariRecordings",
-			"files": "WTF,WTF-2,wtf,wtf-2"
+			"files": "WTF,WTF-2,wtf,wtf-2,wtf-3"
 		},
 		"yeah": {
 			"type": "audio",
@@ -296,6 +296,11 @@
 			"type": "audio",
 			"folder": "MariRecordings",
 			"files": "please no"
+		},
+		"llamas": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Llamas"
 		},
 		"ayy": {
 			"type": "text",
