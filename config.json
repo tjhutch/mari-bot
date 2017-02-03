@@ -20,12 +20,12 @@
 		"noyes": {
 			"type": "audio",
 			"folder": "MariRecordings",
-			"files": "No yes"
+			"files": "No yes,noyes-2"
 		},
 		"wtf": {
 			"type": "audio",
 			"folder": "MariRecordings",
-			"files": "WTF,WTF-2"
+			"files": "WTF,WTF-2,wtf,wtf-2"
 		},
 		"yeah": {
 			"type": "audio",
@@ -136,6 +136,166 @@
 			"type": "audio",
 			"folder": "MariRecordings",
 			"files": "Story Time"
+		},
+		"forafriend": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Asking for a friend"
+		},
+		"bullshit": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "bullshit"
+		},
+		"candy": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Candy Mountain,Candy"
+		},
+		"checkyourself": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Check yourself,check yourself-2"
+		},
+		"coal": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Coal,Coal 1,Coal-2,Coal-3,Coal-4"
+		},
+		"crazy": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Crazy"
+		},
+		"dicks": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Dicks,Dicks-2,penis"
+		},
+		"talkaboutit": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Dont wanna talk"
+		},
+		"gasp": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "gasp"
+		},
+		"genius": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Genius"
+		},
+		"nalisdad": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Going hard"
+		},
+		"hate": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "hate you"
+		},
+		"holdon": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Hold on"
+		},
+		"howdareyou": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "How dare you"
+		},
+		"how": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "how"
+		},
+		"kawaii": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Kawaii"
+		},
+		"memes": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Memes"
+		},
+		"mmhm": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "mmhm"
+		},
+		"nice": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Nice"
+		},
+		"noway": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "No way"
+		},
+		"no": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "No,no-2,no-3"
+		},
+		"nope": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Nope,nope-2"
+		},
+		"ow": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Ow"
+		},
+		"shutup": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Shutup"
+		},
+		"sleep": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Sleep,Sleep-2"
+		},
+		"sonofabitch": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Son of a bitch"
+		},
+		"stopit": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Stop"
+		},
+		"talkshit": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Talk shit"
+		},
+		"thatsall": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Thats all"
+		},
+		"ugh": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "ugh"
+		},
+		"wait": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "wait"
+		},
+		"pleaseno": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "please no"
 		},
 		"ayy": {
 			"type": "text",
