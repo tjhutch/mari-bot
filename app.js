@@ -8,14 +8,32 @@ var commands = config.commands;
 var receiver = null;
 var voiceConnection = null;
 var dispatch = null;
-var queue = new Array(10);
+var queue = [];
 
 bot.login(config.token);
 
+bot.on('ready', () => {
+	console.log('Mari bot ready for combat!');
+	voiceConnection = getActiveVoiceConnection();
+});
+
 bot.on("message", msg => {
 	for (var command in commands) {
-		if (msg.content === prefix + command) {
+		if (msg.content === prefix + command || msg.content.startsWith(prefix + command)) {
 			handleCommand(commands[command], msg);
+		}
+	}
+});
+
+bot.on("voiceStateUpdate", (oldMember, newMember) => {
+	if (oldMember && newMember && voiceConnection) {
+		if (oldMember.mute !== newMember.mute) {
+			return;
+		}
+	}
+	if (newMember && newMember.voiceChannel && voiceConnection) {
+		if (newMember.voiceChannel.name === voiceConnection.channel.name) {
+			playAudioFile(getFileForCommand(commands["newphone"]));
 		}
 	}
 });
@@ -25,13 +43,13 @@ function handleCommand(command, msg) {
 	switch(type) {
 		case "audio":
 			var path = getFileForCommand(command);
-			if (voiceConnection === undefined || voiceConnection === null) {
+			if (!voiceConnection) {
 				moveToChannel(msg, path);
 			} else {
 				try {
-					var voice = getUserActiveVoiceChannel(msg.guild, msg.author);
-					if (voice !== undefined && voice !== null) {
-						if (voice.channel.name !== voiceConnection.channel.name) {
+					var userVoice = getUserVoiceConnection(msg.guild, msg.author);
+					if (userVoice) {
+						if (userVoice.channel.name !== voiceConnection.channel.name) {
 							moveToChannel(msg, path);
 						} else {
 							playAudioFile(path);
@@ -43,8 +61,6 @@ function handleCommand(command, msg) {
 					}
 				}
 			}
-			
-			
 			break;
 		case "stop":
 			if (dispatch !== null) {
@@ -64,6 +80,11 @@ function handleCommand(command, msg) {
 		case "leave":
 			voiceConnection.disconnect();
 			voiceConnection = null;
+			break;
+		case "go":
+			var channelName = msg.content.substring(4);
+			console.log("Moving to: " + channelName);
+			findAndMoveToChannel(channelName);
 			break;
 		case "meme":
 			var urls = command.urls.split(",");
@@ -91,10 +112,10 @@ function moveToChannel(msg, file) {
 		msg.channel.sendMessage("No guild attached to this message");
 		return;
 	}
-	var voice = getUserActiveVoiceChannel(msg.guild, msg.author);
+	var voice = getUserVoiceConnection(msg.guild, msg.author);
 
 	voice.join().then(connection => {
-		if (!(voiceConnection === null || voiceConnection === undefined)) {
+		if (voiceConnection ) {
 			voiceConnection.disconnect;
 		}
 		voiceConnection = connection;
@@ -104,47 +125,75 @@ function moveToChannel(msg, file) {
 	});
 }
 
-function getUserActiveVoiceChannel(guild, user) {
+function getUserVoiceConnection(guild, user) {
 	var guildUser = guild.member(user);
 	return guildUser.voiceChannel;
 }
 
-bot.on('ready', () => {
-	console.log('Mari bot ready for combat!');
-});
-
-bot.on("voiceStateUpdate", (oldMember, newMember) => {
-	if (!(voiceConnection === null || voiceConnection === undefined 
-		|| newMember.voiceChannel === undefined || oldMember.voiceChannel === undefined)) {
-		if (newMember.voiceChannel.name === voiceConnection.channel.name 
-			&& newMember.voiceChannel.name !== oldMember.voiceChannel.name) {
-			playAudioFile(getFileForCommand(commands["newphone"]));
-		}
-	}
-});
-
 function getFileForCommand(command) {
 	var files = command.files.split(",");
 	var file = files[Math.floor(Math.random()*files.length)];
+	file = file.trim();
 	return command.folder + "/" + file + ".mp3";
 }
 
 function playFromQueue() {
-	if (queue[0] !== undefined && queue[0] !== null) {
-		playAudioFile(queue.splice(0, 1));
-	} else {
-		dispatch = null;
+	dispatch = null;
+	var file = queue.splice(0, 1);
+	if (file && !file.isEmpty()) {
+		console.log("Queue playing: " + file);
+		playAudioFile(file);
 	}
 }
 
 function playAudioFile(file) {
-	console.log(file);
-	if (dispatch != null) {
-		queue.push(file);
+	if (!voiceConnection) {
+		voiceConnection = getActiveVoiceConnection();
+		if (!voiceConnection) {
+			return;
+		}
 	}
+	if (dispatch) {
+		console.log("Queueing: " + file);
+		queue.push(file);
+		return;
+	}
+	console.log("Playing: " + file);
 	dispatch = voiceConnection.playFile(file);
 	dispatch.on('end', playFromQueue);
 }
 
+function getActiveVoiceConnection() {
+	var voiceManager = bot.voiceManager;
+	if (voiceManager) {
+		var connection = connections.first();
+		if (connection) {
+			return connection;
+		}
+	}
+	
+	return null;
+}
 
-
+function findAndMoveToChannel(channelName) {
+	var guilds = bot.guilds.array();
+	var found = false;
+	for (var i = 0; i < guilds.length; i++) {
+	 	var channels = guilds[i].channels.array();
+	 	for (var i = 0; i < channels.length; i++) {
+	 		if (channels[i].type === "voice" && channels[i].name === channelName) {
+	 			channels[i].join().then(connection => {
+					if (voiceConnection ) {
+						voiceConnection.disconnect;
+					}
+					voiceConnection = connection;
+				});
+				found = true;
+	 			break;
+	 		}
+	 	}
+	 	if (found) {
+	 		break;
+	 	}
+	}
+}

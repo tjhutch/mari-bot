@@ -55,7 +55,7 @@
 		"newphone": {
 			"type": "audio",
 			"folder": "MariRecordings",
-			"files": "New Phone,New Phone Short,New Phone 2,New Phone 3,New Phone 4,New Phone 5,New Phone 6"
+			"files": "New Phone,New Phone 2,New Phone 3,New Phone 4,New Phone 5,New Phone 6"
 		},
 		"laugh": {
 			"type": "audio",
@@ -247,11 +247,6 @@
 			"folder": "MariRecordings",
 			"files": "Nope,nope-2"
 		},
-		"ow": {
-			"type": "audio",
-			"folder": "MariRecordings",
-			"files": "Ow"
-		},
 		"shutup": {
 			"type": "audio",
 			"folder": "MariRecordings",
@@ -323,7 +318,10 @@
 		},
 		"meme": {
 			"type": "meme",
-			"urls": "https://i.imgur.com/fbFwEej.gifv,https://media.giphy.com/media/3oz8xRoO8jO01VVEju/giphy.gif,http://imgur.com/JaRLWsu.gifv,https://i.redd.it/0jvfq4v080cy.jpg"
+			"urls": "https://i.imgur.com/fbFwEej.gifv,https://media.giphy.com/media/3oz8xRoO8jO01VVEju/giphy.gif,http://imgur.com/JaRLWsu.gifv,https://i.redd.it/0jvfq4v080cy.jpg,http://i.imgur.com/PCFzqwA.gif,https://cdn.discordapp.com/attachments/226595078825705474/274395628694667266/16265610_1219240228124736_678311948121352729_n.jpg,http://i.imgur.com/z4n0xNy.gif,https://gfycat.com/AncientJoyfulKusimanse,http://i.imgur.com/pN8697F.gifv"
+		},
+		"go": {
+			"type": "go"
 		},
 		"stop": {
 			"type": "stop"
