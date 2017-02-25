@@ -27,7 +27,7 @@ bot.on("message", msg => {
 
 bot.on("voiceStateUpdate", (oldMember, newMember) => {
 	if (oldMember && newMember && voiceConnection) {
-		if (oldMember.mute !== newMember.mute) {
+		if (oldMember.mute !== newMember.mute || oldMember.deaf !== newMember.deaf) {
 			return;
 		}
 	}
