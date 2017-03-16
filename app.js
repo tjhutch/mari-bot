@@ -78,8 +78,10 @@ function handleCommand(command, msg) {
 			moveToChannel(msg);
 			break;
 		case "leave":
-			voiceConnection.disconnect();
-			voiceConnection = null;
+			if (voiceConnection) {
+				voiceConnection.disconnect();
+				voiceConnection = null;
+			}
 			break;
 		case "go":
 			var channelName = msg.content.substring(4);
