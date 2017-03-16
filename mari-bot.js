@@ -1,6 +1,5 @@
 var Discord = require("discord.js");
 const config = require("./config.json");
-const js = require('fs');
 
 var bot = new Discord.Client();
 var prefix = config.prefix;
@@ -162,6 +161,11 @@ function playAudioFile(file) {
 	}
 	console.log("Playing: " + file);
 	dispatch = voiceConnection.playFile(file);
+	if (file.includes("Trilliax")) {
+		dispatch.setVolume(0.25);
+	} else {
+		dispatch.setVolume(1.5);
+	}
 	dispatch.on('end', playFromQueue);
 }
 
