@@ -161,7 +161,7 @@ function playAudioFile(file) {
 	}
 	console.log("Playing: " + file);
 	dispatch = voiceConnection.playFile(file);
-	if (file.includes("Trilliax")) {
+	if (file.includes("Trilliax") || file.includes("MemeAudio")) {
 		dispatch.setVolume(0.25);
 	} else {
 		dispatch.setVolume(1.5);

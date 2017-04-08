@@ -302,6 +302,26 @@
 			"folder": "TrilliaxAudio",
 			"files": "01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25"
 		},
+		"airhorn": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Airhorn01,Airhorn02"
+		},
+		"triple": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Oh Baby A Triple"
+		},
+		"sad": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "SoSad"
+		},
+		"weed": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Smoke weed"
+		},
 		"ayy": {
 			"type": "text",
 			"response": "ayy lmao"
