@@ -312,25 +312,70 @@
 			"folder": "MemeAudio",
 			"files": "Oh Baby A Triple"
 		},
+		"gurren": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Gurren1,Gurren2"
+		},
+		"precious": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "GoneForever,MyPrecious"
+		},
+		"believe": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Believe"
+		},
+		"yeaboi": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "YeaBoi"
+		},
+		"livewin": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "LiveToWin"
+		},
 		"sad": {
 			"type": "audio",
 			"folder": "MemeAudio",
 			"files": "SoSad1,SoSad2"
+		},
+		"violin": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "SmallestViolin"
 		},
 		"weed": {
 			"type": "audio",
 			"folder": "MemeAudio",
 			"files": "Smoke weed"
 		},
+		"good": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Good"
+		},
 		"weewoo": {
 			"type": "audio",
 			"folder": "MemeAudio",
 			"files": "WeeWoo"
 		},
+		"rub": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Rub"
+		},
 		"myman": {
 			"type": "audio",
 			"folder": "MemeAudio",
 			"files": "MyMan"
+		},
+		"amazing": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Amazing"
 		},
 		"rave": {
 			"type": "audio",

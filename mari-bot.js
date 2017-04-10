@@ -154,11 +154,11 @@ function playAudioFile(file) {
 			return;
 		}
 	}
-	if (dispatch) {
+	/*if (dispatch) {
 		console.log("Queueing: " + file);
 		queue.push(file);
 		return;
-	}
+	}*/
 	console.log("Playing: " + file);
 	dispatch = voiceConnection.playFile(file);
 	if (file.includes("Trilliax") || file.includes("MemeAudio")) {
@@ -166,7 +166,7 @@ function playAudioFile(file) {
 	} else {
 		dispatch.setVolume(1.5);
 	}
-	dispatch.on('end', playFromQueue);
+	//dispatch.on('end', playFromQueue);
 }
 
 function getActiveVoiceConnection() {
