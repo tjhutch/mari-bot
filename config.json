@@ -315,12 +315,27 @@
 		"sad": {
 			"type": "audio",
 			"folder": "MemeAudio",
-			"files": "SoSad"
+			"files": "SoSad1,SoSad2"
 		},
 		"weed": {
 			"type": "audio",
 			"folder": "MemeAudio",
 			"files": "Smoke weed"
+		},
+		"weewoo": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "WeeWoo"
+		},
+		"myman": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "MyMan"
+		},
+		"rave": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Rave1,Rave2"
 		},
 		"ayy": {
 			"type": "text",
