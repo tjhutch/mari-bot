@@ -312,10 +312,30 @@
 			"folder": "MemeAudio",
 			"files": "Oh Baby A Triple"
 		},
+		"another": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Another one"
+		},
+		"stars": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Shooting Stars"
+		},
 		"gurren": {
 			"type": "audio",
 			"folder": "MemeAudio",
-			"files": "Gurren1,Gurren2"
+			"files": "Gurren1"
+		},
+		"lagann": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Gurren2"
+		},
+		"maniacal": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Maniacal"
 		},
 		"precious": {
 			"type": "audio",
@@ -366,6 +386,16 @@
 			"type": "audio",
 			"folder": "MemeAudio",
 			"files": "Rub"
+		},
+		"ready": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Ready"
+		},
+		"bigger": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Bigger"
 		},
 		"myman": {
 			"type": "audio",
