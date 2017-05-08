@@ -237,6 +237,16 @@
 			"folder": "MariRecordings",
 			"files": "No way"
 		},
+		"neat": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Neat (1),Neat (2),Neat (3),Neat (4),Neat (5)"
+		},
+		"thewayitis": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "The way it is"
+		},
 		"no": {
 			"type": "audio",
 			"folder": "MariRecordings",
@@ -307,6 +317,11 @@
 			"folder": "MemeAudio",
 			"files": "Airhorn01,Airhorn02"
 		},
+		"mmk": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "mmk1,mmk2,mmk3,mmk4,mmk5,mmk6"
+		},
 		"triple": {
 			"type": "audio",
 			"folder": "MemeAudio",
@@ -316,6 +331,11 @@
 			"type": "audio",
 			"folder": "MemeAudio",
 			"files": "Another one"
+		},
+		"wowtime": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Something that Matters"
 		},
 		"stars": {
 			"type": "audio",
@@ -340,7 +360,7 @@
 		"precious": {
 			"type": "audio",
 			"folder": "MemeAudio",
-			"files": "GoneForever,MyPrecious"
+			"files": "GoneForever"
 		},
 		"believe": {
 			"type": "audio",
@@ -351,6 +371,11 @@
 			"type": "audio",
 			"folder": "MemeAudio",
 			"files": "YeaBoi"
+		},
+		"boop": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "boop"
 		},
 		"livewin": {
 			"type": "audio",

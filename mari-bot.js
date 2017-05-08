@@ -17,6 +17,7 @@ bot.on('ready', () => {
 });
 
 bot.on("message", msg => {
+	msg.content = msg.content.toLowerCase();
 	for (var command in commands) {
 		if (msg.content === prefix + command || msg.content.startsWith(prefix + command)) {
 			handleCommand(commands[command], msg);
