@@ -2,6 +2,11 @@
 	"token": "MjczNDk4NDcwMDQyODI4ODAx.C2nUaA.SWIl7OZ-oQyFIlPEe-LWhhjPyTM",
 	"prefix": "!",
 	"commands": {
+		"americasad": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "America quiet"
+		},
 		"bitch": {
 			"type": "audio",
 			"folder": "MariRecordings",
@@ -11,6 +16,16 @@
 			"type": "audio",
 			"folder": "MariRecordings",
 			"files": "God Damnit,God Damnit 2,God Damnit 3"
+		},
+		"reee": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Reee"
+		},
+		"cabbages": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Cabbages"
 		},
 		"monkey": {
 			"type": "audio",
@@ -27,6 +42,11 @@
 			"folder": "MariRecordings",
 			"files": "WTF,WTF-2,wtf,wtf-2,wtf-3"
 		},
+		"fuck": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "01-Fuck,02-Fuck,03-Fuck,04-Fuck,05-Fuck,06-Fuck,07-Fuck,08-Fuck,09-Fuck,10-Fuck"
+		},
 		"yeah": {
 			"type": "audio",
 			"folder": "MariRecordings",
@@ -41,6 +61,16 @@
 			"type": "audio",
 			"folder": "MariRecordings",
 			"files": "Fuck Freddy 1,Fuck Freddy 2,Fuck Freddy 3,Fuck Freddy 4,Fuck Freddy 5,Fuck Freddy 6,Fuck Freddy 7"
+		},
+		"freddystop": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Freddy Stop,Freddy Stop 2"
+		},
+		"stoprecording": {
+			"type": "audio",
+			"folder": "MariRecordings",
+			"files": "Stop Recording"
 		},
 		"divorce": {
 			"type": "audio",
@@ -351,6 +381,46 @@
 			"type": "audio",
 			"folder": "MemeAudio",
 			"files": "Gurren2"
+		},
+		"badjoke": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "BaDumTss"
+		},
+		"america": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "America"
+		},
+		"sand": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Sand"
+		},
+		"10": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "10 outta 10"
+		},
+		"tinyrick": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Tiny Rick"
+		},
+		"pickle": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Pickle Rick"
+		},
+		"applause": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Applause"
+		},
+		"clap": {
+			"type": "audio",
+			"folder": "MemeAudio",
+			"files": "Applause"
 		},
 		"maniacal": {
 			"type": "audio",

@@ -17,9 +17,11 @@ bot.on('ready', () => {
 });
 
 bot.on("message", msg => {
-	msg.content = msg.content.toLowerCase();
+	var importantBit = msg.content.split(" ")[0];
+	importantBit = importantBit.toLowerCase();
+	console.log("Recieved: " + importantBit);
 	for (var command in commands) {
-		if (msg.content === prefix + command || msg.content.startsWith(prefix + command)) {
+		if (importantBit === prefix + command) {
 			handleCommand(commands[command], msg);
 		}
 	}
