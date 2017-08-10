@@ -13,3 +13,5 @@ node_modules
 *.o
 *.exe
 *.hi
+cmd/
+npm-debug.log
