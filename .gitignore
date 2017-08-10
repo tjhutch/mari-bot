@@ -8,3 +8,8 @@ web
 requests.log
 dist
 node_modules
+.stack-work
+.idea
+*.o
+*.exe
+*.hi
