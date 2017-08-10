@@ -1,5 +1,5 @@
 let Discord = require("discord.js");
-const config = require("./config.json");
+let fs = require("fs");
 
 let bot = new Discord.Client();
 let prefix = config.prefix;
@@ -9,7 +9,24 @@ let voiceConnection = null;
 let dispatch = null;
 let queue = [];
 
-bot.login(config.token);
+function readConfig(path, cb) {
+    fs.readFile(require.resolve(path), (err, data) => {
+        if (err) {
+            cb(err);
+        } else {
+            cb(null, JSON.parse(data))
+        }
+    })
+}
+
+let config;
+
+readConfig("./config.json", (err, json) => {
+    if (!err && json) {
+        config = json;
+        bot.login(config.token);
+    }
+});
 
 bot.on('ready', () => {
     console.log('Mari bot ready for combat!');
@@ -104,6 +121,13 @@ function handleCommand(command, msg) {
                 }
             }
             msg.channel.sendMessage(commandMessage);
+            break;
+        case "refresh":
+            readConfig("./config.json", (err, json) => {
+                if (!err && json) {
+                    config = json;
+                }
+            });
             break;
         default:
             msg.channel.sendMessage("Config's fucked. Yell at Taylor to fix it.")
