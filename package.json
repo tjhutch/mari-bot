@@ -4,7 +4,9 @@
   "description": "This bot is based on Discord's open source \"airhorn bot\" project",
   "main": "app.js",
   "dependencies": {
-    "discord.js": "^11.0.0"
+    "discord.js": "^11.0.0",
+    "node-opus": "^0.2.7",
+    "ffmpeg-binaries": "^3.2.2-3"
   },
   "devDependencies": {},
   "scripts": {
