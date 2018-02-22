@@ -4,10 +4,7 @@ const CONFIG_FILE = '../config.json';
 
 let bot;
 let prefix, commands, token;
-//let receiver = null;
-let voiceConnection = null;
-let dispatch = null;
-let queue = [];
+let dispatches = [];
 
 setupBot();
 readConfig(CONFIG_FILE, setConfig);
@@ -16,7 +13,6 @@ function setupBot() {
   bot = new Discord.Client();
   bot.on('ready', () => {
     console.log('Mari bot ready for combat!');
-    voiceConnection = getActiveVoiceConnection();
   });
 
   bot.on('message', msg => {
@@ -31,14 +27,17 @@ function setupBot() {
   });
 
   bot.on('voiceStateUpdate', (oldMember, newMember) => {
-    if (oldMember && newMember && voiceConnection) {
+    if (bot.voiceConnections.size === 0) {
+      return;
+    }
+    if (oldMember && newMember) {
       if (oldMember.mute !== newMember.mute || oldMember.deaf !== newMember.deaf) {
         return;
       }
     }
-    if (newMember && newMember.voiceChannel && voiceConnection) {
-      if (newMember.voiceChannel.name === voiceConnection.channel.name) {
-        playAudioFile(getFileForCommand(commands['newphone']));
+    if (newMember && newMember.voiceChannel) {
+      if (bot.voiceConnections.has(newMember.voiceChannel.id)) {
+        playAudioFile(getFileForCommand(commands['newphone']), newMember.voiceChannel.id);
       }
     }
   });
@@ -77,10 +76,11 @@ function handleCommand(command, msg) {
       handleAudioCommand(command, msg);
       break;
     case 'stop':
-      if (dispatch) {
+      if (dispatches[msg.channel.id]) {
         try {
-          dispatch.end();
+          dispatches[msg.channel.id].end();
         } catch (e) {
+          console.warn('uncaught exception in stop: ' + e);
           // nothing to do here, just an unfulfilled promise
         }
       }
@@ -89,18 +89,18 @@ function handleCommand(command, msg) {
       msg.channel.send(command.response);
       break;
     case 'move':
-      moveToChannel(msg);
+      joinChannel(msg);
       break;
     case 'leave':
-      if (voiceConnection) {
-        voiceConnection.disconnect();
-        voiceConnection = null;
+      const channelId = getMessageVoiceChannelId(msg);
+      if (bot.voiceConnections.has(channelId)) {
+        bot.voiceConnections[channelId].disconnect();
       }
       break;
     case 'go':
       let channelName = msg.content.substring(4);
       console.log('Moving to: ' + channelName);
-      findAndMoveToChannel(channelName);
+      joinChannel(null, channelName);
       break;
     case 'meme':
       let urls = command.urls.split(',');
@@ -131,48 +131,63 @@ function sendHelpMessage(command, msg) {
 }
 
 function handleAudioCommand(command, msg) {
-  let path = getFileForCommand(command);
-  if (!voiceConnection) {
-    moveToChannel(msg, path);
+  const path = getFileForCommand(command);
+  const channelId = getMessageVoiceChannelId(msg);
+  if (!bot.voiceConnections.has(channelId)) {
+    joinChannel(msg, path);
   } else {
     try {
-      let userVoice = getUserVoiceConnection(msg.guild, msg.author);
-      if (userVoice) {
-        if (userVoice.channel.name !== voiceConnection.channel.name) {
-          moveToChannel(msg, path);
-        } else {
-          playAudioFile(path);
+      let userVoiceChannelId = getMessageVoiceChannelId(msg);
+      if (userVoiceChannelId) {
+        if (!bot.voiceConnections.has(userVoiceChannelId)) {
+          joinChannel(msg, path);
         }
+        playAudioFile(path, userVoiceChannelId);
+      } else {
+        //TODO: may change this to not play anything OR play on every voice channel
+        playAudioFile(path, bot.voiceConnections.first().id);
       }
     } catch (ex) {
-      if (voiceConnection !== null) {
-        playAudioFile(path);
-      }
+      //TODO: Decide how to handle this failure case
     }
   }
 }
 
-function moveToChannel(msg, file) {
+function joinChannel(msg, channelNameOrId) {
+  if (!msg && !channelNameOrId) {
+    console.log('How did this even happen?\njoinChannel requires either a message or a channel ID');
+    return null;
+  }
+  if (channelNameOrId) {
+    const channel = findChannel(channelNameOrId);
+    if (channel) {
+      channel.join();
+    } else {
+      console.error('Unable to find channel with name/id ' + channelNameOrId);
+    }
+  }
   if (!msg.guild) {
     msg.channel.send('There\'s no guild attached to this message');
     return;
   }
   let voice = getUserVoiceConnection(msg.guild, msg.author);
-
-  voice.join().then(connection => {
-    if (voiceConnection) {
-      voiceConnection.disconnect();
-    }
-    voiceConnection = connection;
-    if (file) {
-      playAudioFile(file);
-    }
-  });
+  if (voice) {
+    voice.join();
+  } else {
+    msg.channel.send('The guild which contains that channel is currently unavailable.')
+  }
 }
 
 function getUserVoiceConnection(guild, user) {
+  if (!guild.available) {
+    return null;
+  }
   let guildUser = guild.member(user);
   return guildUser.voiceChannel;
+}
+
+function getMessageVoiceChannelId(msg) {
+  return msg.guild.member(msg.author).voiceChannelID;
 }
 
 function getFileForCommand(command) {
@@ -182,70 +197,43 @@ function getFileForCommand(command) {
   return command.folder + '/' + file + '.mp3';
 }
 
-function playFromQueue() {
-  dispatch = null;
-  let file = queue.splice(0, 1);
-  if (file && !file.isEmpty()) {
-    console.log('Queue playing: ' + file);
-    playAudioFile(file);
+function playAudioFile(file, channelId) {
+  if (!bot.voiceConnections.has(channelId)) {
+    joinChannel(null, channelId);
   }
-}
-
-function playAudioFile(file) {
-  if (!voiceConnection) {
-    voiceConnection = getActiveVoiceConnection();
-    if (!voiceConnection) {
-      return;
-    }
+  if (!bot.voiceConnections.has(channelId)) {
+    console.error('unable to join channel with id ' + channelId);
+    return;
   }
-  /*if (dispatch) {
-      console.log('Queueing: ' + file);
-      queue.push(file);
-      return;
-  }*/
   console.log('Playing: ' + file);
-  dispatch = voiceConnection.playFile(file);
+  dispatches[channelId] = bot.voiceConnections[channelId].playFile(file);
+  addDefaultErrorHandler(dispatches[channelId]);
   if (file.includes('Trilliax') || file.includes('MemeAudio')) {
-    dispatch.setVolume(0.25);
+    dispatches[channelId].setVolume(0.25);
   } else {
-    dispatch.setVolume(1.5);
+    dispatches[channelId].setVolume(1.5);
   }
-  //dispatch.on('end', playFromQueue);
 }
 
-function getActiveVoiceConnection() {
-  let voiceManager = bot.voiceManager;
-  if (voiceManager) {
-    let connection = connections.first();
-    if (connection) {
-      return connection;
-    }
+function findChannel(nameOrId) {
+  if (!nameOrId) {
+    console.error('findChannel requires a name or id');
+    return null;
   }
-
-  return null;
-}
-
-function findAndMoveToChannel(channelName) {
   let guilds = bot.guilds.array();
-  let found = false;
   for (let i = 0; i < guilds.length; i++) {
+    if (!guilds[i].available) {
+      console.warn('guild ' + guilds[i] + ' is unavailable at this time');
+      continue;
+    }
     let channels = guilds[i].channels.array();
     for (let j = 0; j < channels.length; j++) {
-      if (channels[j].type === 'voice' && channels[i].name === channelName) {
-        channels[j].join().then(connection => {
-          if (voiceConnection) {
-            voiceConnection.disconnect();
-          }
-          voiceConnection = connection;
-        });
-        found = true;
-        break;
+      if (channels[j].name === nameOrId || channels[j].id === nameOrId) {
+        return channels[j];
       }
     }
-    if (found) {
-      break;
-    }
   }
+  return null;
 }
 
 function readConfig(path, callback, ...args) {
@@ -257,6 +245,12 @@ function readConfig(path, callback, ...args) {
       console.log("Read config");
     }
   });
+}
+
+function addDefaultErrorHandler(promise) {
+  promise.on('Error', e => {
+    console.error('Error in promise handling: ' + e);
+  })
 }
 
 let config;
