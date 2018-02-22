@@ -1,2 +1,2 @@
 mari
-node mari-bot.js
+node src/mari-bot.js
