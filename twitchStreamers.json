@@ -1,0 +1,6 @@
+{
+  "clientID": "pv98whdejiw3m0w8t9q7vq3vaomz49",
+  "Mari": [
+    "https://api.twitch.tv/helix/webhooks/hub?hub.mode=subscribe&hub.topic=https://api.twitch.tv/helix/streams?to_id=162408197&hub.callback=TODO&gub.lease_seconds=864000&hub.secret="
+  ]
+}

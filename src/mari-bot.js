@@ -1,14 +1,17 @@
 let Discord = require('discord.js');
 let fs = require('fs');
 const CONFIG_FILE = '../config.json';
-const EventLogger = require('node-windows').EventLogger;
-const log = new EventLogger('Mari Bot');
+const TOKEN_FILE = '../token.json';
+const Logging = require('./Logging.js');
+
+const log = new Logging(process.argv.length > 2);
 
 let bot;
 let prefix, commands, token;
 let dispatches = [];
 
 setupBot();
+readToken(TOKEN_FILE);
 readConfig(CONFIG_FILE, setConfig);
 
 function setupBot() {
@@ -275,8 +278,23 @@ function readConfig(path, callback, ...args) {
     if (err) {
       callback(err);
     } else {
-      callback(null, JSON.parse(data), args);
-      log.info("Read config");
+      const json = JSON.parse(data);
+      prefix = json.prefix;
+      commands = json.commands;
+      resetBot(channel);
+    }
+  });
+}
+
+function readToken(path) {
+  fs.readFile(require.resolve(path), (err, json) => {
+    if (err) {
+      log.error('failed to read token');
+      process.exit(1);
+    } else {
+      let data = JSON.parse(json);
+      log.info("Read token");
+      token = data.token;
     }
   });
 }
@@ -287,14 +305,7 @@ function addDefaultErrorHandler(promise) {
   })
 }
 
-let config;
-
 function setConfig(err, json, channel) {
   if (!err && json) {
-    config = json;
-    token = config.token;
-    prefix = config.prefix;
-    commands = config.commands;
-    resetBot(channel);
   }
 }
