@@ -5,8 +5,8 @@
   "main": "app.js",
   "dependencies": {
     "discord.js": "^11.0.0",
-    "node-opus": "^0.2.7",
-    "ffmpeg-binaries": "^3.2.2-3"
+    "ffmpeg-binaries": "^3.2.2-3",
+    "opusscript": "^0.0.6"
   },
   "devDependencies": {},
   "scripts": {

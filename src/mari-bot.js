@@ -2,6 +2,8 @@ require('discord.js/src/structures/TextChannel');
 let Discord = require('discord.js');
 let fs = require('fs');
 const CONFIG_FILE = '../config.json';
+const EventLogger = require('node-windows').EventLogger;
+const log = new EventLogger('Mari Bot');
 
 let bot;
 let prefix, commands, token;
@@ -13,13 +15,13 @@ readConfig(CONFIG_FILE, setConfig);
 function setupBot () {
   bot = new Discord.Client();
   bot.on('ready', () => {
-    console.log('Mari bot ready for combat!');
+    log.info('Mari bot ready for combat!');
   });
 
   bot.on('message', msg => {
     let [importantBit] = msg.content.split(' ');
     importantBit = importantBit.toLowerCase();
-    console.log('Received: ' + importantBit);
+    log.info('Received: ' + importantBit);
     for (let command in commands) {
       if (importantBit === prefix + command && commands.hasOwnProperty(command)) {
         handleCommand(commands[command], msg);
@@ -28,7 +30,7 @@ function setupBot () {
   });
 
   bot.on('voiceStateUpdate', (oldMember, newMember) => {
-    if (bot.voiceConnections.size === 0) {
+    if (bot.voice.connections.size === 0) {
       return;
     }
     if (oldMember && newMember) {
@@ -37,18 +39,19 @@ function setupBot () {
       }
     }
     if (newMember && newMember.voiceChannel) {
-      if (bot.voiceConnections.has(newMember.voiceChannel.id)) {
-        playAudioFile(getFileForCommand(commands['newphone']), newMember.voiceChannel.id);
+      const voiceConnection = getBotVoiceConnection(newMember.voiceChannel.id);
+      if (voiceConnection) {
+        playAudioFile(getFileForCommand(commands['newphone']), newMember.voiceChannel.id, voiceConnection);
       }
     }
   });
 
   bot.on('error', (e) => {
-    console.error('ERROR: ' + e);
+    log.error('ERROR: ' + e);
     try {
       resetBot();
     } catch (e) {
-      console.error('Could not reload the bot: ' + e);
+      log.error('Could not reload the bot: ' + e);
       process.exit(1);
     }
   });
@@ -59,7 +62,7 @@ function resetBot (channel) {
     bot.destroy().then(() => {
       bot.login(token);
     }).catch((reason) => {
-      console.log('Failed to logout...?\n' + reason);
+      log.info('Failed to logout...?\n' + reason);
     });
   } else {
     bot.login(token).then(() => {
@@ -77,11 +80,12 @@ function handleCommand (command, msg) {
       handleAudioCommand(command, msg);
       break;
     case 'stop':
-      if (dispatches[msg.channel.id]) {
+      const id = getUserVoiceConnection(msg.guild, msg.author);
+      if (dispatches[id]) {
         try {
-          dispatches[msg.channel.id].end();
+          dispatches[id].end();
         } catch (e) {
-          console.warn('uncaught exception in stop: ' + e);
+          log.warn('uncaught exception in stop: ' + e);
           // nothing to do here, just an unfulfilled promise
         }
       }
@@ -93,9 +97,9 @@ function handleCommand (command, msg) {
       joinChannel(msg);
       break;
     case 'leave':
-      const channelId = getMessageVoiceChannelId(msg);
-      if (bot.voiceConnections.has(channelId)) {
-        bot.voiceConnections[channelId].disconnect();
+      const connection = getBotVoiceConnection(getMessageVoiceChannelId(msg));
+      if (connection) {
+        connection.disconnect();
       }
       break;
     case 'go':
@@ -153,40 +157,70 @@ function sendMessage (message, channel) {
   }
 }
 
-function handleAudioCommand (command, msg) {
+function handleAudioCommand(command, msg) {
+  if (!msg.guild) {
+    msg.channel.send('You can\'t send voice commands from a PM');
+    return;
+  }
+
   const path = getFileForCommand(command);
-  try {
-    let userVoiceChannelId = getMessageVoiceChannelId(msg);
-    if (userVoiceChannelId) {
-      if (!bot.voice.connections.has(userVoiceChannelId)) {
-        joinChannel(msg, null, path);
-      } else {
+  const channelId = getMessageVoiceChannelId(msg);
+  const channel = getBotVoiceChannel(channelId);
+  const callback = () => {
+    playAudioFile(path, channelId);
+  };
+  if (!channel) {
+    joinChannel(msg, path, callback);
+  } else {
+    try {
+      let userVoiceChannelId = getMessageVoiceChannelId(msg);
+      if (userVoiceChannelId) {
+        if (!getBotVoiceChannel(userVoiceChannelId)) {
+          joinChannel(msg, path, callback);
+          return;
+        }
         playAudioFile(path, userVoiceChannelId);
+      } else {
+        msg.channel.send('You must be in a voice channel to use voice commands');
       }
-    } else {
-      msg.channel.send('Sorry, you can\'t send voice commands when you\'re not in a channel');
+    } catch (e) {
+      msg.channel.send('Failed to play audio command.');
+      log.error('handleAudioCommand error: ' + e);
     }
-  } catch (ex) {
-    //TODO: Decide how to handle this failure case
   }
 }
 
-function joinChannel (msg, channelNameOrId, audioFile) {
+function getBotVoiceChannel(channelId) {
+  for (let voiceConnection of bot.voice.connections.values()) {
+    if (voiceConnection.channel.id === channelId) {
+      return voiceConnection.channel;
+    }
+  }
+  return null;
+}
+
+function getBotVoiceConnection(channelId) {
+  for (let voiceConnection of bot.voice.connections.values()) {
+    if (voiceConnection.channel.id === channelId) {
+      return voiceConnection;
+    }
+  }
+  return null;
+}
+
+function joinChannel(msg, channelNameOrId, callback) {
   if (!msg && !channelNameOrId) {
-    console.log('How did this even happen?\njoinChannel requires either a message or a channel ID');
+    log.info('How did this even happen?\njoinChannel requires either a message or a channel ID');
     return null;
   }
-  if (channelNameOrId) {
+  if (!msg && channelNameOrId) {
     const channel = findChannel(channelNameOrId);
     if (channel) {
-      channel.join().then(() => {
-        if (audioFile) {
-          playAudioFile(audioFile, channel.id);
-        }
-      });
+      channel.join().then(callback);
     } else {
-      console.error('Unable to find channel with name/id ' + channelNameOrId);
+      log.error('Unable to find channel with name/id ' + channelNameOrId);
     }
+    return;
   }
   if (!msg.guild) {
     sendMessage('There\'s no guild attached to this message', msg.channel);
@@ -194,11 +228,7 @@ function joinChannel (msg, channelNameOrId, audioFile) {
   }
   let voice = getUserVoiceConnection(msg.guild, msg.author);
   if (voice) {
-    voice.join().then(() => {
-      if (audioFile) {
-        playAudioFile(audioFile, voice.id);
-      }
-    });
+    voice.join().then(callback);
   } else {
     sendMessage('The guild which contains that channel is currently unavailable.', msg.channel);
   }
@@ -212,7 +242,10 @@ function getUserVoiceConnection (guild, user) {
   return guildUser.voiceChannel;
 }
 
-function getMessageVoiceChannelId (msg) {
+function getMessageVoiceChannelId(msg) {
+  if (!msg.guild) {
+    return null;
+  }
   return msg.guild.member(msg.author).voiceChannelID;
 }
 
@@ -223,16 +256,14 @@ function getFileForCommand (command) {
   return command.folder + '/' + file + '.mp3';
 }
 
-function playAudioFile (file, channelId) {
-  if (!bot.voiceConnections.has(channelId)) {
-    joinChannel(null, channelId);
-  }
-  if (!bot.voiceConnections.has(channelId)) {
-    console.error('unable to join channel with id ' + channelId);
+function playAudioFile(file, channelId, vc) {
+  const voiceConnection = vc ? vc : getBotVoiceConnection(channelId);
+  if (!voiceConnection) {
+    log.error('We don\'t have a voice connection to channel with id ' + channelId);
     return;
   }
-  console.log('Playing: ' + file);
-  dispatches[channelId] = bot.voiceConnections[channelId].playFile(file);
+  log.info('Playing: ' + file);
+  dispatches[channelId] = voiceConnection.playFile(file);
   addDefaultErrorHandler(dispatches[channelId]);
   if (file.includes('Trilliax') || file.includes('MemeAudio')) {
     dispatches[channelId].setVolume(0.25);
@@ -243,13 +274,13 @@ function playAudioFile (file, channelId) {
 
 function findChannel (nameOrId) {
   if (!nameOrId) {
-    console.error('findChannel requires a name or id');
+    log.error('findChannel requires a name or id');
     return null;
   }
   let guilds = bot.guilds.array();
   for (let i = 0; i < guilds.length; i++) {
     if (!guilds[i].available) {
-      console.warn('guild ' + guilds[i] + ' is unavailable at this time');
+      log.warn('guild ' + guilds[i] + ' is unavailable at this time');
       continue;
     }
     let channels = guilds[i].channels.array();

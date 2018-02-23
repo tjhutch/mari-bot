@@ -1,552 +1,665 @@
 {
-    "token": "MjczNDk4NDcwMDQyODI4ODAx.C2nUaA.SWIl7OZ-oQyFIlPEe-LWhhjPyTM",
-    "prefix": "!",
+  "prefix": "!",
+  "commands": {
+    "americasad": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "America quiet"
+    },
+    "bitch": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Bitch"
+    },
+    "goddamnit": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "God Damnit,God Damnit 2,God Damnit 3"
+    },
+    "cake": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Cake"
+    },
+    "goddamn": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Goddamn"
+    },
+    "noobnoob": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "NoobNoob"
+    },
+    "ohmygod": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Oh My God,Oh My God-2,Oh My God-3,Oh My God-4,Oh My God-5,Oh My God-6,Oh My God-7,Oh My God-8,Oh My God-9,Oh My God-10,Oh My God-11,Oh My God-12"
+    },
+    "holyshit": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Holy Shit,Holy Shit-2,Holy Shit-3"
+    },
+    "ohshit": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Oh Shit"
+    },
+    "ohno": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Oh No,Oh No-2,Oh No-3,Oh No-4,Oh No-6"
+    },
+    "nani": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Nani"
+    },
+    "breakdown": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Breakdown"
+    },
+    "reee": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Reee"
+    },
+    "gay": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Ha gay"
+    },
+    "spooky": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Spooky,Spooky2"
+    },
+    "cabbages": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Cabbages"
+    },
+    "goal": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Goal"
+    },
+    "monkey": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Monkey,Monkey Please"
+    },
+    "noyes": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "No yes,noyes-2"
+    },
+    "wtf": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "WTF,WTF-2,wtf,wtf-2,wtf-3"
+    },
+    "fuck": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "01-Fuck,02-Fuck,03-Fuck,04-Fuck,05-Fuck,06-Fuck,07-Fuck,08-Fuck,09-Fuck,10-Fuck"
+    },
+    "yeah": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "yeeeeuh"
+    },
+    "butt": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Buttplugs,Freddy Buttplug"
+    },
+    "freddy": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Fuck Freddy 1,Fuck Freddy 2,Fuck Freddy 3,Fuck Freddy 4,Fuck Freddy 5,Fuck Freddy 6,Fuck Freddy 7"
+    },
+    "freddystop": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Freddy Stop,Freddy Stop 2"
+    },
+    "stoprecording": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Stop Recording"
+    },
+    "divorce": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Divorce"
+    },
+    "disgusting": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Disgusting"
+    },
+    "newphone": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "New Phone,New Phone 2,New Phone 3,New Phone 4,New Phone 5,New Phone 6"
+    },
+    "laugh": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Cackle,Giggle,Giggle 2,Giggle 3,Giggle 4"
+    },
+    "denmother": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Always Right"
+    },
+    "caesar": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Fuck Caesar,Fuck Both"
+    },
+    "geneva": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Fuck Both,Fuck Geneva"
+    },
+    "eek": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "EEEE,EEEE2"
+    },
+    "omg": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "OMG"
+    },
+    "lisa": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Lisa"
+    },
+    "house": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Out of my house"
+    },
+    "interesting": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Interesting"
+    },
+    "thisgame": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Hate this game"
+    },
+    "died": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Who died"
+    },
+    "thanks": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Thank you"
+    },
+    "dinner": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Italian Dinner,Italian Dinner 2"
+    },
+    "italian": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Italian,Italian 2"
+    },
+    "raa": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Raaaa"
+    },
+    "myimmortal": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Story Time"
+    },
+    "forafriend": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Asking for a friend"
+    },
+    "bullshit": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "bullshit"
+    },
+    "candy": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Candy Mountain,Candy"
+    },
+    "checkyourself": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Check yourself,check yourself-2"
+    },
+    "coal": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Coal,Coal 1,Coal-2,Coal-3,Coal-4"
+    },
+    "crazy": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Crazy"
+    },
+    "dicks": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Dicks,Dicks-2,penis"
+    },
+    "talkaboutit": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Dont wanna talk"
+    },
+    "gasp": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "gasp"
+    },
+    "genius": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Genius"
+    },
+    "nalisdad": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Going hard"
+    },
+    "hate": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "hate you"
+    },
+    "holdon": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Hold on"
+    },
+    "howdareyou": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "How dare you"
+    },
+    "how": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "how"
+    },
+    "kawaii": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Kawaii"
+    },
+    "memes": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Memes"
+    },
+    "mmhm": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "mmhm"
+    },
+    "nice": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Nice"
+    },
+    "noway": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "No way"
+    },
+    "neat": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Neat (1),Neat (2),Neat (3),Neat (4),Neat (5)"
+    },
+    "thewayitis": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "The way it is"
+    },
+    "no": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "No,no-2,no-3"
+    },
+    "nope": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Nope,nope-2"
+    },
+    "shutup": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Shutup"
+    },
+    "sleep": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Sleep,Sleep-2"
+    },
+    "sonofabitch": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Son of a bitch"
+    },
+    "stopit": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Stop"
+    },
+    "talkshit": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Talk shit"
+    },
+    "thatsall": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Thats all"
+    },
+    "ugh": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "ugh"
+    },
+    "wait": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "wait"
+    },
+    "pleaseno": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "please no"
+    },
+    "llamas": {
+      "type": "audio",
+      "folder": "MariRecordings",
+      "files": "Llamas"
+    },
+    "trilliax": {
+      "type": "audio",
+      "folder": "TrilliaxAudio",
+      "files": "01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25"
+    },
+    "airhorn": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Airhorn01,Airhorn02"
+    },
+    "johncena": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "John Cena"
+    },
+    "mmk": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "mmk1,mmk2,mmk3,mmk4,mmk5,mmk6"
+    },
+    "triple": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Oh Baby A Triple"
+    },
+    "another": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Another one"
+    },
+    "wowtime": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Something that Matters"
+    },
+    "wow": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "wow,wow (1),wow (2),wow (3),wow (4),wow (5),wow (6),wow (7),wow (8),wow (9),wow (10)"
+    },
+    "stars": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Shooting Stars"
+    },
+    "gurren": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Gurren1"
+    },
+    "lagann": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Gurren2"
+    },
+    "badjoke": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "BaDumTss"
+    },
+    "america": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "America"
+    },
+    "sand": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Sand"
+    },
+    "10": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "10 outta 10"
+    },
+    "tinyrick": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Tiny Rick"
+    },
+    "pickle": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Pickle Rick"
+    },
+    "applause": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Applause"
+    },
+    "clap": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Applause"
+    },
+    "maniacal": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Maniacal"
+    },
+    "precious": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "GoneForever"
+    },
+    "believe": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Believe"
+    },
+    "yeaboi": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "YeaBoi"
+    },
+    "boop": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "boop"
+    },
+    "livewin": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "LiveToWin"
+    },
+    "sad": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "SoSad1,SoSad2"
+    },
+    "violin": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "SmallestViolin"
+    },
+    "weed": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Smoke weed"
+    },
+    "good": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Good"
+    },
+    "weewoo": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "WeeWoo"
+    },
+    "rub": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Rub"
+    },
+    "ready": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Ready"
+    },
+    "bigger": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Bigger"
+    },
+    "myman": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "MyMan"
+    },
+    "day9": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Day9 Rant"
+    },
+    "amazing": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Amazing"
+    },
+    "bucket": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Bucket"
+    },
+    "larger": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Larger"
+    },
+    "evenlarger": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Even Larger"
+    },
+    "rave": {
+      "type": "audio",
+      "folder": "MemeAudio",
+      "files": "Rave1,Rave2"
+    },
+    "ayy": {
+      "type": "text",
+      "response": "ayy lmao"
+    },
+    "broken": {
+      "type": "broken"
+    },
+    "rome": {
+      "type": "text",
+      "response": "Fuck Caesar!"
+    },
+    "pileokittens": {
+      "type": "text",
+      "response": "https://i.imgur.com/d4Aq9Hb.gifv"
+    },
+    "otp": {
+      "type": "text",
+      "response": "PharMercy"
+    },
+    "forthehorde": {
+      "type": "text",
+      "response": "Fuck the Horde"
+    },
+    "daddy": {
+      "type": "text",
+      "response": "https://i.imgur.com/OCatAIf.gifv"
+    },
+    "goodshit": {
+      "type": "text",
+      "response": ":ok_hand::eyes::ok_hand::eyes::ok_hand::eyes::ok_hand::eyes::ok_hand::eyes: good shit go౦ԁ sHit:ok_hand: thats :heavy_check_mark: some good:ok_hand::ok_hand:shit right:ok_hand::ok_hand:there:ok_hand::ok_hand::ok_hand: right:heavy_check_mark:there :heavy_check_mark::heavy_check_mark:if i do ƽaү so my self :100: i say so :100: thats what im talking about right there right there (chorus: ʳᶦᵍʰᵗ ᵗʰᵉʳᵉ) mMMMMᎷМ:100: :ok_hand::ok_hand: :ok_hand:НO0ОଠOOOOOОଠଠOoooᵒᵒᵒᵒᵒᵒᵒᵒᵒ:ok_hand: :ok_hand::ok_hand: :ok_hand: :100: :ok_hand: :eyes: :eyes: :eyes: :ok_hand::ok_hand:Good shit"
+    },
+    "navyseal": {
+      "type": "text",
+      "response": ":exclamation::rotating_light::rotating_light::rage::sos:What the:middle_finger:fuck :anger_right::skull_crossbones:did you just :knife:fucking :dagger:say about me, :crossed_swords::gun::tools:you little bitch?:rage::triumph: I’ll have you know :rolling_eyes:I graduated :top:top:top::100::ok_hand: of my class:100::fleur_de_lis: in the Navy :cruise_ship::cruise_ship:Seals:flag_us::flag_us::flag_us::ferry:, and I’ve been involved in numerous :boom::rotating_light:secret :rotating_light::rocket:raids on :kaaba::boom::mosque:Al-Quaeda:mosque::bomb::bomb:, and I have over :bangbang:300300 confirmed:ok: kills.:gun::crossed_swords::skull_crossbones: I am trained in gorilla :monkey:warfare :airplane_small::rocket::boom:and I’m the :top:top:top::100::gun: sniper:gun::gun: in the entire:flag_us: US :flag_us::flag_us:armed :flag_us::flag_us::flag_us:forces:flag_us::flag_us::flag_us:. You are :x::no_pedestrians:nothing :no_pedestrians::do_not_litter::no_bicycles:to me :rage::rage:but just another target. :rage::rage::rage:I will wipe you:rocket::satellite_orbital: the fuck :volcano:out :skull_crossbones:with precision:gun: the likes of which :knife:has never :eye:been seen:eyes::bust_in_silhouette::santa::skin-tone-1: :moyai:before on this :earth_africa::earth_americas::earth_asia:Earth, mark :writing_hand::skin-tone-2::writing_hand::skin-tone-2:my fucking :middle_finger:words. :pencil::pencil::scissors::flag_us::flag_us:You:middle_finger::middle_finger: think you can :golfer:get away :snowboarder::8ball:with saying :sleuth_or_spy::skin-tone-2::bow::skin-tone-2:that shit to me :poop::poop::poop:over the :globe_with_meridians:Internet? :raised_hands::skin-tone-3::triumph::triumph::triumph:Think again, fucker:thinking::thinking::thinking:. :rage:As we speak :scream::scream:I am contacting my secret network of spies:sleuth_or_spy::skin-tone-2::sleuth_or_spy::skin-tone-2::sleuth_or_spy::skin-tone-2: across the :flag_us::flag_us::flag_us:USA :flag_us::flag_us::flag_us:and your :globe_with_meridians:IP is being traced :pencil:right now:bow::skin-tone-2::knife: so you better prepare :thinking:for the :volcano:storm, :volcano::middle_finger:maggot. :middle_finger::rage:The storm :ocean:that wipes out :comet:the pathetic :scream:little thing :bow::skin-tone-2:you call your life. :rage::rage::rage:You’re fucking :skull:dead, :skull: kid.:card_box::gun::flag_us: :rage:I can be anywhere, :crystal_ball:anytime, :money_with_wings:and I can kill you:gun: in over:bomb: seven :knife:hundred :dagger:ways, :hammer:and that’s just with my :muscle::muscle::raised_hands::skin-tone-3:bare hands.:punch::skin-tone-3::raised_hand::skin-tone-5: :middle_finger::scream::rage::eyes:Not only am I :grimacing:extensively :punch::skin-tone-3:trained in unarmed combat, :raised_hand::skin-tone-5::open_hands::skin-tone-2::muscle::muscle:but I have :eyes:access to the entire :night_with_stars::statue_of_liberty::gun::gun::gun:arsenal:gun::gun: of the :flag_us::gun::flag_us::flag_us:United :flag_us:States:flag_us::gun::flag_us::flag_us::cop::skin-tone-2: Marine Corps :cop::skin-tone-2::flag_us::flag_us::flag_us:and I will use it to:sleuth_or_spy::skin-tone-2: its full extent :ok_hand:to wipe your miserable ass :raised_hands::skin-tone-3:off the face of the continent, :wave::skin-tone-3::wave::skin-tone-3::poop::poop:you little shit"
+    },
+    "ea": {
+      "type": "text",
+      "response": "The :moneybag: intent :moneybag: is :moneybag: to :moneybag: provide :moneybag: players :moneybag: with :moneybag: a :moneybag: sense :moneybag: of :moneybag: pride :moneybag: and :moneybag: accomplishment :moneybag: for :moneybag: unlocking :moneybag: different :moneybag: heroes. :moneybag: As :moneybag: for :moneybag: cost, :moneybag: we :moneybag: selected :moneybag: initial :moneybag: values :moneybag: based :moneybag: upon :moneybag: data :moneybag: from :moneybag: the :moneybag: Open :moneybag: Beta :moneybag: and :moneybag: other :moneybag: adjustments :moneybag: made :moneybag: to :moneybag: milestone :moneybag: rewards :moneybag: before :moneybag: launch. :moneybag: Among :moneybag: other :moneybag: things, :moneybag: we're :moneybag: looking :moneybag: at :moneybag: average :moneybag: per-player :moneybag: credit :moneybag: earn :moneybag: rates :moneybag: on :moneybag: a :moneybag: daily :moneybag: basis, :moneybag: and :moneybag: we'll :moneybag: be :moneybag: making :moneybag: constant :moneybag: adjustments :moneybag: to :moneybag: ensure :moneybag: that :moneybag: players :moneybag: have :moneybag: challenges :moneybag: that :moneybag: are :moneybag: compelling, :moneybag: rewarding, :moneybag: and :moneybag: of :moneybag: course :moneybag: attainable :moneybag: via :moneybag: gameplay. We :moneybag: appreciate :moneybag: the :moneybag: candid :moneybag: feedback, :moneybag: and :moneybag: the :moneybag: passion :moneybag: the :moneybag: community :moneybag: has :moneybag: put :moneybag: forth :moneybag: around :moneybag: the :moneybag: current :moneybag: topics :moneybag: here :moneybag: on :moneybag: Reddit, :moneybag: our :moneybag: forums :moneybag: and :moneybag: across :moneybag: numerous :moneybag: social :moneybag: media :moneybag: outlets. Our :moneybag: team :moneybag: will :moneybag: continue :moneybag: to :moneybag: make :moneybag: changes :moneybag: and :moneybag: monitor :moneybag: community :moneybag: feedback :moneybag: and :moneybag: update :moneybag: everyone :moneybag: as :moneybag: soon :moneybag: and :moneybag: as :moneybag: often :moneybag: as :moneybag: we :moneybag: can. :moneybag: :moneybag:"
+    },
+    "honeybun": {
+      "type": "text",
+      "response": "What the heck did you just say about me, you little honey bun? I’ll have you know I graduated top of my class in the Cutie Patooties, and I’ve been involved in numerous secret tweets on Daddy Trump, and I have over 300 confirmed snookims. I am trained in butter biscuits and I’m the top sweetie in the entire US sugar doodles. You are nothing to me but just another Daddy. I will cuddle you the heck out with warmth the likes of which has never been felt before on this Earth, mark my words. You think you can get away with saying that dookie doo to me over the Internet? Think again, cutie. As we speak I am contacting my secret network of Mommies across the USA and your IP is being traced right now so you better prepare for the huggie wuggies, deary. The huggies that wipes out the silly little thing you call your meanie doodles. You’re in trouble, Daddy. I can be anywhere, anytime, and I can tweet you in over seven hundred ways, and that’s just with my bare hands. Not only am I extensively trained in butter boops, but I have access to the entire arsenal of the Cutie Wooties Fruity Tooties and I will use it to its full extent to wipe your widdle face, you little cutie pie. If only you could have known what huggie wuggies your little “tweetie weetie” was about to bring down upon you, maybe you would have held your mouthy wouthy. But you couldn’t, you didn’t, and now you’re paying the price, honey buns. I will wiggle woop all over you and you will drown in it. You’re really sweet, honey."
+    },
+    "meme": {
+      "type": "meme",
+      "urls": "https://i.imgur.com/fbFwEej.gifv;https://media.giphy.com/media/3oz8xRoO8jO01VVEju/giphy.gif;http://imgur.com/JaRLWsu.gifv;https://i.redd.it/0jvfq4v080cy.jpg;http://i.imgur.com/PCFzqwA.gif;https://cdn.discordapp.com/attachments/226595078825705474/274395628694667266/16265610_1219240228124736_678311948121352729_n.jpg;http://i.imgur.com/z4n0xNy.gif;https://gfycat.com/AncientJoyfulKusimanse;http://i.imgur.com/pN8697F.gifv;https://i.imgur.com/OCatAIf.gifv"
+    },
+    "go": {
+      "type": "go"
+    },
+    "stop": {
+      "type": "stop"
+    },
+    "come": {
+      "type": "move"
+    },
     "commands": {
-        "come": {
-            "type": "move"
-        },
-        "go": {
-            "type": "go"
-        },
-        "stop": {
-            "type": "stop"
-        },
-        "commands": {
-            "type": "help"
-        },
-        "leave": {
-            "type": "leave"
-        },
-        "refresh": {
-            "type": "refresh"
-        },
-        "americasad": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "America quiet"
-        },
-        "bitch": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Bitch"
-        },
-        "goddamnit": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "God Damnit,God Damnit 2,God Damnit 3"
-        },
-        "reee": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Reee"
-        },
-        "cabbages": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Cabbages"
-        },
-        "monkey": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Monkey,Monkey Please"
-        },
-        "noyes": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "No yes,noyes-2"
-        },
-        "wtf": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "WTF,WTF-2,wtf,wtf-2,wtf-3"
-        },
-        "fuck": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "01-Fuck,02-Fuck,03-Fuck,04-Fuck,05-Fuck,06-Fuck,07-Fuck,08-Fuck,09-Fuck,10-Fuck"
-        },
-        "yeah": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "yeeeeuh"
-        },
-        "butt": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Buttplugs,Freddy Buttplug"
-        },
-        "freddy": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Fuck Freddy 1,Fuck Freddy 2,Fuck Freddy 3,Fuck Freddy 4,Fuck Freddy 5,Fuck Freddy 6,Fuck Freddy 7"
-        },
-        "freddystop": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Freddy Stop,Freddy Stop 2"
-        },
-        "stoprecording": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Stop Recording"
-        },
-        "divorce": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Divorce"
-        },
-        "disgusting": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Disgusting"
-        },
-        "newphone": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "New Phone,New Phone 2,New Phone 3,New Phone 4,New Phone 5,New Phone 6"
-        },
-        "laugh": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Cackle,Giggle,Giggle 2,Giggle 3,Giggle 4"
-        },
-        "denmother": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Always Right"
-        },
-        "caesar": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Fuck Caesar,Fuck Both"
-        },
-        "geneva": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Fuck Both,Fuck Geneva"
-        },
-        "eek": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "EEEE,EEEE2"
-        },
-        "omg": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "OMG"
-        },
-        "lisa": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Lisa"
-        },
-        "house": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Out of my house"
-        },
-        "interesting": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Interesting"
-        },
-        "thisgame": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Hate this game"
-        },
-        "died": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Who died"
-        },
-        "thanks": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Thank you"
-        },
-        "dinner": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Italian Dinner,Italian Dinner 2"
-        },
-        "italian": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Italian,Italian 2"
-        },
-        "raa": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Raaaa"
-        },
-        "myimmortal": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Story Time"
-        },
-        "forafriend": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Asking for a friend"
-        },
-        "bullshit": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "bullshit"
-        },
-        "candy": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Candy Mountain,Candy"
-        },
-        "checkyourself": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Check yourself,check yourself-2"
-        },
-        "coal": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Coal,Coal 1,Coal-2,Coal-3,Coal-4"
-        },
-        "crazy": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Crazy"
-        },
-        "dicks": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Dicks,Dicks-2,penis"
-        },
-        "talkaboutit": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Dont wanna talk"
-        },
-        "gasp": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "gasp"
-        },
-        "genius": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Genius"
-        },
-        "nalisdad": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Going hard"
-        },
-        "hate": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "hate you"
-        },
-        "holdon": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Hold on"
-        },
-        "howdareyou": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "How dare you"
-        },
-        "how": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "how"
-        },
-        "kawaii": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Kawaii"
-        },
-        "memes": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Memes"
-        },
-        "mmhm": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "mmhm"
-        },
-        "nice": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Nice"
-        },
-        "noway": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "No way"
-        },
-        "neat": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Neat (1),Neat (2),Neat (3),Neat (4),Neat (5)"
-        },
-        "thewayitis": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "The way it is"
-        },
-        "no": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "No,no-2,no-3"
-        },
-        "nope": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Nope,nope-2"
-        },
-        "shutup": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Shutup"
-        },
-        "sleep": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Sleep,Sleep-2"
-        },
-        "sonofabitch": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Son of a bitch"
-        },
-        "stopit": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Stop"
-        },
-        "talkshit": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Talk shit"
-        },
-        "thatsall": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Thats all"
-        },
-        "ugh": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "ugh"
-        },
-        "wait": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "wait"
-        },
-        "pleaseno": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "please no"
-        },
-        "llamas": {
-            "type": "audio",
-            "folder": "MariRecordings",
-            "files": "Llamas"
-        },
-        "trilliax": {
-            "type": "audio",
-            "folder": "TrilliaxAudio",
-            "files": "01,02,03,04,05,06,07,08,09,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25"
-        },
-        "airhorn": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Airhorn01,Airhorn02"
-        },
-        "mmk": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "mmk1,mmk2,mmk3,mmk4,mmk5,mmk6"
-        },
-        "triple": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Oh Baby A Triple"
-        },
-        "another": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Another one"
-        },
-        "wowtime": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Something that Matters"
-        },
-        "stars": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Shooting Stars"
-        },
-        "gurren": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Gurren1"
-        },
-        "lagann": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Gurren2"
-        },
-        "badjoke": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "BaDumTss"
-        },
-        "america": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "America"
-        },
-        "sand": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Sand"
-        },
-        "10": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "10 outta 10"
-        },
-        "tinyrick": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Tiny Rick"
-        },
-        "pickle": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Pickle Rick"
-        },
-        "applause": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Applause"
-        },
-        "clap": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Applause"
-        },
-        "maniacal": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Maniacal"
-        },
-        "precious": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "GoneForever"
-        },
-        "believe": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Believe"
-        },
-        "yeaboi": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "YeaBoi"
-        },
-        "boop": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "boop"
-        },
-        "livewin": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "LiveToWin"
-        },
-        "sad": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "SoSad1,SoSad2"
-        },
-        "violin": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "SmallestViolin"
-        },
-        "weed": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Smoke weed"
-        },
-        "good": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Good"
-        },
-        "weewoo": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "WeeWoo"
-        },
-        "rub": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Rub"
-        },
-        "ready": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Ready"
-        },
-        "bigger": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Bigger"
-        },
-        "myman": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "MyMan"
-        },
-        "amazing": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Amazing"
-        },
-        "rave": {
-            "type": "audio",
-            "folder": "MemeAudio",
-            "files": "Rave1,Rave2"
-        },
-        "ayy": {
-            "type": "text",
-            "response": "ayy lmao"
-        },
-        "broken": {
-            "type": "broken"
-        },
-        "rome": {
-            "type": "text",
-            "response": "Fuck Caesar!"
-        },
-        "otp": {
-            "type": "text",
-            "response": "PharMercy"
-        },
-        "forthehorde": {
-            "type": "text",
-            "response": "Fuck the Horde"
-        },
-        "meme": {
-            "type": "meme",
-            "urls": "https://i.imgur.com/fbFwEej.gifv,https://media.giphy.com/media/3oz8xRoO8jO01VVEju/giphy.gif,http://imgur.com/JaRLWsu.gifv,https://i.redd.it/0jvfq4v080cy.jpg,http://i.imgur.com/PCFzqwA.gif,https://cdn.discordapp.com/attachments/226595078825705474/274395628694667266/16265610_1219240228124736_678311948121352729_n.jpg,http://i.imgur.com/z4n0xNy.gif,https://gfycat.com/AncientJoyfulKusimanse,http://i.imgur.com/pN8697F.gifv,https://i.imgur.com/OCatAIf.gifv"
-        }
+      "type": "help"
+    },
+    "leave": {
+      "type": "leave"
+    },
+    "reset": {
+      "type": "reset"
     }
+  }
 }
