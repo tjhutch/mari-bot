@@ -327,8 +327,3 @@ function addDefaultErrorHandler (promise) {
     log.error('Error in promise handling: ' + e);
   })
 }
-
-function setConfig (err, json, channel) {
-  if (!err && json) {
-  }
-}
