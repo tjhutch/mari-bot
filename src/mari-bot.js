@@ -1,3 +1,4 @@
+require('discord.js/src/structures/TextChannel');
 let Discord = require('discord.js');
 let fs = require('fs');
 const CONFIG_FILE = '../config.json';
@@ -14,7 +15,7 @@ setupBot();
 readToken(TOKEN_FILE);
 readConfig(CONFIG_FILE, setConfig);
 
-function setupBot() {
+function setupBot () {
   bot = new Discord.Client();
   bot.on('ready', () => {
     log.info('Mari bot ready for combat!');
@@ -59,7 +60,7 @@ function setupBot() {
   });
 }
 
-function resetBot(channel) {
+function resetBot (channel) {
   if (bot && bot.readyTimestamp) {
     bot.destroy().then(() => {
       bot.login(token);
@@ -75,7 +76,7 @@ function resetBot(channel) {
   }
 }
 
-function handleCommand(command, msg) {
+function handleCommand (command, msg) {
   let type = command.type.toLowerCase();
   switch (type) {
     case 'audio':
@@ -93,7 +94,7 @@ function handleCommand(command, msg) {
       }
       break;
     case 'text':
-      msg.channel.send(command.response);
+      sendMessage(command.response, msg.channel);
       break;
     case 'move':
       joinChannel(msg);
@@ -112,7 +113,7 @@ function handleCommand(command, msg) {
     case 'meme':
       let urls = command.urls.split(',');
       let url = urls[Math.floor(Math.random() * urls.length)];
-      msg.channel.send(url);
+      sendMessage(url, msg.channel);
       break;
     case 'help':
       sendHelpMessage(command, msg);
@@ -121,20 +122,42 @@ function handleCommand(command, msg) {
       readConfig(CONFIG_FILE, setConfig, msg.channel);
       break;
     default:
-      msg.channel.send('Config\'s fucked. Yell at Taylor to fix it.');
+      sendMessage('Config\'s fucked. Yell at Taylor to fix it.', msg.channel);
       break;
   }
 }
 
-function sendHelpMessage(command, msg) {
-  msg.channel.send('Commands: ');
-  let commandMessage = '';
+function sendHelpMessage (msg) {
+  let audio = '';
+  let texts = '';
+  let help = '';
   for (let command in commands) {
-    if (commands.hasOwnProperty(command) && !(command === 'broken')) {
-      commandMessage += '\"' + command + '\"' + ': ' + commands[command].type + '\n';
+    if (commands.hasOwnProperty(command) && commands[command].type === 'audio') {
+      audio += command + ', ';
+    } else if (commands[command].type === 'text') {
+      texts += command + ', ';
+    } else {
+      if (!(commands[command].type === 'meme' || commands[command].type === 'broken')) {
+        help += command + ', ';
+      }
     }
   }
-  msg.channel.send(commandMessage);
+  audio = audio.substring(0, audio.length - 2);
+  texts = texts.substring(0, texts.length - 2);
+  help = help.substring(0, help.length - 2);
+  sendMessage('Commands:\n\nHelp:\n' + help + '\n\nAudio:\n' + audio + '\n\nText:\n' + texts + '\n\nMemes:\nmeme', msg.channel);
+}
+
+function sendMessage (message, channel) {
+  if (!(message && channel)) {
+    log.info('bad message attempt. Message: ' + message + '\nchannel: ' + channel);
+  }
+  if (message.length > 2000) {
+    channel.send(message.substring(0, 2000));
+    channel.send(message.substring(2000));
+  } else {
+    channel.send(message);
+  }
 }
 
 function handleAudioCommand(command, msg) {
@@ -203,18 +226,18 @@ function joinChannel(msg, channelNameOrId, callback) {
     return;
   }
   if (!msg.guild) {
-    msg.channel.send('There\'s no guild attached to this message');
+    sendMessage('There\'s no guild attached to this message', msg.channel);
     return;
   }
   let voice = getUserVoiceConnection(msg.guild, msg.author);
   if (voice) {
     voice.join().then(callback);
   } else {
-    msg.channel.send('The guild which contains that channel is currently unavailable.')
+    sendMessage('The guild which contains that channel is currently unavailable.', msg.channel);
   }
 }
 
-function getUserVoiceConnection(guild, user) {
+function getUserVoiceConnection (guild, user) {
   if (!guild.available) {
     return null;
   }
@@ -229,7 +252,7 @@ function getMessageVoiceChannelId(msg) {
   return msg.guild.member(msg.author).voiceChannelID;
 }
 
-function getFileForCommand(command) {
+function getFileForCommand (command) {
   let files = command.files.split(',');
   let file = files[Math.floor(Math.random() * files.length)];
   file = file.trim();
@@ -252,7 +275,7 @@ function playAudioFile(file, channelId, vc) {
   }
 }
 
-function findChannel(nameOrId) {
+function findChannel (nameOrId) {
   if (!nameOrId) {
     log.error('findChannel requires a name or id');
     return null;
@@ -273,7 +296,7 @@ function findChannel(nameOrId) {
   return null;
 }
 
-function readConfig(path, callback, ...args) {
+function readConfig (path, callback, ...args) {
   fs.readFile(require.resolve(path), (err, data) => {
     if (err) {
       callback(err);
@@ -299,13 +322,13 @@ function readToken(path) {
   });
 }
 
-function addDefaultErrorHandler(promise) {
+function addDefaultErrorHandler (promise) {
   promise.on('Error', e => {
     log.error('Error in promise handling: ' + e);
   })
 }
 
-function setConfig(err, json, channel) {
+function setConfig (err, json, channel) {
   if (!err && json) {
   }
 }
