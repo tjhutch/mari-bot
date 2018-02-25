@@ -5,16 +5,19 @@ module.exports = function Logging (logToConsole) {
   this.logToConsole = logToConsole;
 
   this.info = function info(s) {
-    log.info(s);
     if (this.logToConsole) {
       console.log(s);
+    }
+    else {
+      log.info(s);
     }
   };
 
   this.warn = function warn(s) {
-    log.warn(s);
     if (this.logToConsole) {
       console.warn(s);
+    } else {
+      log.warn(s);
     }
   };
 
@@ -22,6 +25,8 @@ module.exports = function Logging (logToConsole) {
     log.error(s);
     if (this.logToConsole) {
       console.error(s);
+    } else {
+      log.warn(s);
     }
   };
 };

@@ -5,15 +5,14 @@ const CONFIG_FILE = '../config.json';
 const TOKEN_FILE = '../token.json';
 const Logging = require('./Logging.js');
 
-const log = new Logging(process.argv.length > 2);
+const log = new Logging(!!process.argv[2]);
 
 let bot;
 let prefix, commands, token;
-let dispatches = [];
 
 setupBot();
 readToken(TOKEN_FILE);
-readConfig(CONFIG_FILE, setConfig);
+readConfig(CONFIG_FILE);
 
 function setupBot () {
   bot = new Discord.Client();
@@ -83,10 +82,10 @@ function handleCommand (command, msg) {
       handleAudioCommand(command, msg);
       break;
     case 'stop':
-      const id = getUserVoiceConnection(msg.guild, msg.author);
-      if (dispatches[id]) {
+      let dispatcher = activeVoiceInGuild(msg.guild).dispatcher;
+      if (dispatcher) {
         try {
-          dispatches[id].end();
+          dispatcher.end();
         } catch (e) {
           log.warn('uncaught exception in stop: ' + e);
           // nothing to do here, just an unfulfilled promise
@@ -100,7 +99,7 @@ function handleCommand (command, msg) {
       joinChannel(msg);
       break;
     case 'leave':
-      const connection = getBotVoiceConnection(getMessageVoiceChannelId(msg));
+      const connection = activeVoiceInGuild(msg.guild);
       if (connection) {
         connection.disconnect();
       }
@@ -116,10 +115,10 @@ function handleCommand (command, msg) {
       sendMessage(url, msg.channel);
       break;
     case 'help':
-      sendHelpMessage(command, msg);
+      sendHelpMessage(msg);
       break;
     case 'reset':
-      readConfig(CONFIG_FILE, setConfig, msg.channel);
+      readConfig(CONFIG_FILE, msg.channel);
       break;
     default:
       sendMessage('Config\'s fucked. Yell at Taylor to fix it.', msg.channel);
@@ -167,18 +166,17 @@ function handleAudioCommand(command, msg) {
   }
 
   const path = getFileForCommand(command);
-  const channelId = getMessageVoiceChannelId(msg);
-  const channel = getBotVoiceChannel(channelId);
+  const connection = activeVoiceInGuild(msg.guild);
   const callback = () => {
-    playAudioFile(path, channelId);
+    playAudioFile(path, null, connection);
   };
-  if (!channel) {
+  if (!connection) {
     joinChannel(msg, path, callback);
   } else {
     try {
       let userVoiceChannelId = getMessageVoiceChannelId(msg);
       if (userVoiceChannelId) {
-        if (!getBotVoiceChannel(userVoiceChannelId)) {
+        if (!activeVoiceInGuild(msg.guild)) {
           joinChannel(msg, path, callback);
           return;
         }
@@ -188,7 +186,7 @@ function handleAudioCommand(command, msg) {
       }
     } catch (e) {
       msg.channel.send('Failed to play audio command.');
-      log.error('handleAudioCommand error: ' + e);
+      console.error('handleAudioCommand error: ' + e);
     }
   }
 }
@@ -213,13 +211,14 @@ function getBotVoiceConnection(channelId) {
 
 function joinChannel(msg, channelNameOrId, callback) {
   if (!msg && !channelNameOrId) {
-    log.info('How did this even happen?\njoinChannel requires either a message or a channel ID');
+    console.info('How did this even happen?\njoinChannel requires either a message or a channel ID');
     return null;
   }
   if (!msg && channelNameOrId) {
     const channel = findChannel(channelNameOrId);
     if (channel) {
       channel.join().then(callback);
+      return;
     } else {
       log.error('Unable to find channel with name/id ' + channelNameOrId);
     }
@@ -262,28 +261,38 @@ function getFileForCommand (command) {
 function playAudioFile(file, channelId, vc) {
   const voiceConnection = vc ? vc : getBotVoiceConnection(channelId);
   if (!voiceConnection) {
-    log.error('We don\'t have a voice connection to channel with id ' + channelId);
+    console.error('We don\'t have a voice connection to channel with id ' + channelId);
     return;
   }
-  log.info('Playing: ' + file);
-  dispatches[channelId] = voiceConnection.playFile(file);
-  addDefaultErrorHandler(dispatches[channelId]);
+  console.info('Playing: ' + file);
+  let dispatcher = voiceConnection.playFile(file);
+  addDefaultErrorHandler(dispatcher);
   if (file.includes('Trilliax') || file.includes('MemeAudio')) {
-    dispatches[channelId].setVolume(0.25);
+    dispatcher.setVolume(0.25);
   } else {
-    dispatches[channelId].setVolume(1.5);
+    dispatcher.setVolume(1.5);
+  }
+}
+
+function activeVoiceInGuild(guild) {
+  let channels = guild.channels.array();
+  for (let channel of channels) {
+    let connection = getBotVoiceConnection(channel.id);
+    if (connection) {
+      return connection;
+    }
   }
 }
 
 function findChannel (nameOrId) {
   if (!nameOrId) {
-    log.error('findChannel requires a name or id');
+    console.error('findChannel requires a name or id');
     return null;
   }
   let guilds = bot.guilds.array();
   for (let i = 0; i < guilds.length; i++) {
     if (!guilds[i].available) {
-      log.warn('guild ' + guilds[i] + ' is unavailable at this time');
+      console.warn('guild ' + guilds[i] + ' is unavailable at this time');
       continue;
     }
     let channels = guilds[i].channels.array();
@@ -296,10 +305,13 @@ function findChannel (nameOrId) {
   return null;
 }
 
-function readConfig (path, callback, ...args) {
+function readConfig (path, channel) {
   fs.readFile(require.resolve(path), (err, data) => {
     if (err) {
-      callback(err);
+      log.error("failed to read config file " + path);
+      if (channel) {
+        channel.send("Failed to update config");
+      }
     } else {
       const json = JSON.parse(data);
       prefix = json.prefix;
