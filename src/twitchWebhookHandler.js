@@ -3,27 +3,28 @@ const fs = require('fs');
 const localTunnel = require('localtunnel');
 let log;
 
-module.exports = function Twitch(logger, tokenData, subCallback) {
-  log = logger;
-  this.secret = tokenData.twitchToken;
-  this.clientId = tokenData.twitchClientId;
-  this.callbackUrl = getCallbackUrl();
+module.exports = class TwitchWebhookHandler {
 
-  this.getStreamers = function(resolve, reject) {
-    fs.readFile('../twitchStreamers.json', null, (e, json) => {
-      if (e) {
-        log.error('failed to read twitch streamers');
-        reject(e);
-      } else {
-        let streamers = JSON.parse(json);
-        delete streamers[0]; // this object is just a comment for organization, delete for easier processing
-        log.info('Read twitch streamers');
-        resolve(streamers);
-      }
+  constructor(logger, tokenData, configManager, subCallback) {
+    log = logger;
+    this.secret = tokenData.twitchToken;
+    this.clientId = tokenData.twitchClientId;
+    this.callbackUrl = getCallbackUrl();
+    this.subCallback = subCallback;
+
+    configManager.readStreamers().then((streamers) => {
+      this.streamers = streamers;
+      //  return new Promise(this.startTunnel);
+      //}).then((tunnel) => {
+      //  log.info("Tunnel created");
+      //  this.tunnel = tunnel;
+      this.subscribeToStreams();
+    }).catch((e) => {
+      log.error('Error while setting up twitch webhooks: ' + e);
     });
-  };
+  }
 
-  this.startTunnel = function(resolve, reject) {
+  startTunnel(resolve, reject) {
     localTunnel('8492', { subdomain: 'maribot' }, (e, tunnel) => {
       if (e) {
         log.info('failed to connect to local tunnel: ' + e);
@@ -34,9 +35,9 @@ module.exports = function Twitch(logger, tokenData, subCallback) {
         resolve(tunnel);
       }
     });
-  };
+  }
 
-  this.subscribeToStreams = function () {
+  subscribeToStreams() {
     const twitchWebhook = new TwitchWebhook({
       client_id: this.clientId,
       callback: this.callbackUrl,
@@ -64,15 +65,11 @@ module.exports = function Twitch(logger, tokenData, subCallback) {
     // set listener for topic
     twitchWebhook.on('streams', ({ topic, options, endpoint, event }) => {
       log.info(event);
-
+      //TODO: get required guild/channel data and call this.subCallback
     });
 
     // subscribe to topic
     for (let streamer of this.streamers) {
-      // first will be undefined since we deleted it
-      if (!streamer) {
-        continue;
-      }
       twitchWebhook.subscribe('streams', {
         user_id: streamer.id
       });
@@ -81,29 +78,19 @@ module.exports = function Twitch(logger, tokenData, subCallback) {
     // renew the subscription when it expires
     twitchWebhook.on('unsubscribe', (obj) => {
       twitchWebhook.subscribe(obj['hub.topic']);
+      log.warn('Got unsubbed from a stream, resubbing ' + obj);
     });
 
-    // tell Twitch that we no longer listen
+    // tell TwitchWebhookHandler that we no longer listen
     // otherwise it will try to send events to a down app
     process.on('SIGINT', () => {
       // unsubscribe from all topics
       twitchWebhook.unsubscribe('*');
+      log.info('Unsubbed from all twitch hooks');
       process.exit(0);
     });
     log.info("Subscribed to streams");
-  };
-
-  new Promise(this.getStreamers).then((streamers) => {
-    log.info("Got streamers");
-    this.streamers = streamers;
-  //  return new Promise(this.startTunnel);
-  //}).then((tunnel) => {
-  //  log.info("Tunnel created");
-  //  this.tunnel = tunnel;
-    this.subscribeToStreams();
-  }).catch((e) => {
-    log.error('Error while setting up twitch client: ' + e);
-  });
+  }
 };
 
 function getCallbackUrl() {

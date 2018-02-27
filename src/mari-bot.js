@@ -1,28 +1,33 @@
-require('discord.js/src/structures/TextChannel');
-let Discord = require('discord.js');
-let fs = require('fs');
-const CONFIG_FILE = '../config.json';
-const TOKEN_FILE = '../token.json';
-const Logging = require('./Logging.js');
-const Twitch = require('./twitch');
+const Discord = require('discord.js');
+const Logger = require('./logger');
+const TwitchWebhookHandler = require('./twitchWebhookHandler');
+const ConfigManager = require('./configManager');
 
-const log = new Logging(!!process.argv[2]);
+// init logger and config utility
+const log = new Logger(!!process.argv[2]);
+const config = new ConfigManager(log);
 
 let bot;
 let prefix, commands, token;
 
-setupBot();
-readToken(TOKEN_FILE).then((data) => {
+configureBot();
+config.readToken().then((data) => {
   token = data.token;
-  new Twitch(log, data, sendSubMessage);
+  // init twitch stream watcher
+  new TwitchWebhookHandler(log, data, sendSubMessage);
+  return config.readConfig();
+}).then((data) => {
+  prefix = data.prefix;
+  commands = data.commands;
+  // start your engines!
+  resetBot();
 }).catch((e) => {
-  log.error('failed while reading token file: ' + e);
+  log.error('failed while reading configuration file: ' + e);
   process.exit(1);
 });
 
-reloadConfig();
-
-function setupBot () {
+// sets all the handlers for bot actions
+function configureBot () {
   bot = new Discord.Client();
   bot.on('ready', () => {
     log.info('Mari bot ready for combat!');
@@ -62,11 +67,11 @@ function setupBot () {
 
   // Uh oh
   bot.on('error', (e) => {
-    log.error('ERROR: ' + e);
+    log.error('ERROR bot crashed!: ' + e);
     try {
       resetBot();
     } catch (e) {
-      log.error('Could not reload the bot: ' + e);
+      log.error('Could not reset the bot: ' + e);
       process.exit(1);
     }
   });
@@ -98,7 +103,7 @@ function handleCommand (command, msg) {
       handleAudioCommand(command, msg);
       break;
     case 'stop':
-      stopTalking(msg);
+      stopTalkingInGuild(msg.guild);
       break;
     case 'text':
       sendMessage(command.response, msg.channel);
@@ -134,8 +139,8 @@ function handleCommand (command, msg) {
   }
 }
 
-function stopTalking(msg) {
-  let dispatcher = activeVoiceInGuild(msg.guild).dispatcher;
+function stopTalkingInGuild(guild) {
+  let dispatcher = activeVoiceInGuild(guild).dispatcher;
   if (dispatcher) {
     try {
       dispatcher.end();
@@ -291,7 +296,7 @@ function playAudioFile(file, channelId, vc) {
   }
   console.info('Playing: ' + file);
   let dispatcher = voiceConnection.playFile(file);
-  addDefaultErrorHandler(dispatcher);
+  dispatcher.on('Error', defaultErrorHandler);
   if (file.includes('Trilliax') || file.includes('MemeAudio')) {
     dispatcher.setVolume(0.25);
   } else {
@@ -335,53 +340,6 @@ function sendSubMessage(streamUrl, servers, user) {
   }
 }
 
-// Get or reload configuration from config json file
-// only reloads commands, not streamers or token info
-function reloadConfig(channel) {
-  readConfig(CONFIG_FILE, channel).then((data) => {
-    setConfigAndReset(data, channel);
-  }).catch((e) => {
-    sendMessage('Failed to update config', channel);
-    log.warn('Failed to update config: ' + e);
-  });
-}
-
-function readConfig (path) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(require.resolve(path), (e, data) => {
-      if (e) {
-        reject(e);
-      } else {
-        const json = JSON.parse(data);
-        resolve(json);
-      }
-    });
-  });
-}
-
-function readToken(path) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(require.resolve(path), (e, json) => {
-      if (e) {
-        log.error('failed to read token');
-        reject(e);
-      } else {
-        let data = JSON.parse(json);
-        log.info("Read token");
-        resolve(data);
-      }
-    });
-  });
-}
-
-function setConfigAndReset(data, channel) {
-  prefix = data.prefix;
-  commands = data.commands;
-  resetBot(channel);
-}
-
-function addDefaultErrorHandler (promise) {
-  promise.on('Error', e => {
-    log.error('Error in promise handling: ' + e);
-  })
+function defaultErrorHandler (e) {
+  log.error('Error in promise handling: ' + e);
 }
