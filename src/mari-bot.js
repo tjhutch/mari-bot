@@ -4,6 +4,7 @@ let fs = require('fs');
 const CONFIG_FILE = '../config.json';
 const TOKEN_FILE = '../token.json';
 const Logging = require('./Logging.js');
+const Twitch = require('./twitch');
 
 const log = new Logging(!!process.argv[2]);
 
@@ -11,8 +12,15 @@ let bot;
 let prefix, commands, token;
 
 setupBot();
-readToken(TOKEN_FILE);
-readConfig(CONFIG_FILE);
+readToken(TOKEN_FILE).then((data) => {
+  token = data.token;
+  new Twitch(log, data, sendSubMessage);
+}).catch((e) => {
+  log.error('failed while reading token file: ' + e);
+  process.exit(1);
+});
+
+reloadConfig();
 
 function setupBot () {
   bot = new Discord.Client();
@@ -20,6 +28,8 @@ function setupBot () {
     log.info('Mari bot ready for combat!');
   });
 
+  // handling of normal commands
+  // check if we have a command like what's sent, then pass along to the handler function
   bot.on('message', msg => {
     let [importantBit] = msg.content.split(' ');
     importantBit = importantBit.toLowerCase();
@@ -31,6 +41,8 @@ function setupBot () {
     }
   });
 
+  // NEW PHONE WHO DIS
+  // play new phone audio clip when a new user comes into the same channel as the bot
   bot.on('voiceStateUpdate', (oldMember, newMember) => {
     if (bot.voice.connections.size === 0) {
       return;
@@ -48,6 +60,7 @@ function setupBot () {
     }
   });
 
+  // Uh oh
   bot.on('error', (e) => {
     log.error('ERROR: ' + e);
     try {
@@ -59,6 +72,8 @@ function setupBot () {
   });
 }
 
+// Reset the bot (or start it if it's not already running)
+// if channel is given, notify that channel when reset is complete
 function resetBot (channel) {
   if (bot && bot.readyTimestamp) {
     bot.destroy().then(() => {
@@ -75,6 +90,7 @@ function resetBot (channel) {
   }
 }
 
+// breakout command types into their handler functions
 function handleCommand (command, msg) {
   let type = command.type.toLowerCase();
   switch (type) {
@@ -82,15 +98,7 @@ function handleCommand (command, msg) {
       handleAudioCommand(command, msg);
       break;
     case 'stop':
-      let dispatcher = activeVoiceInGuild(msg.guild).dispatcher;
-      if (dispatcher) {
-        try {
-          dispatcher.end();
-        } catch (e) {
-          log.warn('uncaught exception in stop: ' + e);
-          // nothing to do here, just an unfulfilled promise
-        }
-      }
+      stopTalking(msg);
       break;
     case 'text':
       sendMessage(command.response, msg.channel);
@@ -118,11 +126,23 @@ function handleCommand (command, msg) {
       sendHelpMessage(msg);
       break;
     case 'reset':
-      readConfig(CONFIG_FILE, msg.channel);
+      reloadConfig(msg.channel);
       break;
     default:
-      sendMessage('Config\'s fucked. Yell at Taylor to fix it.', msg.channel);
+      sendMessage('Something\'s fucked. Yell at Taylor to fix it.', msg.channel);
       break;
+  }
+}
+
+function stopTalking(msg) {
+  let dispatcher = activeVoiceInGuild(msg.guild).dispatcher;
+  if (dispatcher) {
+    try {
+      dispatcher.end();
+    } catch (e) {
+      log.warn('uncaught exception in stop: ' + e);
+      // nothing to do here, just an unfulfilled promise
+    }
   }
 }
 
@@ -150,6 +170,7 @@ function sendHelpMessage (msg) {
 function sendMessage (message, channel) {
   if (!(message && channel)) {
     log.info('bad message attempt. Message: ' + message + '\nchannel: ' + channel);
+    return;
   }
   if (message.length > 2000) {
     channel.send(message.substring(0, 2000));
@@ -214,6 +235,7 @@ function joinChannel(msg, channelNameOrId, callback) {
     console.info('How did this even happen?\njoinChannel requires either a message or a channel ID');
     return null;
   }
+  // attempt to join channel based on given channel name or ID
   if (!msg && channelNameOrId) {
     const channel = findChannel(channelNameOrId);
     if (channel) {
@@ -223,11 +245,14 @@ function joinChannel(msg, channelNameOrId, callback) {
       log.error('Unable to find channel with name/id ' + channelNameOrId);
     }
     return;
+  } else if(!msg) {
+    log.error('unable to join channel with \nmsg ' + msg + '\nchannel name/id' + channelNameOrId);
   }
   if (!msg.guild) {
     sendMessage('There\'s no guild attached to this message', msg.channel);
     return;
   }
+  // attempt to join channel that the user who sent the message is currently in
   let voice = getUserVoiceConnection(msg.guild, msg.author);
   if (voice) {
     voice.join().then(callback);
@@ -305,33 +330,56 @@ function findChannel (nameOrId) {
   return null;
 }
 
-function readConfig (path, channel) {
-  fs.readFile(require.resolve(path), (err, data) => {
-    if (err) {
-      log.error("failed to read config file " + path);
-      if (channel) {
-        channel.send("Failed to update config");
+function sendSubMessage(streamUrl, servers, user) {
+  let msg = streamUrl + (user.message ? user.message : user.name + ' is now live on twitch!');
+  for (let server of servers) {
+    sendMessage(msg, bot.guilds[server.id].channels[server.channel]);
+  }
+}
+
+// Get or reload configuration from config json file
+// only reloads commands, not streamers or token info
+function reloadConfig(channel) {
+  readConfig(CONFIG_FILE, channel).then((data) => {
+    setConfigAndReset(data, channel);
+  }).catch((e) => {
+    sendMessage('Failed to update config', channel);
+    log.warn('Failed to update config: ' + e);
+  });
+}
+
+function readConfig (path) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(require.resolve(path), (e, data) => {
+      if (e) {
+        reject(e);
+      } else {
+        const json = JSON.parse(data);
+        resolve(json);
       }
-    } else {
-      const json = JSON.parse(data);
-      prefix = json.prefix;
-      commands = json.commands;
-      resetBot(channel);
-    }
+    });
   });
 }
 
 function readToken(path) {
-  fs.readFile(require.resolve(path), (err, json) => {
-    if (err) {
-      log.error('failed to read token');
-      process.exit(1);
-    } else {
-      let data = JSON.parse(json);
-      log.info("Read token");
-      token = data.token;
-    }
+  return new Promise((resolve, reject) => {
+    fs.readFile(require.resolve(path), (e, json) => {
+      if (e) {
+        log.error('failed to read token');
+        reject(e);
+      } else {
+        let data = JSON.parse(json);
+        log.info("Read token");
+        resolve(data);
+      }
+    });
   });
+}
+
+function setConfigAndReset(data, channel) {
+  prefix = data.prefix;
+  commands = data.commands;
+  resetBot(channel);
 }
 
 function addDefaultErrorHandler (promise) {
