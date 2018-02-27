@@ -320,11 +320,9 @@ function findChannel (nameOrId) {
       console.warn('guild ' + guilds[i] + ' is unavailable at this time');
       continue;
     }
-    let channels = guilds[i].channels.array();
-    for (let j = 0; j < channels.length; j++) {
-      if (channels[j].name === nameOrId || channels[j].id === nameOrId) {
-        return channels[j];
-      }
+    let channel = guilds[i].channels.filter(channel => channel.name === nameOrId || channel.id === nameOrId);
+    if (channel && channel.size) {
+      return channel.first();
     }
   }
   return null;
