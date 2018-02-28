@@ -12,9 +12,9 @@ let prefix, commands, token;
 
 configureBot();
 config.readToken().then((data) => {
-  token = data.token;
+  token = data.discordToken;
   // init twitch stream watcher
-  new TwitchWebhookHandler(log, data, sendSubMessage);
+  new TwitchWebhookHandler(log, data, config, sendSubMessage);
   return config.readConfig();
 }).then((data) => {
   prefix = data.prefix;
@@ -333,10 +333,10 @@ function findChannel (nameOrId) {
   return null;
 }
 
-function sendSubMessage(streamUrl, servers, user) {
-  let msg = streamUrl + (user.message ? user.message : user.name + ' is now live on twitch!');
-  for (let server of servers) {
-    sendMessage(msg, bot.guilds[server.id].channels[server.channel]);
+function sendSubMessage(streamer) {
+  let msg = (streamer.message ? streamer.message : streamer.name + ' is now live on twitch! https://www.twitch.tv/' + streamer.name);
+  for (let server of streamer.servers) {
+    sendMessage(msg, bot.guilds.get(server.id).channels.get(server.channel));
   }
 }
 

@@ -2,6 +2,7 @@ const TwitchWebhook = require('twitch-webhook');
 const fs = require('fs');
 const localTunnel = require('localtunnel');
 let log;
+let streamUpTimes = {};
 
 module.exports = class TwitchWebhookHandler {
 
@@ -45,27 +46,40 @@ module.exports = class TwitchWebhookHandler {
       listen: {
         port: '8492',
         host: '127.0.0.1',    // default: 0.0.0.0
-        autoStart: false      // default: true
+        autoStart: true      // default: true
       }
     });
 
 // set listener for all topics
     twitchWebhook.on('*', ({ topic, options, endpoint, event }) => {
       // topic name, for example "streams"
-      log.info(topic);
+      //log.info(topic);
       // topic options, for example "{user_id: 12826}"
-      log.info(options);
+      //log.info(options);
       // full topic URL, for example
       // "https://api.twitch.tv/helix/streams?user_id=12826"
-      log.info(endpoint);
+      //log.info(endpoint);
       // topic data, timestamps are automatically converted to Date
-      log.info(event);
+      //log.info(event);
     });
 
     // set listener for topic
     twitchWebhook.on('streams', ({ topic, options, endpoint, event }) => {
       log.info(event);
-      //TODO: get required guild/channel data and call this.subCallback
+      if (!event.data.length) {
+        log.info("Skipping notification for stream down");
+        return;
+      }
+      const [ data ] = event.data;
+      let [ streamer ] = this.streamers.filter((streamer) => {
+        return streamer.id === data.user_id;
+      });
+      if (!streamUpTimes[streamer.id] || streamUpTimes[streamer.id] !== data.started_at) {
+        this.subCallback(streamer);
+        streamUpTimes[streamer.id] = data.started_at;
+      } else {
+        log.info('stream for user ' + streamer.name + ' is already up, not sending notification');
+      }
     });
 
     // subscribe to topic
