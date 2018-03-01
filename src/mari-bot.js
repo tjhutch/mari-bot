@@ -8,22 +8,28 @@ const log = new Logger(!!process.argv[2]);
 const config = new ConfigManager(log);
 
 let bot;
-let prefix, commands, token;
+let prefix, commands, token, commandsUpdated = false;
 
 configureBot();
 config.readToken().then((data) => {
   token = data.discordToken;
   // init twitch stream watcher
-  new TwitchWebhookHandler(log, data, config, sendSubMessage);
+  //new TwitchWebhookHandler(log, data, config, sendSubMessage);
   return config.readConfig();
-}).then((data) => {
-  prefix = data.prefix;
-  commands = data.commands;
-  // start your engines!
-  resetBot();
-}).catch((e) => {
+}).then(setConfigAndReset)
+  .then(() => config.readMemes())
+  .then((memes) => {
+    commands.meme = memes;
+  }).catch((e) => {
   log.error('failed while reading configuration file: ' + e);
   process.exit(1);
+});
+
+process.on('SIGINT', () => {
+  // write new memes
+  const fs = require('fs');
+  const util = require('util');
+  fs.writeFileSync("./config/memes.json", util.inspect(commands.meme), 'utf-8');
 });
 
 // sets all the handlers for bot actions
@@ -36,11 +42,25 @@ function configureBot () {
   // handling of normal commands
   // check if we have a command like what's sent, then pass along to the handler function
   bot.on('message', msg => {
+    // don't respond to your own messages
+    if (msg.author.username === 'mari-bot') {
+      return;
+    }
+    // storing memes for later use
+    if (msg.guild.name === 'But Why Tho' && msg.channel.name === "spicy_memes") {
+      if (isURL(msg.content)) {
+        commands.meme.urls.push(msg.content);
+        commandsUpdated = true;
+      }
+    }
+    if (!msg.content.startsWith(prefix)) {
+      return;
+    }
     let [importantBit] = msg.content.split(' ');
-    importantBit = importantBit.toLowerCase();
+    importantBit = importantBit.toLowerCase().slice(1);
     log.info('Received: ' + importantBit);
     for (let command in commands) {
-      if (importantBit === prefix + command && commands.hasOwnProperty(command)) {
+      if (importantBit === command && commands.hasOwnProperty(command)) {
         handleCommand(commands[command], msg);
       }
     }
@@ -66,7 +86,7 @@ function configureBot () {
   });
 
   // Uh oh
-  bot.on('error', (e) => {
+  bot.on('Error', (e) => {
     log.error('ERROR bot crashed!: ' + e);
     try {
       resetBot();
@@ -75,6 +95,16 @@ function configureBot () {
       process.exit(1);
     }
   });
+}
+
+function isURL(str) {
+  const pattern = new RegExp('^(https?:\\/\\/)'+ // protocol
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  return pattern.test(str);
 }
 
 // Reset the bot (or start it if it's not already running)
@@ -118,12 +148,12 @@ function handleCommand (command, msg) {
       }
       break;
     case 'go':
-      let channelName = msg.content.substring(4);
+      const channelName = msg.content.substring(4);
       log.info('Moving to: ' + channelName);
       joinChannel(null, channelName);
       break;
     case 'meme':
-      let urls = command.urls.split(',');
+      const urls = command.urls;
       let url = urls[Math.floor(Math.random() * urls.length)];
       sendMessage(url, msg.channel);
       break;
@@ -131,12 +161,21 @@ function handleCommand (command, msg) {
       sendHelpMessage(msg);
       break;
     case 'reset':
-      reloadConfig(msg.channel);
+      config.readConfig().then((data) => {
+        setConfigAndReset(data, msg.channel);
+      });
       break;
     default:
       sendMessage('Something\'s fucked. Yell at Taylor to fix it.', msg.channel);
       break;
   }
+}
+
+function setConfigAndReset(data, channel) {
+  prefix = data.prefix;
+  commands = data.commands;
+  // start your engines!
+  resetBot(channel);
 }
 
 function stopTalkingInGuild(guild) {
@@ -154,22 +193,26 @@ function stopTalkingInGuild(guild) {
 function sendHelpMessage (msg) {
   let audio = '';
   let texts = '';
-  let help = '';
+  let general = '';
   for (let command in commands) {
-    if (commands.hasOwnProperty(command) && commands[command].type === 'audio') {
+    if (!commands.hasOwnProperty(command)) {
+      continue;
+    }
+    let type = commands[command].type;
+    if (type === 'audio') {
       audio += command + ', ';
-    } else if (commands[command].type === 'text') {
+    } else if (type === 'text') {
       texts += command + ', ';
     } else {
-      if (!(commands[command].type === 'meme' || commands[command].type === 'broken')) {
-        help += command + ', ';
+      if (!(type === 'meme' || type === 'broken')) {
+        general += command + ', ';
       }
     }
   }
-  audio = audio.substring(0, audio.length - 2);
-  texts = texts.substring(0, texts.length - 2);
-  help = help.substring(0, help.length - 2);
-  sendMessage('Commands:\n\nHelp:\n' + help + '\n\nAudio:\n' + audio + '\n\nText:\n' + texts + '\n\nMemes:\nmeme', msg.channel);
+  audio = audio.substr(0, audio.length - 2);
+  texts = texts.substr(0, texts.length - 2);
+  general = general.substr(0, general.length - 2);
+  sendMessage('Commands:\n\nGeneral:\n' + general + '\n\nAudio:\n' + audio + '\n\nText:\n' + texts + '\n\nMemes:\nmeme', msg.channel);
 }
 
 function sendMessage (message, channel) {
@@ -177,9 +220,13 @@ function sendMessage (message, channel) {
     log.info('bad message attempt. Message: ' + message + '\nchannel: ' + channel);
     return;
   }
+  // discord maximum message length is 2000
+  // if the message is too long, break it up into 2000 character chunks
   if (message.length > 2000) {
-    channel.send(message.substring(0, 2000));
-    channel.send(message.substring(2000));
+    channel.send(message.substr(0, 2000));
+    for (let i = 2000; i < message.length; i += 2000) {
+      channel.send(message.substr(i, 2000));
+    }
   } else {
     channel.send(message);
   }
@@ -215,15 +262,6 @@ function handleAudioCommand(command, msg) {
       console.error('handleAudioCommand error: ' + e);
     }
   }
-}
-
-function getBotVoiceChannel(channelId) {
-  for (let voiceConnection of bot.voice.connections.values()) {
-    if (voiceConnection.channel.id === channelId) {
-      return voiceConnection.channel;
-    }
-  }
-  return null;
 }
 
 function getBotVoiceConnection(channelId) {
@@ -282,9 +320,12 @@ function getMessageVoiceChannelId(msg) {
 }
 
 function getFileForCommand (command) {
-  let files = command.files.split(',');
-  let file = files[Math.floor(Math.random() * files.length)];
-  file = file.trim();
+  const files = command.files;
+  if (!files) {
+    log.error('No files attached to this command...?');
+    return "";
+  }
+  const file = files[Math.floor(Math.random() * files.length)];
   return command.folder + '/' + file + '.mp3';
 }
 

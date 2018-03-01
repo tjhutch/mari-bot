@@ -10,43 +10,28 @@ module.exports = class ConfigManager {
 // only reloads commands, not streamers or token info
 
   readConfig() {
-    return new Promise((resolve, reject) => {
-      fs.readFile(require.resolve('config/commands.json'), (e, data) => {
-        if (e) {
-          reject(e);
-        } else {
-          const json = JSON.parse(data);
-          resolve(json);
-        }
-      });
-    });
+    return this.readFile('./config/commands.json');
   };
 
   readToken() {
-    return new Promise((resolve, reject) => {
-      fs.readFile(require.resolve('config/token.json'), (e, json) => {
-        if (e) {
-          log.error('failed to read tokens');
-          reject(e);
-        } else {
-          let data = JSON.parse(json);
-          log.info('Read token');
-          resolve(data);
-        }
-      });
-    });
+    return this.readFile('./config/tokens.json');
   };
 
   readStreamers() {
+    return this.readFile('./config/twitchStreamers.json');
+  }
+
+  readMemes() {
+    return this.readFile('./config/memes.json')
+  }
+
+  readFile(path) {
     return new Promise((resolve, reject) => {
-      fs.readFile('config/twitchStreamers.json', null, (e, json) => {
+      fs.readFile(path, null, (e, json) => {
         if (e) {
-          log.error('failed to read twitch streamers');
           reject(e);
         } else {
-          let streamers = JSON.parse(json);
-          log.info('Read twitch streamers');
-          resolve(streamers);
+          resolve(JSON.parse(json));
         }
       });
     });
