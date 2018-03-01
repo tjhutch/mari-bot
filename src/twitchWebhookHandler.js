@@ -67,11 +67,11 @@ module.exports = class TwitchWebhookHandler {
     twitchWebhook.on('streams', ({ topic, options, endpoint, event }) => {
       log.info(event);
       if (!event.data.length) {
-        log.info("Skipping notification for stream down");
+        log.info('Skipping notification for stream down');
         return;
       }
-      const [ data ] = event.data;
-      let [ streamer ] = this.streamers.filter((streamer) => {
+      const [data] = event.data;
+      let [streamer] = this.streamers.filter((streamer) => {
         return streamer.id === data.user_id;
       });
       if (!streamUpTimes[streamer.id] || streamUpTimes[streamer.id] !== data.started_at) {
@@ -95,15 +95,14 @@ module.exports = class TwitchWebhookHandler {
       log.warn('Got unsubbed from a stream, resubbing ' + obj);
     });
 
-    // tell TwitchWebhookHandler that we no longer listen
-    // otherwise it will try to send events to a down app
-    process.on('SIGINT', () => {
-      // unsubscribe from all topics
-      twitchWebhook.unsubscribe('*');
-      log.info('Unsubbed from all twitch hooks');
-      process.exit(0);
-    });
-    log.info("Subscribed to streams");
+    log.info('Subscribed to streams');
+  }
+
+  // tell TwitchWebhookHandler that we no longer listen otherwise it will try to send events to a down app
+  // this will be called from mari-bot default on exit handling method
+  unsubFromAll() {
+    twitchWebhook.unsubscribe('*');
+    log.info('Unsubbed from all twitch hooks');
   }
 };
 

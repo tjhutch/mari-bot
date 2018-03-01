@@ -8,13 +8,18 @@ const log = new Logger(!!process.argv[2]);
 const config = new ConfigManager(log);
 
 let bot;
-let prefix, commands, token, commandsUpdated = false;
+let prefix;
+let commands;
+let token;
+let commandsUpdated = false;
+let twitch;
+let saved = false;
 
 configureBot();
 config.readToken().then((data) => {
   token = data.discordToken;
   // init twitch stream watcher
-  //new TwitchWebhookHandler(log, data, config, sendSubMessage);
+  //twitch = new TwitchWebhookHandler(log, data, config, sendSubMessage);
   return config.readConfig();
 }).then(setConfigAndReset)
   .then(() => config.readMemes())
@@ -25,15 +30,26 @@ config.readToken().then((data) => {
   process.exit(1);
 });
 
-process.on('SIGINT', () => {
-  // write new memes
-  const fs = require('fs');
-  const util = require('util');
-  fs.writeFileSync("./config/memes.json", util.inspect(commands.meme), 'utf-8');
-});
+process.on('SIGINT', onExit);
+process.on('SIGTERM', onExit);
+process.on('exit', onExit);
+
+function onExit() {
+  if (!saved) {
+    if (commandsUpdated) {
+      config.saveMemes(commands.meme);
+      log.info('saved memes');
+    }
+    if (twitch) {
+      twitch.unsubFromAll();
+    }
+    saved = true;
+  }
+  process.exit(0);
+}
 
 // sets all the handlers for bot actions
-function configureBot () {
+function configureBot() {
   bot = new Discord.Client();
   bot.on('ready', () => {
     log.info('Mari bot ready for combat!');
@@ -47,11 +63,10 @@ function configureBot () {
       return;
     }
     // storing memes for later use
-    if (msg.guild.name === 'But Why Tho' && msg.channel.name === "spicy_memes") {
-      if (isURL(msg.content)) {
-        commands.meme.urls.push(msg.content);
-        commandsUpdated = true;
-      }
+    if (msg.channel && msg.channel.name && msg.channel.name.includes('memes') && isURL(msg.content)) {
+      commands.meme.urls.push(msg.content);
+      commandsUpdated = true;
+      log.info('Added a new meme to my collection: \n' + msg.content);
     }
     if (!msg.content.startsWith(prefix)) {
       return;
@@ -98,18 +113,18 @@ function configureBot () {
 }
 
 function isURL(str) {
-  const pattern = new RegExp('^(https?:\\/\\/)'+ // protocol
-    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ // domain name
-    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  const pattern = new RegExp('^(https?:\\/\\/)' + // protocol
+    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' + // domain name
+    '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+    '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+    '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
   return pattern.test(str);
 }
 
 // Reset the bot (or start it if it's not already running)
 // if channel is given, notify that channel when reset is complete
-function resetBot (channel) {
+function resetBot(channel) {
   if (bot && bot.readyTimestamp) {
     bot.destroy().then(() => {
       bot.login(token);
@@ -126,7 +141,7 @@ function resetBot (channel) {
 }
 
 // breakout command types into their handler functions
-function handleCommand (command, msg) {
+function handleCommand(command, msg) {
   let type = command.type.toLowerCase();
   switch (type) {
     case 'audio':
@@ -190,7 +205,7 @@ function stopTalkingInGuild(guild) {
   }
 }
 
-function sendHelpMessage (msg) {
+function sendHelpMessage(msg) {
   let audio = '';
   let texts = '';
   let general = '';
@@ -215,7 +230,7 @@ function sendHelpMessage (msg) {
   sendMessage('Commands:\n\nGeneral:\n' + general + '\n\nAudio:\n' + audio + '\n\nText:\n' + texts + '\n\nMemes:\nmeme', msg.channel);
 }
 
-function sendMessage (message, channel) {
+function sendMessage(message, channel) {
   if (!(message && channel)) {
     log.info('bad message attempt. Message: ' + message + '\nchannel: ' + channel);
     return;
@@ -288,7 +303,7 @@ function joinChannel(msg, channelNameOrId, callback) {
       log.error('Unable to find channel with name/id ' + channelNameOrId);
     }
     return;
-  } else if(!msg) {
+  } else if (!msg) {
     log.error('unable to join channel with \nmsg ' + msg + '\nchannel name/id' + channelNameOrId);
   }
   if (!msg.guild) {
@@ -304,7 +319,7 @@ function joinChannel(msg, channelNameOrId, callback) {
   }
 }
 
-function getUserVoiceConnection (guild, user) {
+function getUserVoiceConnection(guild, user) {
   if (!guild.available) {
     return null;
   }
@@ -319,11 +334,11 @@ function getMessageVoiceChannelId(msg) {
   return msg.guild.member(msg.author).voiceChannelID;
 }
 
-function getFileForCommand (command) {
+function getFileForCommand(command) {
   const files = command.files;
   if (!files) {
     log.error('No files attached to this command...?');
-    return "";
+    return '';
   }
   const file = files[Math.floor(Math.random() * files.length)];
   return command.folder + '/' + file + '.mp3';
@@ -355,7 +370,7 @@ function activeVoiceInGuild(guild) {
   }
 }
 
-function findChannel (nameOrId) {
+function findChannel(nameOrId) {
   if (!nameOrId) {
     console.error('findChannel requires a name or id');
     return null;
@@ -381,6 +396,6 @@ function sendSubMessage(streamer) {
   }
 }
 
-function defaultErrorHandler (e) {
+function defaultErrorHandler(e) {
   log.error('Error in promise handling: ' + e);
 }

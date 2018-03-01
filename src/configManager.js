@@ -11,18 +11,25 @@ module.exports = class ConfigManager {
 
   readConfig() {
     return this.readFile('./config/commands.json');
-  };
+  }
 
   readToken() {
     return this.readFile('./config/tokens.json');
-  };
+  }
 
   readStreamers() {
     return this.readFile('./config/twitchStreamers.json');
   }
 
   readMemes() {
-    return this.readFile('./config/memes.json')
+    return this.readFile('./config/memes.json');
+  }
+
+  saveMemes(memes) {
+    // write new memes
+    const fs = require('fs');
+    const util = require('util');
+    fs.writeFileSync('./config/memes.json', JSON.stringify(memes, null, 2), 'utf-8');
   }
 
   readFile(path) {
