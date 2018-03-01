@@ -1,8 +1,8 @@
 const TwitchWebhook = require('twitch-webhook');
-const fs = require('fs');
-const localTunnel = require('localtunnel');
+const ngrok = require('ngrok');
 let log;
 let streamUpTimes = {};
+let twitchWebhook;
 
 module.exports = class TwitchWebhookHandler {
 
@@ -15,10 +15,10 @@ module.exports = class TwitchWebhookHandler {
 
     configManager.readStreamers().then((streamers) => {
       this.streamers = streamers;
-      //  return new Promise(this.startTunnel);
-      //}).then((tunnel) => {
-      //  log.info("Tunnel created");
-      //  this.tunnel = tunnel;
+        return new Promise(this.startTunnel);
+      }).then((url) => {
+        log.info("Tunnel created");
+        this.callbackUrl = url;
       this.subscribeToStreams();
     }).catch((e) => {
       log.error('Error while setting up twitch webhooks: ' + e);
@@ -26,20 +26,19 @@ module.exports = class TwitchWebhookHandler {
   }
 
   startTunnel(resolve, reject) {
-    localTunnel('8492', { subdomain: 'maribot' }, (e, tunnel) => {
+    ngrok.connect(8492,  (e, url) => {
       if (e) {
-        log.info('failed to connect to local tunnel: ' + e);
+        log.info('failed to connect to ngrok: ' + e);
         reject(e);
       } else {
-        log.info('Tunnel connected at url ' + tunnel.url);
-        this.callbackUrl = tunnel.url;
-        resolve(tunnel);
+        log.info('ngrok connected at url ' + url);
+        resolve(url);
       }
     });
   }
 
   subscribeToStreams() {
-    const twitchWebhook = new TwitchWebhook({
+    twitchWebhook = new TwitchWebhook({
       client_id: this.clientId,
       callback: this.callbackUrl,
       secret: this.secret,
@@ -51,7 +50,7 @@ module.exports = class TwitchWebhookHandler {
     });
 
 // set listener for all topics
-    twitchWebhook.on('*', ({ topic, options, endpoint, event }) => {
+    //twitchWebhook.on('*', ({ topic, options, endpoint, event }) => {
       // topic name, for example "streams"
       //log.info(topic);
       // topic options, for example "{user_id: 12826}"
@@ -61,7 +60,7 @@ module.exports = class TwitchWebhookHandler {
       //log.info(endpoint);
       // topic data, timestamps are automatically converted to Date
       //log.info(event);
-    });
+    //});
 
     // set listener for topic
     twitchWebhook.on('streams', ({ topic, options, endpoint, event }) => {
@@ -101,8 +100,13 @@ module.exports = class TwitchWebhookHandler {
   // tell TwitchWebhookHandler that we no longer listen otherwise it will try to send events to a down app
   // this will be called from mari-bot default on exit handling method
   unsubFromAll() {
-    twitchWebhook.unsubscribe('*');
+    if (twitchWebhook) {
+      twitchWebhook.unsubscribe('*');
+    }
     log.info('Unsubbed from all twitch hooks');
+    ngrok.disconnect();
+    ngrok.kill();
+    log.info('killed ngrok');
   }
 };
 

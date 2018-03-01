@@ -19,7 +19,7 @@ configureBot();
 config.readToken().then((data) => {
   token = data.discordToken;
   // init twitch stream watcher
-  //twitch = new TwitchWebhookHandler(log, data, config, sendSubMessage);
+  twitch = new TwitchWebhookHandler(log, data, config, sendSubMessage);
   return config.readConfig();
 }).then(setConfigAndReset)
   .then(() => config.readMemes())
