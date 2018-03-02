@@ -9,7 +9,7 @@ module.exports = class ConfigManager {
 // Get or reload configuration from config json file
 // only reloads commands, not streamers or token info
 
-  readConfig() {
+  readCommands() {
     return this.readFile('./config/commands.json');
   }
 

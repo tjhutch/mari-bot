@@ -1,27 +1,29 @@
 const EventLogger = require('node-windows').EventLogger;
 const log = new EventLogger('Mari Bot');
 
-module.exports = function Logging (logToConsole) {
-  this.logToConsole = logToConsole;
+class Logging {
+  constructor(logToConsole) {
+    this.logToConsole = logToConsole;
+  }
 
-  this.info = function info(s) {
+  info(s) {
     if (this.logToConsole) {
       console.log(s);
     }
     else {
       log.info(s);
     }
-  };
+  }
 
-  this.warn = function warn(s) {
+  warn(s) {
     if (this.logToConsole) {
       console.warn(s);
     } else {
       log.warn(s);
     }
-  };
+  }
 
-  this.error = function error(s) {
+  error(s) {
     log.error(s);
     if (this.logToConsole) {
       console.error(s);
@@ -29,4 +31,23 @@ module.exports = function Logging (logToConsole) {
       log.warn(s);
     }
   };
+}
+
+function checkConsoleLogging() {
+  if (process.argv) {
+    for (let value of process.argv) {
+      if (/^(--log-to-console|-l)/.test(value)) {
+        return true;
+      }
+    }
+  }
+}
+
+const logger = new Logging(checkConsoleLogging());
+function getLogger() {
+  return logger;
+}
+
+module.exports = {
+  getLogger
 };

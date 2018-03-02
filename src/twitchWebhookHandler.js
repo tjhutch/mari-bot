@@ -1,16 +1,14 @@
 const TwitchWebhook = require('twitch-webhook');
 const ngrok = require('ngrok');
-let log;
+const log = require('./logger').getLogger();
 let streamUpTimes = {};
 let twitchWebhook;
 
 module.exports = class TwitchWebhookHandler {
 
-  constructor(logger, tokenData, configManager, subCallback) {
-    log = logger;
+  constructor(tokenData, configManager, subCallback) {
     this.secret = tokenData.twitchToken;
     this.clientId = tokenData.twitchClientId;
-    this.callbackUrl = getCallbackUrl();
     this.subCallback = subCallback;
 
     configManager.readStreamers().then((streamers) => {
@@ -109,13 +107,3 @@ module.exports = class TwitchWebhookHandler {
     log.info('killed ngrok');
   }
 };
-
-function getCallbackUrl() {
-  if (process.argv) {
-    for (let value of process.argv) {
-      if (/^--url/.test(value)) {
-        return value.split('=')[1];
-      }
-    }
-  }
-}
