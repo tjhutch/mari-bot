@@ -1,6 +1,13 @@
 {
   "But Why Tho": {
-    "roles": []
+    "channels": [
+      "maribot_commandments"
+    ],
+    "roles": [
+      "admin",
+      "Bot Commander",
+      "member"
+    ]
   },
   "Bot Testing Grounds": {
     "channels": [
@@ -10,6 +17,9 @@
   "MARI-BOTS": {
     "channels": [
       "botcommands"
+    ],
+    "roles": [
+      "admin"
     ]
   }
 }

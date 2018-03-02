@@ -27,9 +27,9 @@ config.readToken()
   .then((permissions) => {
     guildPerms = permissions;
   })
-  .then(() => config.readMemes())
   .then(() => config.readConfig())
   .then(setConfigAndReset)
+  .then(() => config.readMemes())
   .then((memes) => {
     commands.meme = memes;
   }).catch((e) => {
@@ -75,13 +75,23 @@ function configureBot() {
       commandsUpdated = true;
       log.info('Added a new meme to my collection: \n' + msg.content);
     }
-    // check if this is a channel that the bot should read
-    if (guildPerms[msg.guild.name] &&
-      !guildPerms[msg.guild.name].channels.filter((channelName) => msg.channel.name === channelName).length) {
-      return;
-    }
+
+    // ignore if message doesn't start with the prefix
     if (!msg.content.startsWith(prefix)) {
       return;
+    }
+
+    // check if this is a channel that the bot should read
+    if (msg.channel.guild && guildPerms[msg.guild.name]) { // make sure this isn't a PM and we have perms for this guild
+      let guildPermission = guildPerms[msg.guild.name];
+      if (!botCanPostToChannel(guildPermission.channels, msg.channel)) { // make sure this channel is ok to use
+        msg.author.send('Sorry, you can\'t use mari-bot from ' + msg.channel.name + ' in ' + msg.channel.guild.name);
+        return;
+      }
+      if (!userAllowedToUseBot(guildPermission.roles, msg.member.roles)) { // make sure user is allowed to use bot
+        msg.author.send("Sorry, you don't have permission to use mari-bot in " + msg.channel.guild.name);
+        return;
+      }
     }
     let [importantBit] = msg.content.split(' ');
     importantBit = importantBit.toLowerCase().slice(1);
@@ -132,6 +142,27 @@ function isURL(str) {
     '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
     '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
   return pattern.test(str);
+}
+
+function userAllowedToUseBot(allowedRoles, userRoles) {
+  // if no options, assume all are allowed
+  if (!allowedRoles) {
+    return true;
+  }
+  for (let role of allowedRoles) {
+    if (userRoles.filter((userRole) => userRole.name.toLowerCase() === role.toLowerCase()).size) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function botCanPostToChannel(allowedChannels, channel) {
+  // if no options, assume all are allowed
+  if (!allowedChannels) {
+    return true;
+  }
+  return !!allowedChannels.filter((channelName) => channel.name === channelName).length
 }
 
 // Reset the bot (or start it if it's not already running)
@@ -388,12 +419,12 @@ function findChannel(nameOrId) {
     return null;
   }
   let guilds = bot.guilds.array();
-  for (let i = 0; i < guilds.length; i++) {
-    if (!guilds[i].available) {
-      console.warn('guild ' + guilds[i] + ' is unavailable at this time');
+  for (let guild of guilds) {
+    if (!guild.available) {
+      log.warn('guild ' + guild + ' is unavailable at this time');
       continue;
     }
-    let channel = guilds[i].channels.filter(channel => channel.name === nameOrId || channel.id === nameOrId);
+    let channel = guild.channels.filter(channel => channel.name === nameOrId || channel.id === nameOrId);
     if (channel && channel.size) {
       return channel.first();
     }
