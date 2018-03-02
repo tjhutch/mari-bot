@@ -14,19 +14,26 @@ let token;
 let commandsUpdated = false;
 let twitch;
 let saved = false;
+let guildPerms;
 
 configureBot();
-config.readToken().then((data) => {
-  token = data.discordToken;
-  // init twitch stream watcher
-  twitch = new TwitchWebhookHandler(log, data, config, sendSubMessage);
-  return config.readConfig();
-}).then(setConfigAndReset)
+config.readToken()
+  .then((data) => {
+    token = data.discordToken;
+    // init twitch stream watcher
+    twitch = new TwitchWebhookHandler(log, data, config, sendSubMessage);
+  })
+  .then(() => config.readGuildPermissions())
+  .then((permissions) => {
+    guildPerms = permissions;
+  })
   .then(() => config.readMemes())
+  .then(() => config.readConfig())
+  .then(setConfigAndReset)
   .then((memes) => {
     commands.meme = memes;
   }).catch((e) => {
-  log.error('failed while reading configuration file: ' + e);
+  log.error('failed while reading configuration files: ' + e);
   process.exit(1);
 });
 
@@ -67,6 +74,11 @@ function configureBot() {
       commands.meme.urls.push(msg.content);
       commandsUpdated = true;
       log.info('Added a new meme to my collection: \n' + msg.content);
+    }
+    // check if this is a channel that the bot should read
+    if (guildPerms[msg.guild.name] &&
+      !guildPerms[msg.guild.name].channels.filter((channelName) => msg.channel.name === channelName).length) {
+      return;
     }
     if (!msg.content.startsWith(prefix)) {
       return;

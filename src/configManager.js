@@ -25,10 +25,13 @@ module.exports = class ConfigManager {
     return this.readFile('./config/memes.json');
   }
 
+  readGuildPermissions() {
+    return this.readFile('./config/guildPermissions.json');
+  }
+
   saveMemes(memes) {
     // write new memes
     const fs = require('fs');
-    const util = require('util');
     fs.writeFileSync('./config/memes.json', JSON.stringify(memes, null, 2), 'utf-8');
   }
 

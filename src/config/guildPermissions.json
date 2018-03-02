@@ -1,0 +1,15 @@
+{
+  "But Why Tho": {
+    "roles": []
+  },
+  "Bot Testing Grounds": {
+    "channels": [
+      "botcommands"
+    ]
+  },
+  "MARI-BOTS": {
+    "channels": [
+      "botcommands"
+    ]
+  }
+}
