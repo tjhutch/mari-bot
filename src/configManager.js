@@ -1,19 +1,11 @@
 const fs = require('fs');
-let log;
 
-module.exports = class ConfigManager {
-  constructor(logger) {
-    log = logger;
-  }
-
-// Get or reload configuration from config json file
-// only reloads commands, not streamers or token info
-
+class ConfigManager {
   readCommands() {
     return this.readFile('./config/commands.json');
   }
 
-  readToken() {
+  readTokens() {
     return this.readFile('./config/tokens.json');
   }
 
@@ -30,7 +22,6 @@ module.exports = class ConfigManager {
   }
 
   saveMemes(memes) {
-    // write new memes
     const fs = require('fs');
     fs.writeFileSync('./config/memes.json', JSON.stringify(memes, null, 2), 'utf-8');
   }
@@ -46,4 +37,15 @@ module.exports = class ConfigManager {
       });
     });
   }
+}
+
+const manager = new ConfigManager();
+
+function getConfigManager() {
+  return manager;
+}
+
+// exporting this instead of the class makes my IDE realize that the class methods exist
+module.exports = {
+  getConfigManager
 };

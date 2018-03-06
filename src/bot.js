@@ -42,6 +42,7 @@ class Bot {
   // NEW PHONE WHO DIS
   // play new phone audio clip when a new user comes into the same channel as the bot
   newPhoneWhoDis(oldMember, newMember) {
+    // discord.ja docs say to use bot.voiceConnections... BUT IT DOESN'T EXIST
     if (this.bot.voice.connections.size === 0) {
       return;
     }
@@ -78,7 +79,8 @@ class Bot {
     }
 
     // check if this is a channel that the bot should read
-    if (msg.channel.guild && this.guildPerms[msg.guild.name]) { // make sure this isn't a PM and we have perms for this guild
+    // if no registered settings assume no restrictions
+    if (msg.channel.guild && this.guildPerms[msg.guild.name]) { // make sure this isn't a PM
       let guildPermission = this.guildPerms[msg.guild.name];
       if (!this.botCanPostToChannel(guildPermission.channels, msg.channel)) { // make sure this channel is ok to use
         msg.author.send('Sorry, you can\'t use mari-bot from ' + msg.channel.name + ' in ' + msg.channel.guild.name);
@@ -89,14 +91,16 @@ class Bot {
         return;
       }
     }
+    // commands can't have spaces, remove anything beyond the first space
     let [importantBit] = msg.content.split(' ');
+    // cut out the prefix
     importantBit = importantBit.toLowerCase().slice(1);
     log.info('Received: ' + importantBit);
     for (let command in this.commands) {
       if (!this.commands.hasOwnProperty(command)) {
         continue;
       }
-      if (importantBit === command && this.commands.hasOwnProperty(command)) {
+      if (importantBit === command) {
         this.handleCommand(this.commands[command], msg);
       }
     }

@@ -1,17 +1,18 @@
 const TwitchWebhook = require('twitch-webhook');
 const ngrok = require('ngrok');
 const log = require('./logger').getLogger();
+const config = require('./configManager').getConfigManager();
 let streamUpTimes = {};
 let twitchWebhook;
 
 module.exports = class TwitchWebhookHandler {
 
-  constructor(tokenData, configManager, subCallback) {
+  constructor(tokenData, subCallback) {
     this.secret = tokenData.twitchToken;
     this.clientId = tokenData.twitchClientId;
     this.subCallback = subCallback;
 
-    configManager.readStreamers().then((streamers) => {
+    config.readStreamers().then((streamers) => {
       this.streamers = streamers;
         return new Promise(this.startTunnel);
       }).then((url) => {

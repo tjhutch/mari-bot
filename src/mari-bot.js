@@ -1,13 +1,11 @@
 const TwitchWebhookHandler = require('./twitchWebhookHandler');
-const ConfigManager = require('./configManager');
+const config = require('./configManager').getConfigManager();
 const Bot = require('./bot');
 
 // init logger and config utility
 const log = require('./logger').getLogger();
-const config = new ConfigManager(log);
 
 let bot;
-let commandsUpdated = false;
 let twitch;
 let saved = false;
 
@@ -15,10 +13,10 @@ let saved = false;
 // values[1] = memes
 // values[2] = tokens
 // values[3] = guild permissions
-Promise.all([config.readCommands(), config.readMemes(), config.readToken(), config.readGuildPermissions()]).then((values) => {
+Promise.all([config.readCommands(), config.readMemes(), config.readTokens(), config.readGuildPermissions()]).then((values) => {
   values[0].meme = values[1];
   bot = new Bot(values[0], values[2].discordToken, values[3], config);
-  twitch = new TwitchWebhookHandler(values[2], config, bot.sendSubMessage);
+  twitch = new TwitchWebhookHandler(values[2], bot.sendSubMessage);
 });
 
 process.on('SIGINT', onExit);
@@ -27,7 +25,7 @@ process.on('exit', onExit);
 
 function onExit() {
   if (!saved) {
-    if (commandsUpdated) {
+    if (bot.commandsUpdated) {
       config.saveMemes(bot.commands.meme);
       log.info('saved memes');
     }

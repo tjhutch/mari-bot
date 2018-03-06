@@ -80,6 +80,7 @@ function getBotVoiceConnection(channelId, bot) {
 }
 
 function joinChannel(msg, channelNameOrId, callback) {
+  let joinPromise;
   if (!msg && !channelNameOrId) {
     console.info('How did this even happen?\njoinChannel requires either a message or a channel ID');
     return null;
@@ -88,7 +89,10 @@ function joinChannel(msg, channelNameOrId, callback) {
   if (!msg && channelNameOrId) {
     const channel = findChannel(channelNameOrId);
     if (channel) {
-      channel.join().then(callback);
+      joinPromise = channel.join().catch(utils.defaultErrorHandler);
+      if (callback) {
+        joinPromise.then(callback);
+      }
       return;
     } else {
       log.error('Unable to find channel with name/id ' + channelNameOrId);
@@ -104,7 +108,10 @@ function joinChannel(msg, channelNameOrId, callback) {
   // attempt to join channel that the user who sent the message is currently in
   let voice = getUserVoiceConnection(msg.guild, msg.author);
   if (voice) {
-    voice.join().then(callback).catch(utils.defaultErrorHandler);
+    joinPromise = voice.join().catch(utils.defaultErrorHandler);
+    if (callback) {
+    joinPromise.then(callback);
+    }
   } else {
     sendMessage('The guild which contains that channel is currently unavailable.', msg.channel);
   }
