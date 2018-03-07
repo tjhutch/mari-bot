@@ -16,6 +16,52 @@ function getMessageVoiceChannelId(msg) {
   return msg.guild.member(msg.author).voiceChannelID;
 }
 
+function levelUpUser(guildLevels, guildSettings, user, channel) {
+  // if user doesn't exist in levels tracking, add them
+  if (!guildLevels[user.id]) {
+    guildLevels[user.id] = {
+      level: guildSettings.levels[0].name,
+      messages: 1,
+    }
+  } else {
+    let messages = guildLevels[user.id].messages + 1;
+    let userLevel;
+    for (let level of guildSettings.levels) {
+      // a bit wasteful, but it works
+      if (messages >= level.messagesRequired) {
+        userLevel = level.name;
+      } else {
+        break;
+      }
+    }
+    // level up!
+    if (guildLevels[user.id].level !== userLevel) {
+      sendMessage(guildSettings.levelUpMessage.replace('<user>', user.username).replace('<level>', userLevel), channel);
+    }
+    guildLevels[user.id] = {
+      level: userLevel,
+      messages: messages,
+    }
+  }
+}
+
+function getLevelOfUser(guildLevels, guildSettings, guildMembers, uName) {
+  let userName = uName.toLowerCase();
+  for (let member of guildMembers) {
+    let user = member[1].user;
+    if (userName === user.username.toLowerCase()) {
+      if (!guildLevels[user.id]) {
+        guildLevels[user.id] = {
+          level: guildSettings.levels[0].name,
+          messages: 1,
+        }
+      }
+      return guildLevels[user.id].level;
+    }
+  }
+  return null;
+}
+
 function getFileForCommand(command) {
   const files = command.files;
   if (!files) {
@@ -23,7 +69,7 @@ function getFileForCommand(command) {
     return '';
   }
   const file = files[Math.floor(Math.random() * files.length)];
-  return command.folder + '/' + file + '.mp3';
+  return `${command.folder}/${file}.mp3`;
 }
 
 function activeVoiceInGuild(bot, guild) {
@@ -62,7 +108,7 @@ function playAudioFile(bot, file, channelId, vc) {
   }
   console.info('Playing: ' + file);
   let dispatcher = voiceConnection.playFile(file);
-  dispatcher.on('Error', utils.defaultErrorHandler);
+  dispatcher.on('error', utils.defaultErrorHandler);
   if (file.includes('Trilliax') || file.includes('MemeAudio')) {
     dispatcher.setVolume(0.25);
   } else {
@@ -79,20 +125,16 @@ function getBotVoiceConnection(channelId, bot) {
   return null;
 }
 
-function joinChannel(msg, channelNameOrId, callback) {
-  let joinPromise;
+function joinChannel(bot, msg, channelNameOrId, callback) {
   if (!msg && !channelNameOrId) {
     console.info('How did this even happen?\njoinChannel requires either a message or a channel ID');
     return null;
   }
   // attempt to join channel based on given channel name or ID
   if (!msg && channelNameOrId) {
-    const channel = findChannel(channelNameOrId);
+    const channel = findChannel(channelNameOrId, bot.guilds);
     if (channel) {
-      joinPromise = channel.join().catch(utils.defaultErrorHandler);
-      if (callback) {
-        joinPromise.then(callback);
-      }
+      channel.join().then(callback).catch(utils.defaultErrorHandler);
       return;
     } else {
       log.error('Unable to find channel with name/id ' + channelNameOrId);
@@ -108,10 +150,7 @@ function joinChannel(msg, channelNameOrId, callback) {
   // attempt to join channel that the user who sent the message is currently in
   let voice = getUserVoiceConnection(msg.guild, msg.author);
   if (voice) {
-    joinPromise = voice.join().catch(utils.defaultErrorHandler);
-    if (callback) {
-    joinPromise.then(callback);
-    }
+    voice.join().then(callback).catch(utils.defaultErrorHandler);
   } else {
     sendMessage('The guild which contains that channel is currently unavailable.', msg.channel);
   }
@@ -142,5 +181,7 @@ module.exports = {
   activeVoiceInGuild,
   playAudioFile,
   joinChannel,
+  getLevelOfUser,
+  levelUpUser,
   sendMessage
 };

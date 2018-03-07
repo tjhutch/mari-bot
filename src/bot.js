@@ -26,7 +26,9 @@ class Bot {
     this.bot.on('message', (msg) => {
       this.handleMessage(msg)
     });
-    this.bot.on('voiceStateUpdate', this.newPhoneWhoDis);
+    this.bot.on('voiceStateUpdate', (newMember, oldMember) => {
+      this.newPhoneWhoDis(newMember, oldMember);
+    });
 
     // Uh oh
     this.bot.on('Error', (e) => {
@@ -80,7 +82,7 @@ class Bot {
 
     // check if we should level up a user
     if (currentGuildSettings && currentGuildLevels) {
-      this.addToUserCount(currentGuildLevels, currentGuildSettings, msg.author, msg.channel);
+      actions.levelUpUser(currentGuildLevels, currentGuildSettings, msg.author, msg.channel);
     }
 
     // ignore if message doesn't start with the prefix
@@ -110,36 +112,7 @@ class Bot {
         continue;
       }
       if (importantBit === command) {
-        this.handleCommand(this.commands[command], msg);
-      }
-    }
-  }
-
-  addToUserCount(guildLevels, guildSettings, user, channel) {
-    // if user doesn't exist in levels tracking, add them
-    if (!guildLevels[user.id]) {
-      guildLevels[user.id] = {
-        level: guildSettings.levels[0].name,
-        messages: 1,
-      }
-    } else {
-      let messages = guildLevels[user.id].messages + 1;
-      let userLevel;
-      for (let level of guildSettings.levels) {
-        // a bit wasteful, but it works
-        if (messages >= level.messagesRequired) {
-          userLevel = level.name;
-        } else {
-          break;
-        }
-      }
-      // level up!
-      if (guildLevels[user.id].level !== userLevel) {
-        actions.sendMessage(guildSettings.levelUpMessage.replace('<user>', user.username).replace('<level>', userLevel), channel);
-      }
-      guildLevels[user.id] = {
-        level: userLevel,
-        messages: messages,
+        this.handleCommand(this.commands[command], msg, currentGuildLevels, currentGuildSettings);
       }
     }
   }
@@ -184,7 +157,7 @@ class Bot {
   }
 
 // breakout command types into their handler functions
-  handleCommand(command, msg) {
+  handleCommand(command, msg, guildLevels, guildSettings) {
     let type = command.type.toLowerCase();
     switch (type) {
       case 'audio':
@@ -197,7 +170,7 @@ class Bot {
         actions.sendMessage(command.response, msg.channel);
         break;
       case 'move':
-        actions.joinChannel(msg);
+        actions.joinChannel(this.bot, msg);
         break;
       case 'leave':
         const connection = actions.activeVoiceInGuild(this.bot, msg.guild);
@@ -208,7 +181,7 @@ class Bot {
       case 'go':
         const channelName = msg.content.substring(4);
         log.info('Moving to: ' + channelName);
-        actions.joinChannel(null, channelName);
+        actions.joinChannel(this.bot, null, channelName);
         break;
       case 'meme':
         const urls = command.urls;
@@ -217,6 +190,15 @@ class Bot {
         break;
       case 'help':
         this.sendHelpMessage(msg);
+        break;
+      case 'level':
+        const userName = msg.content.substring(7);
+        const level = actions.getLevelOfUser(guildLevels, guildSettings, msg.channel.guild.members, userName);
+        if (level) {
+          actions.sendMessage(`${userName} is level ${level}`, msg.channel);
+        } else {
+          actions.sendMessage(`${userName} is not a user in this discord server`, msg.channel);
+        }
         break;
       case 'reset':
         config.readCommands().then((commands) => {
@@ -275,13 +257,13 @@ class Bot {
       actions.playAudioFile(this.bot, path, null, connection);
     };
     if (!connection) {
-      actions.joinChannel(msg, path, callback);
+      actions.joinChannel(this.bot, msg, path, callback);
     } else {
       try {
         let userVoiceChannelId = actions.getMessageVoiceChannelId(msg);
         if (userVoiceChannelId) {
           if (!actions.activeVoiceInGuild(this.bot, msg.guild)) {
-            actions.joinChannel(msg, path, callback);
+            actions.joinChannel(this.bot, msg, path, callback);
             return;
           }
           actions.playAudioFile(this.bot, path, userVoiceChannelId);

@@ -1,10 +1,10 @@
 const fs = require('fs');
-const GUILD_LEVELS = './config/guildLevels.json';
-const COMMANDS = './config/commands.json';
-const TOKENS = './config/tokens.json';
-const TWITCH_STREAMERS = './config/twitchStreamers.json';
-const MEMES = './config/memes.json';
-const GUILD_SETTINGS = './config/guildSettings.json';
+const GUILD_LEVELS = './src/config/guildLevels.json';
+const COMMANDS = './src/config/commands.json';
+const TOKENS = './src/config/tokens.json';
+const TWITCH_STREAMERS = './src/config/twitchStreamers.json';
+const MEMES = './src/config/memes.json';
+const GUILD_SETTINGS = './src/config/guildSettings.json';
 
 class ConfigManager {
   readCommands() {
