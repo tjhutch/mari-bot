@@ -1,29 +1,44 @@
 const fs = require('fs');
+const GUILD_LEVELS = './config/guildLevels.json';
+const COMMANDS = './config/commands.json';
+const TOKENS = './config/tokens.json';
+const TWITCH_STREAMERS = './config/twitchStreamers.json';
+const MEMES = './config/memes.json';
+const GUILD_SETTINGS = './config/guildSettings.json';
 
 class ConfigManager {
   readCommands() {
-    return this.readFile('./config/commands.json');
+    return this.readFile(COMMANDS);
   }
 
   readTokens() {
-    return this.readFile('./config/tokens.json');
+    return this.readFile(TOKENS);
   }
 
   readStreamers() {
-    return this.readFile('./config/twitchStreamers.json');
+    return this.readFile(TWITCH_STREAMERS);
   }
 
   readMemes() {
-    return this.readFile('./config/memes.json');
+    return this.readFile(MEMES);
   }
 
-  readGuildPermissions() {
-    return this.readFile('./config/guildPermissions.json');
+  readGuildSettings() {
+    return this.readFile(GUILD_SETTINGS);
+  }
+
+  readGuildLevels() {
+    return this.readFile(GUILD_LEVELS);
   }
 
   saveMemes(memes) {
     const fs = require('fs');
-    fs.writeFileSync('./config/memes.json', JSON.stringify(memes, null, 2), 'utf-8');
+    fs.writeFileSync(MEMES, JSON.stringify(memes, null, 2), 'utf-8');
+  }
+
+  saveGuildLevels(guildLevels) {
+    const fs = require('fs');
+    fs.writeFileSync(GUILD_LEVELS, JSON.stringify(guildLevels, null, 2), 'utf-8');
   }
 
   readFile(path) {

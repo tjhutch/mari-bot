@@ -1,0 +1,62 @@
+{
+  "But Why Tho": {
+    "channels": [
+      "maribot_commandments"
+    ],
+    "roles": [
+      "admin",
+      "Bot Commander",
+      "member"
+    ]
+  },
+  "Bot Testing Grounds": {
+    "channels": [
+      "botcommands"
+    ],
+    "levels": [
+      {
+        "messagesRequired": "0",
+        "name": "1"
+      },
+      {
+        "messagesRequired": "5",
+        "name": "2"
+      },
+      {
+        "messagesRequired": "7",
+        "name": "3"
+      },
+      {
+        "messagesRequired": "9",
+        "name": "4"
+      }
+    ],
+    "levelUpMessage": "<user> has levelled up to <level>"
+  },
+  "MARI-BOTS": {
+    "channels": [
+      "botcommands"
+    ],
+    "roles": [
+      "admin"
+    ],
+    "levels": [
+      {
+        "messagesRequired": "0",
+        "name": "1"
+      },
+      {
+        "messagesRequired": "5",
+        "name": "2"
+      },
+      {
+        "messagesRequired": "50",
+        "name": "3"
+      },
+      {
+        "messagesRequired": "100",
+        "name": "4"
+      }
+    ]
+  }
+}

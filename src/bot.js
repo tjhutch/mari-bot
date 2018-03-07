@@ -2,14 +2,15 @@ const Discord = require('discord.js');
 const utils = require('./utils');
 const actions = require('./botActions');
 const log = require('./logger').getLogger();
+const config = require('./configManager').getConfigManager();
 
 class Bot {
-  constructor(commands, token, guildPerms, config) {
+  constructor(commands, token, guildSettings, guildLevels) {
     this.commands = commands.commands;
     this.prefix = commands.prefix;
     this.token = token;
-    this.guildPerms = guildPerms;
-    this.config = config;
+    this.guildSettings = guildSettings;
+    this.guildLevels = guildLevels;
     this.configureBot();
     this.resetBot();
   }
@@ -72,6 +73,15 @@ class Bot {
       this.commandsUpdated = true;
       log.info('Added a new meme to my collection: \n' + msg.content);
     }
+    // load data for current guild setup and user levels
+    // no guild means message is PM, so all guild restrictions are not applicable
+    let currentGuildSettings = msg.channel.guild ? this.guildSettings[msg.channel.guild.name] : null;
+    let currentGuildLevels = msg.channel.guild ? this.guildLevels[msg.channel.guild.name] : null;
+
+    // check if we should level up a user
+    if (currentGuildSettings && currentGuildLevels) {
+      this.addToUserCount(currentGuildLevels, currentGuildSettings, msg.author, msg.channel);
+    }
 
     // ignore if message doesn't start with the prefix
     if (!msg.content.startsWith(this.prefix)) {
@@ -80,13 +90,12 @@ class Bot {
 
     // check if this is a channel that the bot should read
     // if no registered settings assume no restrictions
-    if (msg.channel.guild && this.guildPerms[msg.guild.name]) { // make sure this isn't a PM
-      let guildPermission = this.guildPerms[msg.guild.name];
-      if (!this.botCanPostToChannel(guildPermission.channels, msg.channel)) { // make sure this channel is ok to use
+    if (currentGuildSettings) {
+      if (!this.botCanPostToChannel(currentGuildSettings.channels, msg.channel)) { // make sure this channel is ok to use
         msg.author.send('Sorry, you can\'t use mari-bot from ' + msg.channel.name + ' in ' + msg.channel.guild.name);
         return;
       }
-      if (!this.userAllowedToUseBot(guildPermission.roles, msg.member.roles)) { // make sure user is allowed to use bot
+      if (!this.userAllowedToUseBot(currentGuildSettings.roles, msg.member.roles)) { // make sure user is allowed to use bot
         msg.author.send("Sorry, you don't have permission to use mari-bot in " + msg.channel.guild.name);
         return;
       }
@@ -102,6 +111,35 @@ class Bot {
       }
       if (importantBit === command) {
         this.handleCommand(this.commands[command], msg);
+      }
+    }
+  }
+
+  addToUserCount(guildLevels, guildSettings, user, channel) {
+    // if user doesn't exist in levels tracking, add them
+    if (!guildLevels[user.id]) {
+      guildLevels[user.id] = {
+        level: guildSettings.levels[0].name,
+        messages: 1,
+      }
+    } else {
+      let messages = guildLevels[user.id].messages + 1;
+      let userLevel;
+      for (let level of guildSettings.levels) {
+        // a bit wasteful, but it works
+        if (messages >= level.messagesRequired) {
+          userLevel = level.name;
+        } else {
+          break;
+        }
+      }
+      // level up!
+      if (guildLevels[user.id].level !== userLevel) {
+        actions.sendMessage(guildSettings.levelUpMessage.replace('<user>', user.username).replace('<level>', userLevel), channel);
+      }
+      guildLevels[user.id] = {
+        level: userLevel,
+        messages: messages,
       }
     }
   }
@@ -181,8 +219,8 @@ class Bot {
         this.sendHelpMessage(msg);
         break;
       case 'reset':
-        this.config.readConfig().then((data) => {
-          this.setConfigAndReset(data, msg.channel);
+        config.readCommands().then((commands) => {
+          this.setConfigAndReset(commands, msg.channel);
         });
         break;
       default:
@@ -266,9 +304,12 @@ class Bot {
 
   setConfigAndReset(data, channel, memes) {
     this.prefix = data.prefix;
+    let tempMemes = this.commands.meme;
     this.commands = data.commands;
     if (memes) {
-      this.bot.commands.meme = memes;
+      this.commands.meme = memes;
+    } else {
+      this.commands.meme = tempMemes;
     }
     // start your engines!
     this.resetBot(channel);
