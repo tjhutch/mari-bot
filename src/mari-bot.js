@@ -19,7 +19,7 @@ Promise.all([config.readCommands(),
              config.readTokens(),
              config.readGuildSettings(),
              config.readGuildLevels()]).then((values) => {
-  values[0].meme = values[1];
+  values[0].commands.meme = values[1];
   bot = new Bot(values[0], values[2].discordToken, values[3], values[4]);
   twitch = new TwitchWebhookHandler(values[2], bot.sendSubMessage);
 });

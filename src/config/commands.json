@@ -964,7 +964,33 @@
     },
     "otp": {
       "type": "text",
-      "response": "PharMercy"
+      "responses": [
+        "PharMercy",
+        "Pharmercy",
+        "Reaper76",
+        "Rindea",
+        "Renora",
+        "Anahardt",
+        "Royai",
+        "Lissabelle",
+        "Ryoumarx",
+        "Korrasami",
+        "Corriander",
+        "Chrolivia",
+        "Klance",
+        "Alphyne",
+        "Horikashi",
+        "Davejade",
+        "Eruri",
+        "Soma",
+        "White Rose",
+        "Enabler",
+        "Monochrome",
+        "Bumblebee",
+        "Lancaster",
+        "Ladybug",
+        "Freezerburn"
+      ]
     },
     "forthehorde": {
       "type": "text",

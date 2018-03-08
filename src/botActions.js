@@ -26,17 +26,20 @@ function levelUpUser(guildLevels, guildSettings, user, channel) {
   } else {
     let messages = guildLevels[user.id].messages + 1;
     let userLevel;
+    let maxLevel;
     for (let level of guildSettings.levels) {
       // a bit wasteful, but it works
       if (messages >= level.messagesRequired) {
         userLevel = level.name;
+        maxLevel = level.max;
       } else {
         break;
       }
     }
     // level up!
     if (guildLevels[user.id].level !== userLevel) {
-      sendMessage(guildSettings.levelUpMessage.replace('<user>', user.username).replace('<level>', userLevel), channel);
+      let messageTemplate = maxLevel ? guildSettings.maxLvlMessage : guildSettings.levelUpMessage;
+      sendMessage(messageTemplate.replace('<user>', user.username).replace('<level>', userLevel), channel);
     }
     guildLevels[user.id] = {
       level: userLevel,
@@ -53,13 +56,18 @@ function getLevelOfUser(guildLevels, guildSettings, guildMembers, uName) {
       if (!guildLevels[user.id]) {
         guildLevels[user.id] = {
           level: guildSettings.levels[0].name,
-          messages: 1,
+          messages: 0,
         }
       }
       return guildLevels[user.id].level;
     }
   }
   return null;
+}
+
+function welcomeMember(member, guildSettings) {
+  let name = member.nickname ? member.nickname : member.user.username;
+  sendMessage(guildSettings.welcomeMessage.replace('<user>', name), member.guild.channels.get(guildSettings.welcomeChannel));
 }
 
 function getFileForCommand(command) {
@@ -183,5 +191,6 @@ module.exports = {
   joinChannel,
   getLevelOfUser,
   levelUpUser,
+  welcomeMember,
   sendMessage
 };

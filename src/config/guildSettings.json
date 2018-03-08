@@ -15,48 +15,86 @@
     ],
     "levels": [
       {
-        "messagesRequired": "0",
+        "messagesRequired": 0,
         "name": "1"
       },
       {
-        "messagesRequired": "5",
+        "messagesRequired": 5,
         "name": "2"
       },
       {
-        "messagesRequired": "7",
+        "messagesRequired": 7,
         "name": "3"
       },
       {
-        "messagesRequired": "9",
-        "name": "4"
+        "messagesRequired": 9,
+        "name": "4",
+        "max": true
       }
     ],
-    "levelUpMessage": "<user> has levelled up to <level>"
+    "levelUpMessage": "<user> has levelled up to <level>",
+    "maxLvlMessage": "GG <user>, you've reached MAX LEVEL!",
+    "welcomeMessage": "Welcome fellow human '<user>' to our testing area.",
+    "welcomeChannel": "265600449762033664"
   },
   "MARI-BOTS": {
     "channels": [
       "botcommands"
     ],
+    "welcomeMessage": "<user> just joined MARI-BOTS! Let's have fun together!",
+    "welcomeChannel": "413407563099668501",
     "roles": [
-      "admin"
+      "Admin Sadmen",
+      "MARI TIME"
     ],
     "levels": [
       {
-        "messagesRequired": "0",
+        "messagesRequired": 0,
+        "name": "0"
+      },
+      {
+        "messagesRequired": 5,
         "name": "1"
       },
       {
-        "messagesRequired": "5",
+        "messagesRequired": 10,
         "name": "2"
       },
       {
-        "messagesRequired": "50",
+        "messagesRequired": 18,
         "name": "3"
       },
       {
-        "messagesRequired": "100",
+        "messagesRequired": 30,
         "name": "4"
+      },
+      {
+        "messagesRequired": 52,
+        "name": "5"
+      },
+      {
+        "messagesRequired": 90,
+        "name": "6"
+      },
+      {
+        "messagesRequired": 160,
+        "name": "7"
+      },
+      {
+        "messagesRequired": 280,
+        "name": "8"
+      },
+      {
+        "messagesRequired": 490,
+        "name": "9"
+      },
+      {
+        "messagesRequired": 850,
+        "name": "10",
+        "max": true
       }
-    ]
+    ],
+    "levelUpMessage": "CONGRAGULATIONS <user>, YOU'VE LEVELED UP TO LEVEL <level>!",
+    "maxLvlMessage": "GG <user>, YOU'VE REACHED MAX LEVEL!"
   }
 }

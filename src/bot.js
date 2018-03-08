@@ -26,6 +26,14 @@ class Bot {
     this.bot.on('message', (msg) => {
       this.handleMessage(msg)
     });
+
+    this.bot.on('guildMemberAdd', (member) => {
+      let guildSettings = this.guildSettings[member.guild.name];
+      if (guildSettings && guildSettings.welcomeMessage && guildSettings.welcomeChannel) {
+        actions.welcomeMember(member, guildSettings);
+      }
+    });
+
     this.bot.on('voiceStateUpdate', (newMember, oldMember) => {
       this.newPhoneWhoDis(newMember, oldMember);
     });
@@ -45,7 +53,7 @@ class Bot {
   // NEW PHONE WHO DIS
   // play new phone audio clip when a new user comes into the same channel as the bot
   newPhoneWhoDis(oldMember, newMember) {
-    // discord.ja docs say to use bot.voiceConnections... BUT IT DOESN'T EXIST
+    // discord.js docs say to use bot.voiceConnections... BUT IT DOESN'T EXIST
     if (this.bot.voice.connections.size === 0) {
       return;
     }
@@ -69,14 +77,16 @@ class Bot {
     if (msg.author.username === 'mari-bot') {
       return;
     }
-    // storing memes for later use
+
+    // storing memes for later use IS SECRET QUIET
     if (msg.channel && msg.channel.name && msg.channel.name.includes('memes') && utils.isURL(msg.content)) {
       this.commands.meme.urls.push(msg.content);
       this.commandsUpdated = true;
       log.info('Added a new meme to my collection: \n' + msg.content);
     }
+
     // load data for current guild setup and user levels
-    // no guild means message is PM, so all guild restrictions are not applicable
+    // no guild means message is PM, so guild restrictions are not applicable
     let currentGuildSettings = msg.channel.guild ? this.guildSettings[msg.channel.guild.name] : null;
     let currentGuildLevels = msg.channel.guild ? this.guildLevels[msg.channel.guild.name] : null;
 
@@ -167,7 +177,11 @@ class Bot {
         this.stopTalkingInGuild(msg.guild);
         break;
       case 'text':
-        actions.sendMessage(command.response, msg.channel);
+        if (command.response) {
+          actions.sendMessage(command.response, msg.channel);
+        } else {
+          actions.sendMessage(command.responses[Math.floor(Math.random() * command.responses.length)], msg.channel);
+        }
         break;
       case 'move':
         actions.joinChannel(this.bot, msg);
@@ -227,8 +241,11 @@ class Bot {
     let audio = '';
     let texts = '';
     let general = '';
-    for (let command of this.commands) {
-      let type = command.type;
+    for (let command in this.commands) {
+      if (!this.commands.hasOwnProperty(command)) {
+        continue;
+      }
+      let type = this.commands[command].type;
       if (type === 'audio') {
         audio += command + ', ';
       } else if (type === 'text') {
