@@ -523,6 +523,7 @@
     "neat": {
       "type": "audio",
       "folder": "MemeAudio",
+      "volume": 1,
       "files": [
         "Neat (1)",
         "Neat (2)",
@@ -990,7 +991,8 @@
         "Lancaster",
         "Ladybug",
         "Freezerburn"
-      ]
+      ],
+      "ending": " ftw!!"
     },
     "forthehorde": {
       "type": "text",

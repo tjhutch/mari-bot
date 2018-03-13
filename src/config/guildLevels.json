@@ -2,17 +2,21 @@
   "Bot Testing Grounds": {
     "99343549773926400": {
       "level": "4",
-      "messages": 5
+      "messages": 15
     }
   },
   "MARI-BOTS": {
     "99343549773926400": {
-      "level": "3",
-      "messages": 26
+      "level": "4",
+      "messages": 34
     },
     "225487242234167307": {
-      "level": "2",
-      "messages": 16
+      "level": "3",
+      "messages": 19
+    },
+    "110987836332707840": {
+      "level": "0",
+      "messages": 2
     }
   }
 }

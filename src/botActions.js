@@ -108,20 +108,23 @@ function findChannel(nameOrId, guilds) {
   return null;
 }
 
-function playAudioFile(bot, file, channelId, vc) {
+function playAudioCommand(bot, command, channelId, vc) {
   const voiceConnection = vc ? vc : getBotVoiceConnection(channelId, bot);
+  const file = getFileForCommand(command);
   if (!voiceConnection) {
     console.error('We don\'t have a voice connection to channel with id ' + channelId);
     return;
   }
   console.info('Playing: ' + file);
-  let dispatcher = voiceConnection.playFile(file);
-  dispatcher.on('error', utils.defaultErrorHandler);
-  if (file.includes('Trilliax') || file.includes('MemeAudio')) {
-    dispatcher.setVolume(0.25);
-  } else {
-    dispatcher.setVolume(1.5);
+  let volume = command.volume;
+  if (!volume) {
+    volume = file.includes('Trilliax') || file.includes('MemeAudio') ? 0.25 : 1.5;
   }
+  let properties = {
+    volume,
+  };
+  let dispatcher = voiceConnection.playFile(file, properties);
+  dispatcher.on('error', utils.defaultErrorHandler);
 }
 
 function getBotVoiceConnection(channelId, bot) {
@@ -184,10 +187,9 @@ function sendMessage(message, channel) {
 
 module.exports = {
   getMessageVoiceChannelId,
-  getFileForCommand,
   getBotVoiceConnection,
   activeVoiceInGuild,
-  playAudioFile,
+  playAudioCommand,
   joinChannel,
   getLevelOfUser,
   levelUpUser,

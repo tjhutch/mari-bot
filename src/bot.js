@@ -65,7 +65,7 @@ class Bot {
     if (newMember && newMember.voiceChannel) {
       const voiceConnection = actions.getBotVoiceConnection(newMember.voiceChannel.id, this.bot);
       if (voiceConnection) {
-        actions.playAudioFile(this.bot, actions.getFileForCommand(this.bot, this.commands['newphone']), newMember.voiceChannel.id, voiceConnection);
+        actions.playAudioCommand(this.bot, this.commands['newphone'], newMember.voiceChannel.id, voiceConnection);
       }
     }
   }
@@ -180,7 +180,10 @@ class Bot {
         if (command.response) {
           actions.sendMessage(command.response, msg.channel);
         } else {
-          actions.sendMessage(command.responses[Math.floor(Math.random() * command.responses.length)], msg.channel);
+          let beginning = command.beginning ? command.beginning : "";
+          let response = command.responses[Math.floor(Math.random() * command.responses.length)];
+          let ending = command.ending ? command.ending : "";
+          actions.sendMessage(beginning + response + ending, msg.channel);
         }
         break;
       case 'move':
@@ -268,10 +271,9 @@ class Bot {
       return;
     }
 
-    const path = actions.getFileForCommand(command);
     const connection = actions.activeVoiceInGuild(this.bot, msg.guild);
     const callback = () => {
-      actions.playAudioFile(this.bot, path, null, connection);
+      actions.playAudioCommand(this.bot, command, null, connection);
     };
     if (!connection) {
       actions.joinChannel(this.bot, msg, path, callback);
@@ -283,7 +285,7 @@ class Bot {
             actions.joinChannel(this.bot, msg, path, callback);
             return;
           }
-          actions.playAudioFile(this.bot, path, userVoiceChannelId);
+          actions.playAudioCommand(this.bot, command, userVoiceChannelId);
         } else {
           msg.channel.send('You must be in a voice channel to use voice commands');
         }
