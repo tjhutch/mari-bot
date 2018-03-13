@@ -34,14 +34,14 @@
     ],
     "levelUpMessage": "<user> has levelled up to <level>",
     "maxLvlMessage": "GG <user>, you've reached MAX LEVEL!",
-    "welcomeMessage": "Welcome fellow human '<user>' to our testing area.",
+    "welcomeMessage": "Welcome fellow human '@<user>' to our testing area.",
     "welcomeChannel": "265600449762033664"
   },
   "MARI-BOTS": {
     "channels": [
       "botcommands"
     ],
-    "welcomeMessage": "<user> just joined MARI-BOTS! Let's have fun together!",
+    "welcomeMessage": "@<user> just joined MARI-BOTS! Let's have fun together!",
     "welcomeChannel": "413407563099668501",
     "roles": [
       "Admin Sadmen",
