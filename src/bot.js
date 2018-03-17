@@ -79,10 +79,15 @@ class Bot {
     }
 
     // storing memes for later use IS SECRET QUIET
-    if (msg.channel && msg.channel.name && msg.channel.name.includes('memes') && utils.isURL(msg.content)) {
-      this.commands.meme.urls.push(msg.content);
-      this.commandsUpdated = true;
-      log.info('Added a new meme to my collection: \n' + msg.content);
+    if (msg.channel && msg.channel.name && msg.channel.name.includes('memes')) {
+      let words = msg.content.split(' ');
+      for (let i = 0; i < words.length; i++) {
+        if (utils.isURL(words[i])) {
+          this.commands.meme.urls.push(words[i]);
+          this.commandsUpdated = true;
+          log.info('Added a new meme to my collection: \n' + words[i]);
+        }
+      }
     }
 
     // load data for current guild setup and user levels
