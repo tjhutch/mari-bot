@@ -66,7 +66,7 @@ function getLevelOfUser(guildLevels, guildSettings, guildMembers, uName) {
 }
 
 function welcomeMember(member, guildSettings) {
-  let name = member.nickname ? member.nickname : member.user.username;
+  let name = '<@' + member.user.id + '>';
   sendMessage(guildSettings.welcomeMessage.replace('<user>', name), member.guild.channels.get(guildSettings.welcomeChannel));
 }
 
