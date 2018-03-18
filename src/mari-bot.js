@@ -21,7 +21,7 @@ Promise.all([config.readCommands(),
              config.readGuildLevels()]).then((values) => {
   values[0].commands.meme = values[1];
   bot = new Bot(values[0], values[2].discordToken, values[3], values[4]);
-  //twitch = new TwitchWebhookHandler(values[2], bot.sendSubMessage);
+  twitch = new TwitchWebhookHandler(values[2], bot);
 });
 
 process.on('SIGINT', onExit);

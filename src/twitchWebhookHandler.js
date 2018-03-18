@@ -7,10 +7,10 @@ let twitchWebhook;
 
 module.exports = class TwitchWebhookHandler {
 
-  constructor(tokenData, subCallback) {
+  constructor(tokenData, bot) {
     this.secret = tokenData.twitchToken;
     this.clientId = tokenData.twitchClientId;
-    this.subCallback = subCallback;
+    this.bot = bot;
 
     config.readStreamers().then((streamers) => {
       this.streamers = streamers;
@@ -65,7 +65,8 @@ module.exports = class TwitchWebhookHandler {
     twitchWebhook.on('streams', ({ topic, options, endpoint, event }) => {
       log.info(event);
       if (!event.data.length) {
-        log.info('Skipping notification for stream down');
+        log.info('Stream down: ' + options.user_id);
+        streamUpTimes[options.user_id] = null;
         return;
       }
       const [data] = event.data;
@@ -73,7 +74,7 @@ module.exports = class TwitchWebhookHandler {
         return streamer.id === data.user_id;
       });
       if (!streamUpTimes[streamer.id] || streamUpTimes[streamer.id] !== data.started_at) {
-        this.subCallback(streamer);
+        this.bot.sendSubMessage(streamer);
         streamUpTimes[streamer.id] = data.started_at;
       } else {
         log.info('stream for user ' + streamer.name + ' is already up, not sending notification');
