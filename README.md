@@ -1,12 +1,15 @@
 # mari-bot
 This is a bot for our den mother, Mari. 
 
-## Current Features
+This project uses the discord.js implementation of the discord API. You can learn more and find documentation [on their website](https://discord.js.org).
+For the twitch webhooks API, this project uses the [twitch-webhook package](https://www.npmjs.com/package/twitch-webhook).
+
+## Features
 * Playback audio clips
 * Respond with pre-configured messages
-* Multiple servers at once
+* Audio on multiple servers at once
+* Welcome new users to the server
+* User level-up system based on # of messages sent in the server
+* Meme collection and re-use
 * Hot reload configuration
-
-## In Development
 * Send updates when configured streamers go live
-* Add commands via message (for streamers to check and text responses)
