@@ -80,10 +80,10 @@ function getFileForCommand(command) {
   return `${command.folder}/${file}.mp3`;
 }
 
-function activeVoiceInGuild(bot, guild) {
+function activeVoiceInGuild(voiceConnections, guild) {
   let channels = guild.channels.array();
   for (let channel of channels) {
-    let connection = getBotVoiceConnection(channel.id, bot);
+    let connection = getBotVoiceConnection(channel.id, voiceConnections);
     if (connection) {
       return connection;
     }
@@ -108,8 +108,8 @@ function findChannel(nameOrId, guilds) {
   return null;
 }
 
-function playAudioCommand(bot, command, channelId, vc) {
-  const voiceConnection = vc ? vc : getBotVoiceConnection(channelId, bot);
+function playAudioCommand(voiceConnections, command, channelId, vc) {
+  const voiceConnection = vc ? vc : getBotVoiceConnection(channelId, voiceConnections);
   const file = getFileForCommand(command);
   if (!voiceConnection) {
     console.error('We don\'t have a voice connection to channel with id ' + channelId);
@@ -127,8 +127,8 @@ function playAudioCommand(bot, command, channelId, vc) {
   dispatcher.on('error', utils.defaultErrorHandler);
 }
 
-function getBotVoiceConnection(channelId, bot) {
-  for (let voiceConnection of bot.voice.connections.values()) {
+function getBotVoiceConnection(channelId, voiceConnections) {
+  for (let voiceConnection of voiceConnections.values()) {
     if (voiceConnection.channel.id === channelId) {
       return voiceConnection;
     }
@@ -136,14 +136,14 @@ function getBotVoiceConnection(channelId, bot) {
   return null;
 }
 
-function joinChannel(bot, msg, channelNameOrId, callback) {
+function joinChannel(guilds, msg, channelNameOrId, callback) {
   if (!msg && !channelNameOrId) {
     console.info('How did this even happen?\njoinChannel requires either a message or a channel ID');
     return null;
   }
   // attempt to join channel based on given channel name or ID
   if (!msg && channelNameOrId) {
-    const channel = findChannel(channelNameOrId, bot.guilds);
+    const channel = findChannel(channelNameOrId, guilds);
     if (channel) {
       channel.join().then(callback).catch(utils.defaultErrorHandler);
       return;
