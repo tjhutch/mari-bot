@@ -63,29 +63,35 @@ class Bot {
       }
     }
     if (newMember && newMember.voiceChannel) {
-      const voiceConnection = actions.getBotVoiceConnection(newMember.voiceChannel.id, this.bot);
+      const voiceConnection = actions.getBotVoiceConnection(newMember.voiceChannel.id, this.bot.voice.connections);
       if (voiceConnection) {
-        actions.playAudioCommand(this.bot, this.commands['newphone'], newMember.voiceChannel.id, voiceConnection);
+        actions.playAudioCommand(this.bot.voice.connections, this.commands['newphone'], newMember.voiceChannel.id, voiceConnection);
       }
     }
   }
 
   // handling of normal commands
-  // check if we have a command like what's sent, then pass along to the handler function
+  // check if this channel allows the bot and if this user can use the bot in this server.
+  // Then, if the message contains a command the bot can understand, handle it.
+  // then pass along to the handler function
   handleMessage(msg) {
     // don't respond to your own messages
     if (msg.author.username === 'mari-bot') {
       return;
     }
 
-    // storing memes for later use IS SECRET QUIET
+    // storing memes for later use
     if (msg.channel && msg.channel.name && msg.channel.name.includes('memes')) {
       let words = msg.content.split(' ');
       for (let i = 0; i < words.length; i++) {
         if (utils.isURL(words[i])) {
-          this.commands.meme.urls.push(words[i]);
-          this.commandsUpdated = true;
-          log.info('Added a new meme to my collection: \n' + words[i]);
+          if (this.commands.meme.urls.indexOf(words[i]) === -1) {
+            this.commands.meme.urls.push(words[i]);
+            this.commandsUpdated = true;
+            log.info('Added a new meme to my collection: \n' + words[i]);
+          } else {
+            log.info('Avoided duplicate meme: ' + words[i]);
+          }
         }
       }
     }
@@ -192,10 +198,10 @@ class Bot {
         }
         break;
       case 'move':
-        actions.joinChannel(this.bot, msg);
+        actions.joinChannel(this.bot.guilds, msg);
         break;
       case 'leave':
-        const connection = actions.activeVoiceInGuild(this.bot, msg.guild);
+        const connection = actions.activeVoiceInGuild(this.bot.voice.connections, msg.guild);
         if (connection) {
           connection.disconnect();
         }
@@ -203,7 +209,7 @@ class Bot {
       case 'go':
         const channelName = msg.content.substring(4);
         log.info('Moving to: ' + channelName);
-        actions.joinChannel(this.bot, null, channelName);
+        actions.joinChannel(this.bot.guilds, null, channelName);
         break;
       case 'meme':
         const urls = command.urls;
@@ -234,7 +240,7 @@ class Bot {
   }
 
   stopTalkingInGuild(guild) {
-    let dispatcher = actions.activeVoiceInGuild(this.bot, guild).dispatcher;
+    let dispatcher = actions.activeVoiceInGuild(this.bot.voice.connections, guild).dispatcher;
     if (dispatcher) {
       try {
         dispatcher.end();
@@ -276,21 +282,21 @@ class Bot {
       return;
     }
 
-    const connection = actions.activeVoiceInGuild(this.bot, msg.guild);
+    const connection = actions.activeVoiceInGuild(this.bot.voice.connections, msg.guild);
     const callback = () => {
-      actions.playAudioCommand(this.bot, command, null, connection);
+      actions.playAudioCommand(this.bot.voice.connections, command, null, connection);
     };
     if (!connection) {
-      actions.joinChannel(this.bot, msg, path, callback);
+      actions.joinChannel(this.bot.guilds, msg, null, callback);
     } else {
       try {
         let userVoiceChannelId = actions.getMessageVoiceChannelId(msg);
         if (userVoiceChannelId) {
-          if (!actions.activeVoiceInGuild(this.bot, msg.guild)) {
-            actions.joinChannel(this.bot, msg, path, callback);
+          if (!actions.activeVoiceInGuild(this.bot.voice.connections, msg.guild)) {
+            actions.joinChannel(this.bot.guilds, msg, null, callback);
             return;
           }
-          actions.playAudioCommand(this.bot, command, userVoiceChannelId);
+          actions.playAudioCommand(this.bot.voice.connections, command, userVoiceChannelId);
         } else {
           msg.channel.send('You must be in a voice channel to use voice commands');
         }

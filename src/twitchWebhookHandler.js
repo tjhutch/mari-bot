@@ -63,6 +63,9 @@ module.exports = class TwitchWebhookHandler {
 
     // set listener for topic
     twitchWebhook.on('streams', ({ topic, options, endpoint, event }) => {
+      log.info(topic);
+      log.info(options);
+      log.info(endpoint);
       log.info(event);
       if (!event.data.length) {
         log.info('Stream down: ' + options.user_id);
