@@ -994,6 +994,10 @@
       ],
       "ending": " ftw!!"
     },
+    "lordcommander": {
+      "type": "text",
+      "response": "Lord Commander Taylor, Captain of the No Fun Brigade, Leader of the Oppressed Legions, Disciple of Tedium, Highlord of Monotony, Bane of Sir Floppy Walleye III, Fear of Virgins Everywhere, Dumbest of Dumbasses"
+    },
     "forthehorde": {
       "type": "text",
       "response": "Fuck the Horde"
