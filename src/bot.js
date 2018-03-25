@@ -54,7 +54,7 @@ class Bot {
   // play new phone audio clip when a new user comes into the same channel as the bot
   newPhoneWhoDis(oldMember, newMember) {
     // discord.js docs say to use bot.voiceConnections... BUT IT DOESN'T EXIST
-    if (this.bot.voice.connections.size === 0) {
+    if (this.bot.voiceConnections.size === 0) {
       return;
     }
     if (oldMember && newMember) {
@@ -62,10 +62,10 @@ class Bot {
         return;
       }
     }
-    if (newMember && newMember.voiceChannel) {
-      const voiceConnection = actions.getBotVoiceConnection(newMember.voiceChannel.id, this.bot.voice.connections);
+    if (newMember && newMember.user.voiceChannel) {
+      const voiceConnection = actions.getBotVoiceConnection(newMember.voiceChannel.id, this.bot.voiceConnections);
       if (voiceConnection) {
-        actions.playAudioCommand(this.bot.voice.connections, this.commands['newphone'], newMember.voiceChannel.id, voiceConnection);
+        actions.playAudioCommand(this.bot.voiceConnections, this.commands['newphone'], newMember.user.voiceChannel.id, voiceConnection);
       }
     }
   }
@@ -201,7 +201,7 @@ class Bot {
         actions.joinChannel(this.bot.guilds, msg);
         break;
       case 'leave':
-        const connection = actions.activeVoiceInGuild(this.bot.voice.connections, msg.guild);
+        const connection = actions.activeVoiceInGuild(this.bot.voiceConnections, msg.guild);
         if (connection) {
           connection.disconnect();
         }
@@ -240,7 +240,7 @@ class Bot {
   }
 
   stopTalkingInGuild(guild) {
-    let dispatcher = actions.activeVoiceInGuild(this.bot.voice.connections, guild).dispatcher;
+    let dispatcher = actions.activeVoiceInGuild(this.bot.voiceConnections, guild).dispatcher;
     if (dispatcher) {
       try {
         dispatcher.end();
@@ -282,9 +282,9 @@ class Bot {
       return;
     }
 
-    const connection = actions.activeVoiceInGuild(this.bot.voice.connections, msg.guild);
+    const connection = actions.activeVoiceInGuild(this.bot.voiceConnections, msg.guild);
     const callback = () => {
-      actions.playAudioCommand(this.bot.voice.connections, command, null, connection);
+      actions.playAudioCommand(this.bot.voiceConnections, command, null, connection);
     };
     if (!connection) {
       actions.joinChannel(this.bot.guilds, msg, null, callback);
@@ -292,11 +292,11 @@ class Bot {
       try {
         let userVoiceChannelId = actions.getMessageVoiceChannelId(msg);
         if (userVoiceChannelId) {
-          if (!actions.activeVoiceInGuild(this.bot.voice.connections, msg.guild)) {
+          if (!actions.activeVoiceInGuild(this.bot.voiceConnections, msg.guild)) {
             actions.joinChannel(this.bot.guilds, msg, null, callback);
             return;
           }
-          actions.playAudioCommand(this.bot.voice.connections, command, userVoiceChannelId);
+          actions.playAudioCommand(this.bot.voiceConnections, command, userVoiceChannelId);
         } else {
           msg.channel.send('You must be in a voice channel to use voice commands');
         }
