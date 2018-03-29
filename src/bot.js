@@ -83,7 +83,8 @@ class Bot {
     if (reaction.me) {
       return;
     }
-    if (this.guildSettings[reaction.message.channel.guild.name].react) {
+    let { channel } = reaction.message;
+    if (!channel.guild || this.guildSettings[channel.guild.name].react) {
       reaction.message.react(reaction.emoji).then(() => {
         log.info('Reacted with ' + reaction.emoji);
       }).catch((e) => {
@@ -97,7 +98,8 @@ class Bot {
     if (reaction.users.length > 1) {
       return;
     }
-    if (this.guildSettings[reaction.message.channel.guild.name].react) {
+    let { channel } = reaction.message;
+    if (!channel.guild || this.guildSettings[channel.guild.name].react) {
       if (reaction.users.get(this.bot.user.id)) {
         reaction.remove(this.bot.user).then(() => {
           log.info('Removed reaction ' + reaction.emoji);
