@@ -1,4 +1,5 @@
 const fs = require('fs');
+
 const GUILD_LEVELS = './src/config/guildLevels.json';
 const COMMANDS = './src/config/commands.json';
 const TOKENS = './src/config/tokens.json';
@@ -32,12 +33,10 @@ class ConfigManager {
   }
 
   saveMemes(memes) {
-    const fs = require('fs');
     fs.writeFileSync(MEMES, JSON.stringify(memes, null, 2), 'utf-8');
   }
 
   saveGuildLevels(guildLevels) {
-    const fs = require('fs');
     fs.writeFileSync(GUILD_LEVELS, JSON.stringify(guildLevels, null, 2), 'utf-8');
   }
 
@@ -62,5 +61,5 @@ function getConfigManager() {
 
 // exporting this instead of the class makes my IDE realize that the class methods exist
 module.exports = {
-  getConfigManager
+  getConfigManager,
 };

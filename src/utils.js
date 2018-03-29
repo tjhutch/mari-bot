@@ -1,3 +1,5 @@
+const log = require('./logger').getLogger();
+
 function isURL(str) {
   const pattern = new RegExp('^(https?:\\/\\/)' + // protocol
     '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|' + // domain name
@@ -9,10 +11,10 @@ function isURL(str) {
 }
 
 function defaultErrorHandler(e) {
-  log.error('Error in promise handling: ' + e);
+  log.error(`Error in promise handling: ${e}`);
 }
 
 module.exports = {
   isURL,
-  defaultErrorHandler
+  defaultErrorHandler,
 };

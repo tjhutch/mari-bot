@@ -2,11 +2,11 @@ const TwitchWebhook = require('twitch-webhook');
 const ngrok = require('ngrok');
 const log = require('./logger').getLogger();
 const config = require('./configManager').getConfigManager();
-let streamUpTimes = {};
+
+const streamUpTimes = {};
 let twitchWebhook;
 
 module.exports = class TwitchWebhookHandler {
-
   constructor(tokenData, bot) {
     this.secret = tokenData.twitchToken;
     this.clientId = tokenData.twitchClientId;
@@ -20,17 +20,17 @@ module.exports = class TwitchWebhookHandler {
       this.callbackUrl = url;
       this.subscribeToStreams();
     }).catch((e) => {
-      log.error('Error while setting up twitch webhooks: ' + e);
+      log.error(`Error while setting up twitch webhooks: ${e}`);
     });
   }
 
   startTunnel(resolve, reject) {
     ngrok.connect(8492, (e, url) => {
       if (e) {
-        log.info('failed to connect to ngrok: ' + e);
+        log.info(`failed to connect to ngrok: ${e}`);
         reject(e);
       } else {
-        log.info('ngrok connected at url ' + url);
+        log.info(`ngrok connected at url ${url}`);
         resolve(url);
       }
     });
@@ -43,61 +43,61 @@ module.exports = class TwitchWebhookHandler {
       secret: this.secret,
       listen: {
         port: '8492',
-        host: '127.0.0.1',    // default: 0.0.0.0
-        autoStart: true      // default: true
-      }
+        host: '127.0.0.1', // default: 0.0.0.0
+        autoStart: true, // default: true
+      },
     });
 
-// set listener for all topics
-    //twitchWebhook.on('*', ({ topic, options, endpoint, event }) => {
+    // set listener for all topics
+    // twitchWebhook.on('*', ({ topic, options, endpoint, event }) => {
     // topic name, for example "streams"
-    //log.info(topic);
+    // log.info(topic);
     // topic options, for example "{user_id: 12826}"
-    //log.info(options);
+    // log.info(options);
     // full topic URL, for example
     // "https://api.twitch.tv/helix/streams?user_id=12826"
-    //log.info(endpoint);
+    // log.info(endpoint);
     // topic data, timestamps are automatically converted to Date
-    //log.info(event);
-    //});
+    // log.info(event);
+    // });
 
     // set listener for topic
-    twitchWebhook.on('streams', ({ topic, options, endpoint, event }) => {
+    twitchWebhook.on('streams', ({
+      topic, options, endpoint, event,
+    }) => {
       log.info(topic);
       log.info(options);
       log.info(endpoint);
       log.info(event);
       if (!event.data.length && streamUpTimes[options.user_id]) {
-        log.info('Stream down: ' + options.user_id);
+        log.info(`Stream down: ${options.user_id}`);
         streamUpTimes[options.user_id] = null;
       }
-      let [streamer] = this.streamers.filter((streamer) => {
-        return streamer.id === options.user_id;
-      });
+      const [streamer] = this.streamers.filter(streamer => streamer.id === options.user_id);
       let data;
       if (event && event.data && event.data.length) {
         data = event.data[0];
       }
-      let startedAt = data ? data.started_at : new Date();
+      const startedAt = data ? data.started_at : new Date();
       if (!streamUpTimes[streamer.id] || streamUpTimes[streamer.id] !== startedAt) {
         this.bot.sendSubMessage(streamer);
         streamUpTimes[streamer.id] = startedAt;
       } else {
-        log.info('stream for user ' + streamer.name + ' is already up, not sending notification');
+        log.info(`stream for user ${streamer.name} is already up, not sending notification`);
       }
     });
 
     // subscribe to topic
-    for (let streamer of this.streamers) {
+    for (const streamer of this.streamers) {
       twitchWebhook.subscribe('streams', {
-        user_id: streamer.id
+        user_id: streamer.id,
       });
     }
 
     // renew the subscription when it expires
     twitchWebhook.on('unsubscribe', (obj) => {
       twitchWebhook.subscribe(obj['hub.topic']);
-      log.warn('Got unsubbed from a stream, resubbing ' + obj);
+      log.warn(`Got unsubbed from a stream, resubbing ${obj}`);
     });
 
     log.info('Subscribed to streams');

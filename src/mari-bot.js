@@ -13,16 +13,12 @@ Promise.all([config.readCommands(),      // values[0]
              config.readMemes(),         // values[1]
              config.readTokens(),        // values[2]
              config.readGuildSettings(), // values[3]
-             config.readGuildLevels()    // values[4]
+             config.readGuildLevels(),   // values[4]
 ]).then((values) => {
   values[0].commands.meme = values[1];
   bot = new Bot(values[0], values[2].discordToken, values[3], values[4]);
   twitch = new TwitchWebhookHandler(values[2], bot);
 });
-
-process.on('SIGINT', onExit);
-process.on('SIGTERM', onExit);
-process.on('exit', onExit);
 
 function onExit() {
   if (!saved) {
@@ -39,3 +35,6 @@ function onExit() {
   process.exit(0);
 }
 
+process.on('SIGINT', onExit);
+process.on('SIGTERM', onExit);
+process.on('exit', onExit);

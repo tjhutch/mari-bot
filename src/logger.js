@@ -1,4 +1,5 @@
 const EventLogger = require('node-windows').EventLogger;
+
 const log = new EventLogger('Mari Bot');
 
 class Logging {
@@ -9,8 +10,7 @@ class Logging {
   info(s) {
     if (this.logToConsole) {
       console.log(s);
-    }
-    else {
+    } else {
       log.info(s);
     }
   }
@@ -30,17 +30,18 @@ class Logging {
     } else {
       log.warn(s);
     }
-  };
+  }
 }
 
 function checkConsoleLogging() {
   if (process.argv) {
-    for (let value of process.argv) {
+    for (const value of process.argv) {
       if (/^(--log-to-console|-l)/.test(value)) {
         return true;
       }
     }
   }
+  return false;
 }
 
 const logger = new Logging(checkConsoleLogging());
@@ -49,5 +50,5 @@ function getLogger() {
 }
 
 module.exports = {
-  getLogger
+  getLogger,
 };

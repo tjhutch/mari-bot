@@ -5,7 +5,6 @@ const log = require('./logger').getLogger();
 const config = require('./configManager').getConfigManager();
 
 class Bot {
-
   constructor(commands, token, guildSettings, guildLevels) {
     this.commands = commands.commands;
     this.prefix = commands.prefix;
@@ -16,7 +15,7 @@ class Bot {
     this.resetBot();
   }
 
-// sets all the handlers for bot actions
+  // sets all the handlers for bot actions
   configureBot() {
     this.bot = new Discord.Client();
     this.bot.on('ready', () => {
@@ -28,7 +27,7 @@ class Bot {
     });
 
     this.bot.on('guildMemberAdd', (member) => {
-      let guildSettings = this.guildSettings[member.guild.name];
+      const guildSettings = this.guildSettings[member.guild.name];
       if (guildSettings && guildSettings.welcomeMessage && guildSettings.welcomeChannel) {
         actions.welcomeMember(member, guildSettings);
       }
@@ -48,19 +47,19 @@ class Bot {
 
     this.bot.on('error', (e) => {
       log.error('ERROR bot crashed!: ');
-      for (let prop of e) {
+      for (const prop of e) {
         log.error(prop);
       }
       try {
         this.resetBot();
-      } catch (e) {
-        log.error('Could not reset the bot: ' + e);
+      } catch (error) {
+        log.error(`Could not reset the bot: ${error}`);
         process.exit(1);
       }
     });
 
     this.bot.on('warn', (warning) => {
-      log.warn('warning: ' + warning);
+      log.warn(`warning: ${warning}`);
     });
 
     this.bot.on('disconnect', (closeEvent) => {
@@ -83,12 +82,12 @@ class Bot {
     if (reaction.me) {
       return;
     }
-    let { channel } = reaction.message;
+    const { channel } = reaction.message;
     if (!channel.guild || this.guildSettings[channel.guild.name].react) {
       reaction.message.react(reaction.emoji).then(() => {
-        log.info('Reacted with ' + reaction.emoji);
+        log.info(`Reacted with ${reaction.emoji}`);
       }).catch((e) => {
-        log.error('Failed to react to message: ' + e);
+        log.error(`Failed to react to message: ${e}`);
       });
     }
   }
@@ -98,13 +97,13 @@ class Bot {
     if (reaction.users.length > 1) {
       return;
     }
-    let { channel } = reaction.message;
+    const { channel } = reaction.message;
     if (!channel.guild || this.guildSettings[channel.guild.name].react) {
       if (reaction.users.get(this.bot.user.id)) {
         reaction.remove(this.bot.user).then(() => {
-          log.info('Removed reaction ' + reaction.emoji);
+          log.info(`Removed reaction ${reaction.emoji}`);
         }).catch((e) => {
-          log.error('Failed to remove reaction: ' + e);
+          log.error(`Failed to remove reaction: ${e}`);
         });
       }
     }
@@ -124,7 +123,7 @@ class Bot {
     if (newMember && newMember.user.voiceChannel) {
       const voiceConnection = actions.getChannelVoice(newMember.voiceChannel.id, this.bot.voiceConnections);
       if (voiceConnection) {
-        actions.playAudioCommand(this.bot.voiceConnections, this.commands['newphone'], newMember.user.voiceChannel.id, voiceConnection);
+        actions.playAudioCommand(this.bot.voiceConnections, this.commands.newphone, newMember.user.voiceChannel.id, voiceConnection);
       }
     }
   }
@@ -141,15 +140,15 @@ class Bot {
 
     // storing memes for later use
     if (msg.channel && msg.channel.name && msg.channel.name.includes('memes')) {
-      let words = msg.content.split(' ');
+      const words = msg.content.split(' ');
       for (let i = 0; i < words.length; i++) {
         if (utils.isURL(words[i])) {
           if (this.commands.meme.urls.indexOf(words[i]) === -1) {
             this.commands.meme.urls.push(words[i]);
             this.commandsUpdated = true;
-            log.info('Added a new meme to my collection: \n' + words[i]);
+            log.info(`Added a new meme to my collection: \n${words[i]}`);
           } else {
-            log.info('Avoided duplicate meme: ' + words[i]);
+            log.info(`Avoided duplicate meme: ${words[i]}`);
           }
         }
       }
@@ -157,8 +156,8 @@ class Bot {
 
     // load data for current guild setup and user levels
     // no guild means message is PM, so guild restrictions are not applicable
-    let currentGuildSettings = msg.channel.guild ? this.guildSettings[msg.channel.guild.name] : null;
-    let currentGuildLevels = msg.channel.guild ? this.guildLevels[msg.channel.guild.name] : null;
+    const currentGuildSettings = msg.channel.guild ? this.guildSettings[msg.channel.guild.name] : null;
+    const currentGuildLevels = msg.channel.guild ? this.guildLevels[msg.channel.guild.name] : null;
 
     // check if we should level up a user
     if (currentGuildSettings && currentGuildLevels) {
@@ -174,11 +173,11 @@ class Bot {
     // if no registered settings assume no restrictions
     if (currentGuildSettings) {
       if (!this.botCanPostToChannel(currentGuildSettings.channels, msg.channel)) { // make sure this channel is ok to use
-        msg.author.send('Sorry, you can\'t use mari-bot from ' + msg.channel.name + ' in ' + msg.channel.guild.name);
+        msg.author.send(`Sorry, you can't use mari-bot from ${msg.channel.name} in ${msg.channel.guild.name}`);
         return;
       }
       if (!this.userAllowedToUseBot(currentGuildSettings.roles, msg.member.roles)) { // make sure user is allowed to use bot
-        msg.author.send('Sorry, you don\'t have permission to use mari-bot in ' + msg.channel.guild.name);
+        msg.author.send(`Sorry, you don't have permission to use mari-bot in ${msg.channel.guild.name}`);
         return;
       }
     }
@@ -186,8 +185,8 @@ class Bot {
     let [importantBit] = msg.content.split(' ');
     // cut out the prefix
     importantBit = importantBit.toLowerCase().slice(1);
-    log.info('Received: ' + importantBit);
-    for (let command in this.commands) {
+    log.info(`Received: ${importantBit}`);
+    for (const command in this.commands) {
       if (!this.commands.hasOwnProperty(command)) {
         continue;
       }
@@ -202,8 +201,8 @@ class Bot {
     if (!allowedRoles) {
       return true;
     }
-    for (let role of allowedRoles) {
-      if (userRoles.filter((userRole) => userRole.name.toLowerCase() === role.toLowerCase()).size) {
+    for (const role of allowedRoles) {
+      if (userRoles.filter(userRole => userRole.name.toLowerCase() === role.toLowerCase()).size) {
         return true;
       }
     }
@@ -215,11 +214,11 @@ class Bot {
     if (!allowedChannels) {
       return true;
     }
-    return !!allowedChannels.filter((channelName) => channel.name === channelName).length;
+    return !!allowedChannels.filter(channelName => channel.name === channelName).length;
   }
 
-// Reset the bot (or start it if it's not already running)
-// if channel is given, notify that channel when reset is complete
+  // Reset the bot (or start it if it's not already running)
+  // if channel is given, notify that channel when reset is complete
   resetBot(channel) {
     if (this.bot && this.bot.readyTimestamp) {
       this.bot.destroy().then(() => {
@@ -227,7 +226,7 @@ class Bot {
           log.info('Reset complete!');
         });
       }).catch((reason) => {
-        log.info('Failed to logout: ' + reason);
+        log.info(`Failed to logout: ${reason}`);
       });
     } else {
       this.bot.login(this.token).then(() => {
@@ -238,49 +237,57 @@ class Bot {
     }
   }
 
-// breakout command types into their handler functions
+  // breakout command types into their handler functions
   handleCommand(command, msg, guildLevels, guildSettings) {
-    let type = command.type.toLowerCase();
+    const type = command.type.toLowerCase();
     switch (type) {
-      case 'audio':
+      case 'audio': {
         actions.handleAudioCommand(command, msg);
         break;
-      case 'stop':
+      }
+      case 'stop': {
         actions.stopTalkingInGuild(msg.guild, this.bot.voiceConnections);
         break;
-      case 'text':
+      }
+      case 'text': {
         if (command.response) {
           actions.sendMessage(command.response, msg.channel);
         } else {
-          let beginning = command.beginning ? command.beginning : '';
-          let response = command.responses[Math.floor(Math.random() * command.responses.length)];
-          let ending = command.ending ? command.ending : '';
+          const beginning = command.beginning ? command.beginning : '';
+          const response = command.responses[Math.floor(Math.random() * command.responses.length)];
+          const ending = command.ending ? command.ending : '';
           actions.sendMessage(beginning + response + ending, msg.channel);
         }
         break;
-      case 'move':
+      }
+      case 'move': {
         actions.joinChannel(this.bot.guilds, msg);
         break;
-      case 'leave':
+      }
+      case 'leave': {
         const connection = actions.getVoiceInGuild(this.bot.voiceConnections, msg.guild);
         if (connection) {
           connection.disconnect();
         }
         break;
-      case 'go':
+      }
+      case 'go': {
         const channelName = msg.content.substring(4);
-        log.info('Moving to: ' + channelName);
+        log.info(`Moving to: ${channelName}`);
         actions.joinChannel(this.bot.guilds, null, channelName);
         break;
-      case 'meme':
+      }
+      case 'meme': {
         const urls = command.urls;
-        let url = urls[Math.floor(Math.random() * urls.length)];
+        const url = urls[Math.floor(Math.random() * urls.length)];
         actions.sendMessage(url, msg.channel);
         break;
-      case 'help':
+      }
+      case 'help': {
         actions.sendHelpMessage(msg, this.commands);
         break;
-      case 'level':
+      }
+      case 'level': {
         const userName = msg.content.substring(7);
         const level = actions.getLevelOfUser(guildLevels, guildSettings, msg.channel.guild.members, userName);
         if (level) {
@@ -289,27 +296,30 @@ class Bot {
           actions.sendMessage(`${userName} is not a user in this discord server`, msg.channel);
         }
         break;
-      case 'reset':
+      }
+      case 'reset': {
         config.readCommands().then((commands) => {
           this.setConfigAndReset(commands, msg.channel);
         });
         break;
-      default:
+      }
+      default: {
         actions.sendMessage('Something\'s fucked. Yell at Taylor to fix it.', msg.channel);
         break;
+      }
     }
   }
 
   sendSubMessage(streamer) {
-    let msg = (streamer.message ? streamer.message : streamer.name + ' is now live on twitch! https://www.twitch.tv/' + streamer.name);
-    for (let server of streamer.servers) {
+    const msg = (streamer.message ? streamer.message : `${streamer.name} is now live on twitch! https://www.twitch.tv/${streamer.name}`);
+    for (const server of streamer.servers) {
       actions.sendMessage(msg, this.bot.guilds.get(server.id).channels.get(server.channel));
     }
   }
 
   setConfigAndReset(data, channel, memes) {
     this.prefix = data.prefix;
-    let tempMemes = this.commands.meme;
+    const tempMemes = this.commands.meme;
     this.commands = data.commands;
     if (memes) {
       this.commands.meme = memes;

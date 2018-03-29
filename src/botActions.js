@@ -1,11 +1,27 @@
 const utils = require('./utils');
 const log = require('./logger').getLogger();
 
+function sendMessage(message, channel) {
+  if (!(message && channel)) {
+    log.info(`bad message attempt. Message: ${message}\nchannel: ${channel}`);
+    return;
+  }
+  // discord maximum message length is 2000
+  // if the message is too long, break it up into 2000 character chunks
+  if (message.length > 2000) {
+    channel.send(message.substr(0, 2000));
+    for (let i = 2000; i < message.length; i += 2000) {
+      channel.send(message.substr(i, 2000));
+    }
+  } else {
+    channel.send(message);
+  }
+}
 function getUserVoiceChannel(guild, user) {
   if (!guild.available) {
     return null;
   }
-  let guildUser = guild.member(user);
+  const guildUser = guild.member(user);
   return guildUser.voiceChannel;
 }
 
@@ -25,10 +41,10 @@ function levelUpUser(guildLevels, guildSettings, user, channel) {
     };
     // skip if they're already max level
   } else if (!guildLevels[user.id].maxLevel) {
-    let messages = guildLevels[user.id].messages + 1;
+    const messages = guildLevels[user.id].messages + 1;
     let level;
     let maxLevel;
-    for (let guildLevel of guildSettings.levels) {
+    for (const guildLevel of guildSettings.levels) {
       if (messages >= guildLevel.messagesRequired) {
         level = guildLevel.name;
         maxLevel = guildLevel.max;
@@ -38,7 +54,7 @@ function levelUpUser(guildLevels, guildSettings, user, channel) {
     }
     // level up!
     if (guildLevels[user.id].level !== level) {
-      let messageTemplate = maxLevel ? guildSettings.maxLvlMessage : guildSettings.levelUpMessage;
+      const messageTemplate = maxLevel ? guildSettings.maxLvlMessage : guildSettings.levelUpMessage;
       sendMessage(messageTemplate.replace('<user>', user.username).replace('<level>', level), channel);
     }
     guildLevels[user.id] = {
@@ -50,9 +66,9 @@ function levelUpUser(guildLevels, guildSettings, user, channel) {
 }
 
 function getLevelOfUser(guildLevels, guildSettings, guildMembers, uName) {
-  let userName = uName.toLowerCase();
-  for (let member of guildMembers) {
-    let user = member[1].user;
+  const userName = uName.toLowerCase();
+  for (const member of guildMembers) {
+    const { user } = member[1];
     if (userName === user.username.toLowerCase() || userName === member[1].nickname.toLowerCase()) {
       if (!guildLevels[user.id]) {
         guildLevels[user.id] = {
@@ -67,12 +83,12 @@ function getLevelOfUser(guildLevels, guildSettings, guildMembers, uName) {
 }
 
 function welcomeMember(member, guildSettings) {
-  let name = '<@' + member.user.id + '>';
+  const name = `<@${member.user.id}>`;
   sendMessage(guildSettings.welcomeMessage.replace('<user>', name), member.guild.channels.get(guildSettings.welcomeChannel));
 }
 
 function getFileForCommand(command) {
-  const files = command.files;
+  const { files } = command;
   if (!files) {
     log.error('No files attached to this command...?');
     return '';
@@ -82,26 +98,27 @@ function getFileForCommand(command) {
 }
 
 function getVoiceInGuild(voiceConnections, guild) {
-  let channels = guild.channels.array();
-  for (let channel of channels) {
-    let connection = getChannelVoice(channel.id, voiceConnections);
+  const channels = guild.channels.array();
+  for (const channel of channels) {
+    const connection = getChannelVoice(channel.id, voiceConnections);
     if (connection) {
       return connection;
     }
   }
+  return null;
 }
 
 function findChannel(nameOrId, guilds) {
   if (!nameOrId) {
-    console.error('findChannel requires a name or id');
+    log.error('findChannel requires a name or id');
     return null;
   }
-  for (let guild of guilds) {
+  for (const guild of guilds) {
     if (!guild.available) {
-      log.warn('guild ' + guild + ' is unavailable at this time');
+      log.warn(`guild ${guild} is unavailable at this time`);
       continue;
     }
-    let channels = guild.channels.filter(channel => channel.name === nameOrId || channel.id === nameOrId);
+    const channels = guild.channels.filter(channel => channel.name === nameOrId || channel.id === nameOrId);
     if (channels && channels.size) {
       return channels.first();
     }
@@ -110,59 +127,59 @@ function findChannel(nameOrId, guilds) {
 }
 
 function playAudioCommand(voiceConnections, command, channelId, vc) {
-  const voiceConnection = vc ? vc : getChannelVoice(channelId, voiceConnections);
+  const voiceConnection = vc || getChannelVoice(channelId, voiceConnections);
   const file = getFileForCommand(command);
   if (!voiceConnection) {
-    console.error('We don\'t have a voice connection to channel with id ' + channelId);
+    log.error(`We don't have a voice connection to channel with id ${channelId}`);
     return;
   }
-  console.info('Playing: ' + file);
-  let volume = command.volume;
+  log.info(`Playing: ${file}`);
+  let { volume } = command;
   if (!volume) {
     volume = file.includes('Trilliax') || file.includes('MemeAudio') ? 0.25 : 1.5;
   }
-  let properties = {
+  const properties = {
     volume,
   };
-  let dispatcher = voiceConnection.playFile(file, properties);
+  const dispatcher = voiceConnection.playFile(file, properties);
   dispatcher.on('error', utils.defaultErrorHandler);
 }
 
 // checks the list of voiceConnections for a connection to a channel with id channelId
 function getChannelVoice(channelId, voiceConnections) {
-  let connections = voiceConnections.filter(voiceConnection => voiceConnection.channel.id === channelId);
+  const connections = voiceConnections.filter(voiceConnection => voiceConnection.channel.id === channelId);
   return connections && connections.size ? connections.first() : null;
 }
 
 function joinChannel(guilds, msg, channelNameOrId, callback) {
   if (!msg && !channelNameOrId) {
-    console.info('How did this even happen?\njoinChannel requires either a message or a channel ID');
-    return null;
+    log.info('How did this even happen?\njoinChannel requires either a message or a channel ID');
+    return;
   }
   // attempt to join channel based on given channel name or ID
   if (!msg && channelNameOrId) {
     const channel = findChannel(channelNameOrId, guilds);
     if (channel) {
       channel.join().then(callback).then(() => {
-        log.info('joined channel: ' + channel.name);
+        log.info(`joined channel: ${channel.name}`);
       }).catch(utils.defaultErrorHandler);
       return;
-    } else {
-      log.error('Unable to find channel with name/id ' + channelNameOrId);
     }
+    log.error(`Unable to find channel with name/id ${channelNameOrId}`);
+
     return;
   } else if (!msg) {
-    log.error('unable to join channel with \nmsg ' + msg + '\nchannel name/id' + channelNameOrId);
+    log.error(`unable to join channel with \nmsg ${msg}\nchannel name/id${channelNameOrId}`);
   }
   if (!msg.guild) {
     sendMessage('There\'s no guild attached to this message', msg.channel);
     return;
   }
   // attempt to join channel that the user who sent the message is currently in
-  let voiceChannel = getUserVoiceChannel(msg.guild, msg.author);
+  const voiceChannel = getUserVoiceChannel(msg.guild, msg.author);
   if (voiceChannel) {
     voiceChannel.join().then(callback).then(() => {
-      log.info('joined channel: ' + voiceChannel.name);
+      log.info(`joined channel: ${voiceChannel.name}`);
     }).catch(utils.defaultErrorHandler);
   } else {
     sendMessage('The guild which contains that channel is currently unavailable.', msg.channel);
@@ -173,25 +190,23 @@ function sendHelpMessage(msg, commands) {
   let audio = '';
   let texts = '';
   let general = '';
-  for (let command in commands) {
+  for (const command in commands) {
     if (!commands.hasOwnProperty(command)) {
       continue;
     }
-    let type = commands[command].type;
+    const type = commands[command].type;
     if (type === 'audio') {
-      audio += command + ', ';
+      audio += `${command}, `;
     } else if (type === 'text') {
-      texts += command + ', ';
-    } else {
-      if (!(type === 'meme' || type === 'broken')) {
-        general += command + ', ';
-      }
+      texts += `${command}, `;
+    } else if (!(type === 'meme' || type === 'broken')) {
+      general += `${command}, `;
     }
   }
   audio = audio.substr(0, audio.length - 2);
   texts = texts.substr(0, texts.length - 2);
   general = general.substr(0, general.length - 2);
-  sendMessage('Commands:\n\nGeneral:\n' + general + '\n\nAudio:\n' + audio + '\n\nText:\n' + texts + '\n\nMemes:\nmeme', msg.channel);
+  sendMessage(`Commands:\n\nGeneral:\n${general}\n\nAudio:\n${audio}\n\nText:\n${texts}\n\nMemes:\nmeme`, msg.channel);
 }
 
 function handleAudioCommand(command, msg, voiceConnections, guilds) {
@@ -208,7 +223,7 @@ function handleAudioCommand(command, msg, voiceConnections, guilds) {
     joinChannel(guilds, msg, null, callback);
   } else {
     try {
-      let userVoiceChannelId = getMessageVoiceChannelId(msg);
+      const userVoiceChannelId = getMessageVoiceChannelId(msg);
       if (userVoiceChannelId) {
         if (!getVoiceInGuild(voiceConnections, msg.guild)) {
           joinChannel(guilds, msg, null, callback);
@@ -220,36 +235,19 @@ function handleAudioCommand(command, msg, voiceConnections, guilds) {
       }
     } catch (e) {
       msg.channel.send('Failed to play audio command.');
-      console.error('handleAudioCommand error: ' + e);
+      console.error(`handleAudioCommand error: ${e}`);
     }
   }
 }
 
 function stopTalkingInGuild(guild, voiceConnections) {
-  let dispatcher = getVoiceInGuild(voiceConnections, guild).dispatcher;
+  const dispatcher = getVoiceInGuild(voiceConnections, guild).dispatcher;
   if (dispatcher) {
     try {
       dispatcher.end();
     } catch (e) {
-      log.warn('uncaught exception in stop: ' + e);
+      log.warn(`uncaught exception in stop: ${e}`);
     }
-  }
-}
-
-function sendMessage(message, channel) {
-  if (!(message && channel)) {
-    log.info('bad message attempt. Message: ' + message + '\nchannel: ' + channel);
-    return;
-  }
-  // discord maximum message length is 2000
-  // if the message is too long, break it up into 2000 character chunks
-  if (message.length > 2000) {
-    channel.send(message.substr(0, 2000));
-    for (let i = 2000; i < message.length; i += 2000) {
-      channel.send(message.substr(i, 2000));
-    }
-  } else {
-    channel.send(message);
   }
 }
 
