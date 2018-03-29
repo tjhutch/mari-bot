@@ -39,33 +39,11 @@ class Bot {
     });
 
     this.bot.on('messageReactionAdd', (reaction, user) => {
-      // this means the bot has already added this reaction
-      if (reaction.me) {
-        return;
-      }
-      if (this.guildSettings[reaction.message.channel.guild.name].react) {
-        reaction.message.react(reaction.emoji).then(() => {
-          log.info('Reacted with ' + reaction.emoji);
-        }).catch((e) => {
-          log.error('Failed to react to message: ' + e);
-        });
-      }
+      this.handleReactionAdded(reaction);
     });
 
     this.bot.on('messageReactionRemove', (reaction, user) => {
-      // don't remove until the bot is the only one left who's reacted
-      if (reaction.users.length > 1) {
-        return;
-      }
-      if (this.guildSettings[reaction.message.channel.guild.name].react) {
-        if (reaction.users.get(this.bot.user.id)) {
-          reaction.remove(this.bot.user).then(() => {
-            log.info('Removed reaction ' + reaction.emoji);
-          }).catch((e) => {
-            log.error('Failed to remove reaction: ' + e);
-          });
-        }
-      }
+      this.handleReactionRemoved(reaction);
     });
 
     // Uh oh
@@ -99,6 +77,36 @@ class Bot {
       }
       log.info(`debug: ${info}`);
     });
+  }
+
+  handleReactionAdded(reaction) {
+    // this means the bot has already added this reaction
+    if (reaction.me) {
+      return;
+    }
+    if (this.guildSettings[reaction.message.channel.guild.name].react) {
+      reaction.message.react(reaction.emoji).then(() => {
+        log.info('Reacted with ' + reaction.emoji);
+      }).catch((e) => {
+        log.error('Failed to react to message: ' + e);
+      });
+    }
+  }
+
+  handleReactionRemoved(reaction) {
+    // don't remove until the bot is the only one left who's reacted
+    if (reaction.users.length > 1) {
+      return;
+    }
+    if (this.guildSettings[reaction.message.channel.guild.name].react) {
+      if (reaction.users.get(this.bot.user.id)) {
+        reaction.remove(this.bot.user).then(() => {
+          log.info('Removed reaction ' + reaction.emoji);
+        }).catch((e) => {
+          log.error('Failed to remove reaction: ' + e);
+        });
+      }
+    }
   }
 
   // NEW PHONE WHO DIS

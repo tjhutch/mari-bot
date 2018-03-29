@@ -14,10 +14,10 @@ module.exports = class TwitchWebhookHandler {
 
     config.readStreamers().then((streamers) => {
       this.streamers = streamers;
-        return new Promise(this.startTunnel);
-      }).then((url) => {
-        log.info("Tunnel created");
-        this.callbackUrl = url;
+      return new Promise(this.startTunnel);
+    }).then((url) => {
+      log.info('Tunnel created');
+      this.callbackUrl = url;
       this.subscribeToStreams();
     }).catch((e) => {
       log.error('Error while setting up twitch webhooks: ' + e);
@@ -25,7 +25,7 @@ module.exports = class TwitchWebhookHandler {
   }
 
   startTunnel(resolve, reject) {
-    ngrok.connect(8492,  (e, url) => {
+    ngrok.connect(8492, (e, url) => {
       if (e) {
         log.info('failed to connect to ngrok: ' + e);
         reject(e);
@@ -50,15 +50,15 @@ module.exports = class TwitchWebhookHandler {
 
 // set listener for all topics
     //twitchWebhook.on('*', ({ topic, options, endpoint, event }) => {
-      // topic name, for example "streams"
-      //log.info(topic);
-      // topic options, for example "{user_id: 12826}"
-      //log.info(options);
-      // full topic URL, for example
-      // "https://api.twitch.tv/helix/streams?user_id=12826"
-      //log.info(endpoint);
-      // topic data, timestamps are automatically converted to Date
-      //log.info(event);
+    // topic name, for example "streams"
+    //log.info(topic);
+    // topic options, for example "{user_id: 12826}"
+    //log.info(options);
+    // full topic URL, for example
+    // "https://api.twitch.tv/helix/streams?user_id=12826"
+    //log.info(endpoint);
+    // topic data, timestamps are automatically converted to Date
+    //log.info(event);
     //});
 
     // set listener for topic
@@ -67,18 +67,21 @@ module.exports = class TwitchWebhookHandler {
       log.info(options);
       log.info(endpoint);
       log.info(event);
-      if (!event.data.length) {
+      if (!event.data.length && streamUpTimes[options.user_id]) {
         log.info('Stream down: ' + options.user_id);
         streamUpTimes[options.user_id] = null;
-        return;
       }
-      const [data] = event.data;
       let [streamer] = this.streamers.filter((streamer) => {
-        return streamer.id === data.user_id;
+        return streamer.id === options.user_id;
       });
-      if (!streamUpTimes[streamer.id] || streamUpTimes[streamer.id] !== data.started_at) {
+      let data;
+      if (event && event.data && event.data.length) {
+        data = event.data[0];
+      }
+      let startedAt = data ? data.started_at : new Date();
+      if (!streamUpTimes[streamer.id] || streamUpTimes[streamer.id] !== startedAt) {
         this.bot.sendSubMessage(streamer);
-        streamUpTimes[streamer.id] = data.started_at;
+        streamUpTimes[streamer.id] = startedAt;
       } else {
         log.info('stream for user ' + streamer.name + ' is already up, not sending notification');
       }
