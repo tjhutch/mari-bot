@@ -39,11 +39,11 @@ class Bot {
     });
 
     this.bot.on('messageReactionAdd', (reaction, user) => {
-      // this means the bot added this reaction
+      // this means the bot has already added this reaction
       if (reaction.me) {
         return;
       }
-      if (this.guildSettings[reaction.user.guild.name].react) {
+      if (this.guildSettings[reaction.message.channel.guild.name].react) {
         reaction.message.react(reaction.emoji).then(() => {
           log.info('Reacted with ' + reaction.emoji);
         }).catch((e) => {
@@ -53,13 +53,13 @@ class Bot {
     });
 
     this.bot.on('messageReactionRemove', (reaction, user) => {
-      // this means the bot removed this reaction
-      if (reaction.me) {
+      // don't remove until the bot is the only one left who's reacted
+      if (reaction.users.length > 1) {
         return;
       }
-      if (this.guildSettings[reaction.user.guild.name].react) {
+      if (this.guildSettings[reaction.message.channel.guild.name].react) {
         if (reaction.users.get(this.bot.user.id)) {
-          reaction.remove(reaction.emoji).then(() => {
+          reaction.remove(this.bot.user).then(() => {
             log.info('Removed reaction ' + reaction.emoji);
           }).catch((e) => {
             log.error('Failed to remove reaction: ' + e);
