@@ -38,15 +38,66 @@ class Bot {
       this.newPhoneWhoDis(newMember, oldMember);
     });
 
+    this.bot.on('messageReactionAdd', (reaction, user) => {
+      // this means the bot added this reaction
+      if (reaction.me) {
+        return;
+      }
+      if (this.guildSettings[reaction.user.guild.name].react) {
+        reaction.message.react(reaction.emoji).then(() => {
+          log.info('Reacted with ' + reaction.emoji);
+        }).catch((e) => {
+          log.error('Failed to react to message: ' + e);
+        });
+      }
+    });
+
+    this.bot.on('messageReactionRemove', (reaction, user) => {
+      // this means the bot removed this reaction
+      if (reaction.me) {
+        return;
+      }
+      if (this.guildSettings[reaction.user.guild.name].react) {
+        if (reaction.users.get(this.bot.user.id)) {
+          reaction.remove(reaction.emoji).then(() => {
+            log.info('Removed reaction ' + reaction.emoji);
+          }).catch((e) => {
+            log.error('Failed to remove reaction: ' + e);
+          });
+        }
+      }
+    });
+
     // Uh oh
-    this.bot.on('Error', (e) => {
-      log.error('ERROR bot crashed!: ' + e);
+    this.bot.on('error', (e) => {
+      log.error('ERROR bot crashed!: ');
+      for (let prop of e) {
+        log.error(prop);
+      }
       try {
         this.resetBot();
       } catch (e) {
         log.error('Could not reset the bot: ' + e);
         process.exit(1);
       }
+    });
+
+    this.bot.on('warn', (warning) => {
+      log.warn('warning: ' + warning);
+    });
+
+    this.bot.on('disconnect', (closeEvent) => {
+      log.warn(`Websocket connection failed with error code ${closeEvent.code}! attempting to restart bot`);
+      log.warn(closeEvent.reason);
+      this.resetBot();
+    });
+
+    this.bot.on('debug', (info) => {
+      // ignore heartbeats
+      if (info.toLowerCase().includes('heartbeat')) {
+        return;
+      }
+      log.info(`debug: ${info}`);
     });
   }
 
@@ -166,7 +217,7 @@ class Bot {
       this.bot.destroy().then(() => {
         this.bot.login(this.token);
       }).catch((reason) => {
-        log.info('Failed to logout...?\n' + reason);
+        log.info('Failed to logout: ' + reason);
       });
     } else {
       this.bot.login(this.token).then(() => {

@@ -7,7 +7,8 @@
       "admin",
       "Bot Commander",
       "member"
-    ]
+    ],
+    "react": true
   },
   "Bot Testing Grounds": {
     "channels": [
@@ -35,7 +36,8 @@
     "levelUpMessage": "<user> has levelled up to <level>",
     "maxLvlMessage": "GG <user>, you've reached MAX LEVEL!",
     "welcomeMessage": "Welcome fellow human '<user>' to our testing area.",
-    "welcomeChannel": "265600449762033664"
+    "welcomeChannel": "265600449762033664",
+    "react": true
   },
   "MARI-BOTS": {
     "channels": [
@@ -96,6 +98,7 @@
       }
     ],
     "levelUpMessage": "CONGRAGULATIONS <user>, YOU'VE LEVELED UP TO LEVEL <level>!",
-    "maxLvlMessage": "GG <user>, YOU'VE REACHED MAX LEVEL!"
+    "maxLvlMessage": "GG <user>, YOU'VE REACHED MAX LEVEL!",
+    "react": true
   }
 }
