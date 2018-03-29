@@ -5,6 +5,7 @@ const log = require('./logger').getLogger();
 const config = require('./configManager').getConfigManager();
 
 class Bot {
+
   constructor(commands, token, guildSettings, guildLevels) {
     this.commands = commands.commands;
     this.prefix = commands.prefix;
@@ -15,7 +16,6 @@ class Bot {
     this.resetBot();
   }
 
-
 // sets all the handlers for bot actions
   configureBot() {
     this.bot = new Discord.Client();
@@ -24,7 +24,7 @@ class Bot {
     });
 
     this.bot.on('message', (msg) => {
-      this.handleMessage(msg)
+      this.handleMessage(msg);
     });
 
     this.bot.on('guildMemberAdd', (member) => {
@@ -38,15 +38,14 @@ class Bot {
       this.newPhoneWhoDis(newMember, oldMember);
     });
 
-    this.bot.on('messageReactionAdd', (reaction, user) => {
+    this.bot.on('messageReactionAdd', (reaction) => {
       this.handleReactionAdded(reaction);
     });
 
-    this.bot.on('messageReactionRemove', (reaction, user) => {
+    this.bot.on('messageReactionRemove', (reaction) => {
       this.handleReactionRemoved(reaction);
     });
 
-    // Uh oh
     this.bot.on('error', (e) => {
       log.error('ERROR bot crashed!: ');
       for (let prop of e) {
@@ -112,7 +111,6 @@ class Bot {
   // NEW PHONE WHO DIS
   // play new phone audio clip when a new user comes into the same channel as the bot
   newPhoneWhoDis(oldMember, newMember) {
-    // discord.js docs say to use bot.voiceConnections... BUT IT DOESN'T EXIST
     if (this.bot.voiceConnections.size === 0) {
       return;
     }
@@ -122,7 +120,7 @@ class Bot {
       }
     }
     if (newMember && newMember.user.voiceChannel) {
-      const voiceConnection = actions.getBotVoiceConnection(newMember.voiceChannel.id, this.bot.voiceConnections);
+      const voiceConnection = actions.getChannelVoice(newMember.voiceChannel.id, this.bot.voiceConnections);
       if (voiceConnection) {
         actions.playAudioCommand(this.bot.voiceConnections, this.commands['newphone'], newMember.user.voiceChannel.id, voiceConnection);
       }
@@ -178,7 +176,7 @@ class Bot {
         return;
       }
       if (!this.userAllowedToUseBot(currentGuildSettings.roles, msg.member.roles)) { // make sure user is allowed to use bot
-        msg.author.send("Sorry, you don't have permission to use mari-bot in " + msg.channel.guild.name);
+        msg.author.send('Sorry, you don\'t have permission to use mari-bot in ' + msg.channel.guild.name);
         return;
       }
     }
@@ -215,7 +213,7 @@ class Bot {
     if (!allowedChannels) {
       return true;
     }
-    return !!allowedChannels.filter((channelName) => channel.name === channelName).length
+    return !!allowedChannels.filter((channelName) => channel.name === channelName).length;
   }
 
 // Reset the bot (or start it if it's not already running)
@@ -223,7 +221,9 @@ class Bot {
   resetBot(channel) {
     if (this.bot && this.bot.readyTimestamp) {
       this.bot.destroy().then(() => {
-        this.bot.login(this.token);
+        this.bot.login(this.token).then(() => {
+          log.info('Reset complete!');
+        });
       }).catch((reason) => {
         log.info('Failed to logout: ' + reason);
       });
@@ -241,18 +241,18 @@ class Bot {
     let type = command.type.toLowerCase();
     switch (type) {
       case 'audio':
-        this.handleAudioCommand(command, msg);
+        actions.handleAudioCommand(command, msg);
         break;
       case 'stop':
-        this.stopTalkingInGuild(msg.guild);
+        actions.stopTalkingInGuild(msg.guild, this.bot.voiceConnections);
         break;
       case 'text':
         if (command.response) {
           actions.sendMessage(command.response, msg.channel);
         } else {
-          let beginning = command.beginning ? command.beginning : "";
+          let beginning = command.beginning ? command.beginning : '';
           let response = command.responses[Math.floor(Math.random() * command.responses.length)];
-          let ending = command.ending ? command.ending : "";
+          let ending = command.ending ? command.ending : '';
           actions.sendMessage(beginning + response + ending, msg.channel);
         }
         break;
@@ -260,7 +260,7 @@ class Bot {
         actions.joinChannel(this.bot.guilds, msg);
         break;
       case 'leave':
-        const connection = actions.activeVoiceInGuild(this.bot.voiceConnections, msg.guild);
+        const connection = actions.getVoiceInGuild(this.bot.voiceConnections, msg.guild);
         if (connection) {
           connection.disconnect();
         }
@@ -276,7 +276,7 @@ class Bot {
         actions.sendMessage(url, msg.channel);
         break;
       case 'help':
-        this.sendHelpMessage(msg);
+        actions.sendHelpMessage(msg, this.commands);
         break;
       case 'level':
         const userName = msg.content.substring(7);
@@ -295,74 +295,6 @@ class Bot {
       default:
         actions.sendMessage('Something\'s fucked. Yell at Taylor to fix it.', msg.channel);
         break;
-    }
-  }
-
-  stopTalkingInGuild(guild) {
-    let dispatcher = actions.activeVoiceInGuild(this.bot.voiceConnections, guild).dispatcher;
-    if (dispatcher) {
-      try {
-        dispatcher.end();
-      } catch (e) {
-        log.warn('uncaught exception in stop: ' + e);
-        // nothing to do here, just an unfulfilled promise
-      }
-    }
-  }
-
-  sendHelpMessage(msg) {
-    let audio = '';
-    let texts = '';
-    let general = '';
-    for (let command in this.commands) {
-      if (!this.commands.hasOwnProperty(command)) {
-        continue;
-      }
-      let type = this.commands[command].type;
-      if (type === 'audio') {
-        audio += command + ', ';
-      } else if (type === 'text') {
-        texts += command + ', ';
-      } else {
-        if (!(type === 'meme' || type === 'broken')) {
-          general += command + ', ';
-        }
-      }
-    }
-    audio = audio.substr(0, audio.length - 2);
-    texts = texts.substr(0, texts.length - 2);
-    general = general.substr(0, general.length - 2);
-    actions.sendMessage('Commands:\n\nGeneral:\n' + general + '\n\nAudio:\n' + audio + '\n\nText:\n' + texts + '\n\nMemes:\nmeme', msg.channel);
-  }
-
-  handleAudioCommand(command, msg) {
-    if (!msg.guild) {
-      msg.channel.send('You can\'t send voice commands from a PM');
-      return;
-    }
-
-    const connection = actions.activeVoiceInGuild(this.bot.voiceConnections, msg.guild);
-    const callback = () => {
-      actions.playAudioCommand(this.bot.voiceConnections, command, null, connection);
-    };
-    if (!connection) {
-      actions.joinChannel(this.bot.guilds, msg, null, callback);
-    } else {
-      try {
-        let userVoiceChannelId = actions.getMessageVoiceChannelId(msg);
-        if (userVoiceChannelId) {
-          if (!actions.activeVoiceInGuild(this.bot.voiceConnections, msg.guild)) {
-            actions.joinChannel(this.bot.guilds, msg, null, callback);
-            return;
-          }
-          actions.playAudioCommand(this.bot.voiceConnections, command, userVoiceChannelId);
-        } else {
-          msg.channel.send('You must be in a voice channel to use voice commands');
-        }
-      } catch (e) {
-        msg.channel.send('Failed to play audio command.');
-        console.error('handleAudioCommand error: ' + e);
-      }
     }
   }
 

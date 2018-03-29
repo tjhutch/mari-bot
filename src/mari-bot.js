@@ -9,16 +9,12 @@ let bot;
 let twitch;
 let saved = false;
 
-// values[0] = commands
-// values[1] = memes
-// values[2] = tokens
-// values[3] = guild settings
-// values[4] = guild levels
-Promise.all([config.readCommands(),
-             config.readMemes(),
-             config.readTokens(),
-             config.readGuildSettings(),
-             config.readGuildLevels()]).then((values) => {
+Promise.all([config.readCommands(),      // values[0]
+             config.readMemes(),         // values[1]
+             config.readTokens(),        // values[2]
+             config.readGuildSettings(), // values[3]
+             config.readGuildLevels()    // values[4]
+]).then((values) => {
   values[0].commands.meme = values[1];
   bot = new Bot(values[0], values[2].discordToken, values[3], values[4]);
   twitch = new TwitchWebhookHandler(values[2], bot);
