@@ -69,16 +69,18 @@ module.exports = class TwitchWebhookHandler {
       log.info(options);
       log.info(endpoint);
       log.info(event);
-      if (!event.data.length && streamUpTimes[options.user_id]) {
-        log.info(`Stream down: ${options.user_id}`);
-        streamUpTimes[options.user_id] = null;
-      }
-      const [streamer] = this.streamers.filter(streamer => streamer.id === options.user_id);
       let data;
       if (event && event.data && event.data.length) {
         data = event.data[0];
       }
       const startedAt = data ? data.started_at : new Date();
+      if ((!data && streamUpTimes[options.user_id]) ||
+        (data && streamUpTimes[options.user_id] && streamUpTimes[options.user_id] !== data.started_at)) {
+        log.info(`Stream down: ${options.user_id}`);
+        streamUpTimes[options.user_id] = null;
+        return;
+      }
+      const [streamer] = this.streamers.filter(streamer => streamer.id === options.user_id);
       if (!streamUpTimes[streamer.id] || streamUpTimes[streamer.id] !== startedAt) {
         this.bot.sendSubMessage(streamer);
         streamUpTimes[streamer.id] = startedAt;

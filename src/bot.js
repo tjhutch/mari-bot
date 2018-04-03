@@ -140,18 +140,7 @@ class Bot {
 
     // storing memes for later use
     if (msg.channel && msg.channel.name && msg.channel.name.includes('memes')) {
-      const words = msg.content.split(' ');
-      for (let i = 0; i < words.length; i++) {
-        if (utils.isURL(words[i])) {
-          if (this.commands.meme.urls.indexOf(words[i]) === -1) {
-            this.commands.meme.urls.push(words[i]);
-            this.commandsUpdated = true;
-            log.info(`Added a new meme to my collection: \n${words[i]}`);
-          } else {
-            log.info(`Avoided duplicate meme: ${words[i]}`);
-          }
-        }
-      }
+      this.saveMeme(msg);
     }
 
     // load data for current guild setup and user levels
@@ -278,9 +267,13 @@ class Bot {
         break;
       }
       case 'meme': {
-        const urls = command.urls;
+        const { urls } = command;
         const url = urls[Math.floor(Math.random() * urls.length)];
         actions.sendMessage(url, msg.channel);
+        break;
+      }
+      case 'memeAdd': {
+        this.saveMeme(msg);
         break;
       }
       case 'help': {
@@ -306,6 +299,22 @@ class Bot {
       default: {
         actions.sendMessage('Something\'s fucked. Yell at Taylor to fix it.', msg.channel);
         break;
+      }
+    }
+  }
+
+  saveMeme(msg) {
+    const words = msg.content.split(' ');
+    for (let i = 0; i < words.length; i += 1) {
+      const meme = words[i];
+      if (utils.isURL(meme)) {
+        if (this.commands.meme.urls.indexOf(meme) === -1) {
+          this.commands.meme.urls.push(meme);
+          this.commandsUpdated = true;
+          log.info(`Added a new meme to my collection: \n${meme}`);
+        } else {
+          log.info(`Avoided duplicate meme: ${meme}`);
+        }
       }
     }
   }
