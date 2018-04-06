@@ -98,6 +98,9 @@ function getFileForCommand(command) {
 }
 
 function getVoiceInGuild(voiceConnections, guild) {
+  if (!voiceConnections || !guild) {
+    return null;
+  }
   const channels = guild.channels.array();
   for (const channel of channels) {
     const connection = getChannelVoice(channel.id, voiceConnections);
@@ -216,7 +219,7 @@ function handleAudioCommand(command, msg, voiceConnections, guilds) {
   }
 
   const connection = getVoiceInGuild(voiceConnections, msg.guild);
-  const callback = () => {
+  const callback = (connection) => {
     playAudioCommand(voiceConnections, command, null, connection);
   };
   if (!connection) {

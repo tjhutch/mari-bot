@@ -112,7 +112,7 @@ class Bot {
   // NEW PHONE WHO DIS
   // play new phone audio clip when a new user comes into the same channel as the bot
   newPhoneWhoDis(oldMember, newMember) {
-    if (this.bot.voiceConnections.size === 0 || newMember.user.id === this.bot.user.id) {
+    if (this.bot.voiceConnections.size === 0) {
       return;
     }
     if (oldMember && newMember) {
@@ -120,10 +120,10 @@ class Bot {
         return;
       }
     }
-    if (newMember && newMember.user.voiceChannel) {
-      const voiceConnection = actions.getChannelVoice(newMember.voiceChannel.id, this.bot.voiceConnections);
+    if (newMember && newMember.voiceChannelID) {
+      const voiceConnection = actions.getChannelVoice(newMember.voiceChannelID, this.bot.voiceConnections);
       if (voiceConnection) {
-        actions.playAudioCommand(this.bot.voiceConnections, this.commands.newphone, newMember.user.voiceChannel.id, voiceConnection);
+        actions.playAudioCommand(this.bot.voiceConnections, this.commands.newphone, newMember.voiceChannelID, voiceConnection);
       }
     }
   }
@@ -231,7 +231,7 @@ class Bot {
     const type = command.type.toLowerCase();
     switch (type) {
       case 'audio': {
-        actions.handleAudioCommand(command, msg);
+        actions.handleAudioCommand(command, msg, this.bot.voiceConnections, this.bot.guilds);
         break;
       }
       case 'stop': {
