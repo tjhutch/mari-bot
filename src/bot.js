@@ -112,7 +112,7 @@ class Bot {
   // NEW PHONE WHO DIS
   // play new phone audio clip when a new user comes into the same channel as the bot
   newPhoneWhoDis(oldMember, newMember) {
-    if (this.bot.voiceConnections.size === 0) {
+    if (this.bot.voiceConnections.size === 0 || newMember.user.id === this.bot.user.id) {
       return;
     }
     if (oldMember && newMember) {
