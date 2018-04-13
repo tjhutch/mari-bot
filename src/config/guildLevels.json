@@ -9,19 +9,19 @@
   "MARI-BOTS": {
     "99343549773926400": {
       "level": "5",
-      "messages": 59
+      "messages": 64
     },
     "225487242234167307": {
-      "level": "5",
-      "messages": 65
+      "level": "6",
+      "messages": 90
     },
     "110987836332707840": {
       "level": "4",
-      "messages": 35
+      "messages": 37
     },
     "91957644905955328": {
-      "level": "3",
-      "messages": 28
+      "level": "4",
+      "messages": 37
     },
     "134928025589383168": {
       "level": "5",
@@ -29,11 +29,11 @@
     },
     "123300571083046915": {
       "level": "4",
-      "messages": 30
+      "messages": 32
     },
     "163186320972185600": {
       "level": "1",
-      "messages": 7
+      "messages": 9
     },
     "99343749196283904": {
       "level": "0",
@@ -53,35 +53,35 @@
     },
     "94530857380880384": {
       "level": "6",
-      "messages": 109
+      "messages": 124
     },
     "83737260649873408": {
       "level": "2",
-      "messages": 10
+      "messages": 11
     },
     "283455280358883330": {
-      "level": "2",
-      "messages": 14
+      "level": "3",
+      "messages": 25
     },
     "194621673545269249": {
-      "level": "0",
-      "messages": 1
+      "level": "1",
+      "messages": 5
     },
     "203696384996540416": {
-      "level": "0",
-      "messages": 2
+      "level": "1",
+      "messages": 7
     },
     "204447073830043649": {
-      "level": "0",
-      "messages": 2
+      "level": "2",
+      "messages": 16
     },
     "367893904202268683": {
-      "level": "2",
-      "messages": 14
+      "level": "3",
+      "messages": 25
     },
     "322353051262517258": {
       "level": "0",
-      "messages": 1
+      "messages": 2
     },
     "195211676675604480": {
       "level": "0",
@@ -92,8 +92,20 @@
       "messages": 1
     },
     "344269024148062208": {
+      "level": "2",
+      "messages": 11
+    },
+    "189145726746361858": {
+      "level": "0",
+      "messages": 1
+    },
+    "95983533775937536": {
       "level": "1",
-      "messages": 6
+      "messages": 5
+    },
+    "107032803387912192": {
+      "level": "0",
+      "messages": 1
     }
   }
 }

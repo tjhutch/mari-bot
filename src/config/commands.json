@@ -898,6 +898,14 @@
         "Bigger"
       ]
     },
+    "inhell": {
+      "type": "audio",
+      "folder": "MemeAudio",
+	  "volume": 1,
+      "files": [
+        "See you in hell"
+      ]
+    },
     "myman": {
       "type": "audio",
       "folder": "MemeAudio",
