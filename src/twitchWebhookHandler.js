@@ -6,6 +6,21 @@ const config = require('./configManager').getConfigManager();
 const streamUpTimes = {};
 let twitchWebhook;
 
+function resubToUser(streamer) {
+  const subObject = {
+    user_id: streamer.id,
+  };
+  twitchWebhook.unsubscribe('streams', subObject).then(() => {
+    twitchWebhook.subscribe('streams', subObject).then(() => {
+      log.info(`re-subbed to ${subObject.user_id}'s stream`);
+    }).catch((e) => {
+      log.error(`failed to sub to ${subObject.user_id}'s stream: ${e}`);
+    });
+  }).catch((e) => {
+    log.error(`failed to unsub from ${subObject.user_id}'s stream: ${e}`);
+  });
+}
+
 module.exports = class TwitchWebhookHandler {
   constructor(tokenData, bot) {
     this.secret = tokenData.twitchToken;
@@ -69,32 +84,28 @@ module.exports = class TwitchWebhookHandler {
       log.info(options);
       log.info(endpoint);
       log.info(event);
-      let data;
-      if (event && event.data && event.data.length) {
-        data = event.data[0];
+      const [streamer] = this.streamers.filter(st => st.id === options.user_id);
+      if (event.data && event.data.length) {
+        const [data] = event.data;
+        const startedAt = data.started_at;
+        if (!streamUpTimes[streamer.id] || streamUpTimes[streamer.id] !== startedAt) {
+          this.bot.sendSubMessage(streamer);
+          streamUpTimes[streamer.id] = startedAt;
+        } else {
+          log.info(`Stream down: ${options.user_id}`);
+          streamUpTimes[options.user_id] = null;
+        }
       }
-      const startedAt = data ? data.started_at : new Date();
-      if ((!data && streamUpTimes[options.user_id]) ||
-        (data && streamUpTimes[options.user_id] && streamUpTimes[options.user_id] !== data.started_at)) {
-        log.info(`Stream down: ${options.user_id}`);
-        streamUpTimes[options.user_id] = null;
-        return;
-      }
-      const [streamer] = this.streamers.filter(streamer => streamer.id === options.user_id);
-      if (!streamUpTimes[streamer.id] || streamUpTimes[streamer.id] !== startedAt) {
-        this.bot.sendSubMessage(streamer);
-        streamUpTimes[streamer.id] = startedAt;
-      } else {
-        log.info(`stream for user ${streamer.name} is already up, not sending notification`);
-      }
+      resubToUser(streamer);
     });
 
     // subscribe to topic
-    for (const streamer of this.streamers) {
+    this.streamers.every((streamer) => {
       twitchWebhook.subscribe('streams', {
         user_id: streamer.id,
       });
-    }
+      return true;
+    });
 
     // renew the subscription when it expires
     twitchWebhook.on('unsubscribe', (obj) => {
