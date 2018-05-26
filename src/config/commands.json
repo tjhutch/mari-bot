@@ -951,6 +951,7 @@
     "rave": {
       "type": "audio",
       "folder": "MemeAudio",
+	  "volume": 0.2,
       "files": [
         "Rave1",
         "Rave2"
@@ -1029,6 +1030,10 @@
     "honeybun": {
       "type": "text",
       "response": "What the heck did you just say about me, you little honey bun? I’ll have you know I graduated top of my class in the Cutie Patooties, and I’ve been involved in numerous secret tweets on Daddy Trump, and I have over 300 confirmed snookims. I am trained in butter biscuits and I’m the top sweetie in the entire US sugar doodles. You are nothing to me but just another Daddy. I will cuddle you the heck out with warmth the likes of which has never been felt before on this Earth, mark my words. You think you can get away with saying that dookie doo to me over the Internet? Think again, cutie. As we speak I am contacting my secret network of Mommies across the USA and your IP is being traced right now so you better prepare for the huggie wuggies, deary. The huggies that wipes out the silly little thing you call your meanie doodles. You’re in trouble, Daddy. I can be anywhere, anytime, and I can tweet you in over seven hundred ways, and that’s just with my bare hands. Not only am I extensively trained in butter boops, but I have access to the entire arsenal of the Cutie Wooties Fruity Tooties and I will use it to its full extent to wipe your widdle face, you little cutie pie. If only you could have known what huggie wuggies your little “tweetie weetie” was about to bring down upon you, maybe you would have held your mouthy wouthy. But you couldn’t, you didn’t, and now you’re paying the price, honey buns. I will wiggle woop all over you and you will drown in it. You’re really sweet, honey."
+    },
+    "naurto": {
+      "type": "text",
+	  "response": "Omg hai ^ I’m anon-san and I absolutely luuuv @@ anime <3 and my fav is naurto!!! Okies so anyways, im going to tell you about the BEST day of my life when I met my hot husband sasuke!! <333333333 OMFGZ HE WAS SOOOOO FREAKIN KAWAII IN PERSON!!! Supa kawaii desu!!!!!!!! ^__^\nWhen I walked onto Tokyo street ==I looked up and saw…SASUKE!!!!!!!!!!!!!!! <33333333333333333333333333333333333333333333333333333333333333!!!! \" KONNICHIWA OMGZZZZZZZZZZZZZZZZ SUPA SUPA SUPA KAWAII SASUKE-SAMA!!!!!\" I yelled nn then he turned chibi then un-chibi!! he looked at me [O.O;;;;;;;;;;;] and then he saw how hot I am ** he grabbed my hand and winked ~^ then pulled me behind a pocky shop oo and started to kiss me!!!!!! [OMG!!! HIS TOUNGE TASTED LIKE RAMEN!!! RLY!! >.> <.< >.< (O) (O) (O)] then I saw some baka fat bitch watching us and I could tell she was undressing him with her eyes!!!!!!! [ -__-;;;;; OMG I COULDN’T BELIEVE IT EITHER!!! (òó) (òó) (òó)] so I yelled \"UH UH BAKA NEKO THAT’S MY MAN WHY DON’T YOU GO HOOK UP WITH NARUTO CAUSE SASUKE-SAMA LOVES ME!!! (òó)\" then sasuke held me close == and said he would only ever love me and kissed me again!!!!!!! ** (O)/ then we went to his apartment and banged all night long and made 42 babies and they all became ninjas!!!!!!!!!!!!!!! Nyaaaaa!!! (^<) ^_;;;;;;;;;;;;;;;;"
     },
     "nofap": {
       "type": "text",
