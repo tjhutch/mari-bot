@@ -77,10 +77,35 @@ class Bot {
     });
   }
 
+  // send 'blocked' as a reaction to the message
+  blocked(msg) {
+    // 📢🇧🇱🇴🇨🇰🇪🇩
+    msg.react('🇧').then(() => {
+      return msg.react('🇱');
+    }).then(() => {
+      return msg.react('🇴');
+    }).then(() => {
+      return msg.react('🇨');
+    }).then(() => {
+      return msg.react('🇰');
+    }).then(() => {
+      return msg.react('🇪');
+    }).then(() => {
+      return msg.react('🇩');
+    }).then(() => {
+      log.info('sent \'blocked\' reaction');
+    }).catch((e) => {
+      log.error(`failed to send blocked: ${e}`);
+    });
+  }
+
   handleReactionAdded(reaction) {
     // this means the bot has already added this reaction
     if (reaction.me) {
       return;
+    }
+    if (reaction.emoji.name === '📢') {
+      this.blocked(reaction.message);
     }
     const { channel } = reaction.message;
     if (!channel.guild || this.guildSettings[channel.guild.name].react) {
