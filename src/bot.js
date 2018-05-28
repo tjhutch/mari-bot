@@ -11,6 +11,7 @@ class Bot {
     this.token = token;
     this.guildSettings = guildSettings;
     this.guildLevels = guildLevels;
+    this.blocking = false;
     this.configureBot();
     this.resetBot();
   }
@@ -80,6 +81,7 @@ class Bot {
   // send 'blocked' as a reaction to the message
   blocked(msg) {
     // 📢🇧🇱🇴🇨🇰🇪🇩
+    this.blocking = true;
     msg.react('🇧').then(() => {
       return msg.react('🇱');
     }).then(() => {
@@ -94,8 +96,10 @@ class Bot {
       return msg.react('🇩');
     }).then(() => {
       log.info('sent \'blocked\' reaction');
+      this.blocking = false;
     }).catch((e) => {
       log.error(`failed to send blocked: ${e}`);
+      this.blocking = false;
     });
   }
 
@@ -104,11 +108,16 @@ class Bot {
     if (reaction.me) {
       return;
     }
-    if (reaction.emoji.name === '📢') {
-      this.blocked(reaction.message);
-    }
     const { channel } = reaction.message;
     if (!channel.guild || this.guildSettings[channel.guild.name].react) {
+      if (reaction.emoji.name === '📢') {
+        this.blocked(reaction.message);
+      }
+      if (this.blocking) {
+        reaction.remove();
+        reaction.message.author.send('Shhh I\'m working');
+        return;
+      }
       reaction.message.react(reaction.emoji).then(() => {
         log.info(`Reacted with ${reaction.emoji}`);
       }).catch((e) => {
