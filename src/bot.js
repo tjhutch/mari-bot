@@ -110,13 +110,15 @@ class Bot {
     }
     const { channel } = reaction.message;
     if (!channel.guild || this.guildSettings[channel.guild.name].react) {
+      if (this.blocking) {
+        reaction.users.map((user) => {
+          reaction.remove(user);
+          user.send('Shhh I\'m working');
+        });
+        return;
+      }
       if (reaction.emoji.name === '📢') {
         this.blocked(reaction.message);
-      }
-      if (this.blocking) {
-        reaction.remove();
-        reaction.message.author.send('Shhh I\'m working');
-        return;
       }
       reaction.message.react(reaction.emoji).then(() => {
         log.info(`Reacted with ${reaction.emoji}`);
