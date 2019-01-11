@@ -1,25 +1,9 @@
 const TwitchWebhook = require('twitch-webhook');
 const ngrok = require('ngrok');
-const log = require('./logger').getLogger();
+const logger = require('./logger').getLogger();
 const config = require('./configManager').getConfigManager();
 
-const streamUpTimes = {};
 let twitchWebhook;
-
-function resubToUser(streamer) {
-  const subObject = {
-    user_id: streamer.id,
-  };
-  twitchWebhook.unsubscribe('streams', subObject).then(() => {
-    twitchWebhook.subscribe('streams', subObject).then(() => {
-      log.info(`re-subbed to ${subObject.user_id}'s stream`);
-    }).catch((e) => {
-      log.error(`failed to sub to ${subObject.user_id}'s stream: ${e}`);
-    });
-  }).catch((e) => {
-    log.error(`failed to unsub from ${subObject.user_id}'s stream: ${e}`);
-  });
-}
 
 module.exports = class TwitchWebhookHandler {
   constructor(tokenData, bot) {
@@ -31,21 +15,21 @@ module.exports = class TwitchWebhookHandler {
       this.streamers = streamers;
       return new Promise(this.startTunnel);
     }).then((url) => {
-      log.info('Tunnel created');
+      logger.log('info', 'Tunnel created');
       this.callbackUrl = url;
       this.subscribeToStreams();
     }).catch((e) => {
-      log.error(`Error while setting up twitch webhooks: ${e}`);
+      logger.log('error', `Error while setting up twitch webhooks: ${e}`);
     });
   }
 
   startTunnel(resolve, reject) {
     ngrok.connect(8492, (e, url) => {
       if (e) {
-        log.info(`failed to connect to ngrok: ${e}`);
+        logger.log('info', `failed to connect to ngrok: ${e}`);
         reject(e);
       } else {
-        log.info(`ngrok connected at url ${url}`);
+        logger.log('info', `ngrok connected at url ${url}`);
         resolve(url);
       }
     });
@@ -66,29 +50,33 @@ module.exports = class TwitchWebhookHandler {
     // set listener for all topics
     // twitchWebhook.on('*', ({ topic, options, endpoint, event }) => {
     // topic name, for example "streams"
-    // log.info(topic);
+    // log.log('info', topic);
     // topic options, for example "{user_id: 12826}"
-    // log.info(options);
+    // log.log('info', options);
     // full topic URL, for example
     // "https://api.twitch.tv/helix/streams?user_id=12826"
-    // log.info(endpoint);
+    // log.log('info', endpoint);
     // topic data, timestamps are automatically converted to Date
-    // log.info(event);
+    // log.log('info', event);
     // });
 
     // set listener for topic
     twitchWebhook.on('streams', ({
       topic, options, endpoint, event,
     }) => {
-      log.info(topic);
-      log.info(options);
-      log.info(endpoint);
-      log.info(event);
-      const [streamer] = this.streamers.filter(st => st.id === options.user_id);
-      if (event.data && event.data.length) {
-        this.bot.sendSubMessage(streamer);
-      } else {
-        log.info('stream down: ' + options.user_id);
+      logger.log('info', topic);
+      logger.log('info', options);
+      logger.log('info', endpoint);
+      logger.log('info', event);
+      try {
+        const [streamer] = this.streamers.filter(st => st.id === options.user_id);
+        if (event.data && event.data.length) {
+          this.bot.sendSubMessage(streamer);
+        } else {
+          logger.log('info', 'stream down: ' + options.user_id);
+        }
+      } catch (e) {
+        console.log(`Failed while listening to sub events: ${e}`)
       }
     });
 
@@ -103,10 +91,10 @@ module.exports = class TwitchWebhookHandler {
     // renew the subscription when it expires
     twitchWebhook.on('unsubscribe', (obj) => {
       twitchWebhook.subscribe(obj['hub.topic']);
-      log.warn(`Got unsubbed from a stream, resubbing ${obj}`);
+      logger.warn(`Got unsubbed from a stream, resubbing ${obj}`);
     });
 
-    log.info('Subscribed to streams');
+    logger.log('info', 'Subscribed to streams');
   }
 
   // tell TwitchWebhookHandler that we no longer listen otherwise it will try to send events to a down app
@@ -115,9 +103,9 @@ module.exports = class TwitchWebhookHandler {
     if (twitchWebhook) {
       twitchWebhook.unsubscribe('*');
     }
-    log.info('Unsubbed from all twitch hooks');
+    logger.log('info', 'Unsubbed from all twitch hooks');
     ngrok.disconnect();
     ngrok.kill();
-    log.info('killed ngrok');
+    logger.log('info', 'killed ngrok');
   }
 };

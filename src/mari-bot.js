@@ -1,8 +1,6 @@
 const TwitchWebhookHandler = require('./twitchWebhookHandler');
 const config = require('./configManager').getConfigManager();
 const Bot = require('./bot');
-
-// init logger and config utility
 const log = require('./logger').getLogger();
 
 let bot;

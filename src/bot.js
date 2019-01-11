@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 const utils = require('./utils');
 const actions = require('./botActions');
-const log = require('./logger').getLogger();
+const logger = require('./logger').getLogger();
 const config = require('./configManager').getConfigManager();
 
 class Bot {
@@ -20,7 +20,7 @@ class Bot {
   configureBot() {
     this.bot = new Discord.Client();
     this.bot.on('ready', () => {
-      log.info('Mari bot ready for combat!');
+      logger.log('info', 'Mari bot ready for combat!');
     });
 
     this.bot.on('message', (msg) => {
@@ -47,25 +47,25 @@ class Bot {
     });
 
     this.bot.on('error', (e) => {
-      log.error('ERROR bot crashed!: ');
+      logger.log('error', 'ERROR bot crashed!: ');
       for (const prop of e) {
-        log.error(prop);
+        logger.log('error', prop);
       }
       try {
         this.resetBot();
       } catch (error) {
-        log.error(`Could not reset the bot: ${error}`);
+        logger.log('error', `Could not reset the bot: ${error}`);
         process.exit(1);
       }
     });
 
     this.bot.on('warn', (warning) => {
-      log.warn(`warning: ${warning}`);
+      logger.log('warn', `warning: ${warning}`);
     });
 
     this.bot.on('disconnect', (closeEvent) => {
-      log.warn(`Websocket connection failed with error code ${closeEvent.code}! attempting to restart bot`);
-      log.warn(closeEvent.reason);
+      logger.log('warn', `Websocket connection failed with error code ${closeEvent.code}! attempting to restart bot`);
+      logger.log('warn', closeEvent.reason);
       this.resetBot();
     });
 
@@ -74,7 +74,7 @@ class Bot {
       if (info.toLowerCase().includes('heartbeat')) {
         return;
       }
-      log.info(`debug: ${info}`);
+      logger.log('info', `debug: ${info}`);
     });
   }
 
@@ -95,10 +95,10 @@ class Bot {
     }).then(() => {
       return msg.react('🇩');
     }).then(() => {
-      log.info('sent \'blocked\' reaction');
+      logger.log('info', 'sent \'blocked\' reaction');
       this.blocking = false;
     }).catch((e) => {
-      log.error(`failed to send blocked: ${e}`);
+      logger.log('error', `failed to send blocked: ${e}`);
       this.blocking = false;
     });
   }
@@ -121,9 +121,9 @@ class Bot {
         this.blocked(reaction.message);
       }
       reaction.message.react(reaction.emoji).then(() => {
-        log.info(`Reacted with ${reaction.emoji}`);
+        logger.log('info', `Reacted with ${reaction.emoji}`);
       }).catch((e) => {
-        log.error(`Failed to react to message: ${e}`);
+        logger.log('error', `Failed to react to message: ${e}`);
       });
     }
   }
@@ -137,9 +137,9 @@ class Bot {
     if (!channel.guild || this.guildSettings[channel.guild.name].react) {
       if (reaction.users.get(this.bot.user.id)) {
         reaction.remove(this.bot.user).then(() => {
-          log.info(`Removed reaction ${reaction.emoji}`);
+          logger.log('info', `Removed reaction ${reaction.emoji}`);
         }).catch((e) => {
-          log.error(`Failed to remove reaction: ${e}`);
+          logger.log('error', `Failed to remove reaction: ${e}`);
         });
       }
     }
@@ -210,7 +210,7 @@ class Bot {
     let [importantBit] = msg.content.split(' ');
     // cut out the prefix
     importantBit = importantBit.toLowerCase().slice(1);
-    log.info(`Received: ${importantBit}`);
+    logger.log('info', `Received: ${importantBit}`);
     for (const command in this.commands) {
       if (!this.commands.hasOwnProperty(command)) {
         continue;
@@ -248,10 +248,10 @@ class Bot {
     if (this.bot && this.bot.readyTimestamp) {
       this.bot.destroy().then(() => {
         this.bot.login(this.token).then(() => {
-          log.info('Reset complete!');
+          logger.log('info', 'Reset complete!');
         });
       }).catch((reason) => {
-        log.info(`Failed to logout: ${reason}`);
+        logger.log('info', `Failed to logout: ${reason}`);
       });
     } else {
       this.bot.login(this.token).then(() => {
@@ -298,7 +298,7 @@ class Bot {
       }
       case 'go': {
         const channelName = msg.content.substring(4);
-        log.info(`Moving to: ${channelName}`);
+        logger.log('info', `Moving to: ${channelName}`);
         actions.joinChannel(this.bot.guilds, null, channelName);
         break;
       }
@@ -347,9 +347,9 @@ class Bot {
         if (this.commands.meme.urls.indexOf(meme) === -1) {
           this.commands.meme.urls.push(meme);
           this.commandsUpdated = true;
-          log.info(`Added a new meme to my collection: \n${meme}`);
+          logger.log('info', `Added a new meme to my collection: \n${meme}`);
         } else {
-          log.info(`Avoided duplicate meme: ${meme}`);
+          logger.log('info', `Avoided duplicate meme: ${meme}`);
         }
       }
     }

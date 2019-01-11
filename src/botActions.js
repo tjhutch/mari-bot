@@ -1,9 +1,9 @@
 const utils = require('./utils');
-const log = require('./logger').getLogger();
+const logger = require('./logger').getLogger();
 
 function sendMessage(message, channel) {
   if (!(message && channel)) {
-    log.info(`bad message attempt. Message: ${message}\nchannel: ${channel}`);
+    logger.log('info', `bad message attempt. Message: ${message}\nchannel: ${channel}`);
     return;
   }
   // discord maximum message length is 2000
@@ -90,7 +90,7 @@ function welcomeMember(member, guildSettings) {
 function getFileForCommand(command) {
   const { files } = command;
   if (!files) {
-    log.error('No files attached to this command...?');
+    logger.log('error', 'No files attached to this command...?');
     return '';
   }
   const file = files[Math.floor(Math.random() * files.length)];
@@ -113,12 +113,12 @@ function getVoiceInGuild(voiceConnections, guild) {
 
 function findChannel(nameOrId, guilds) {
   if (!nameOrId) {
-    log.error('findChannel requires a name or id');
+    logger.log('error', 'findChannel requires a name or id');
     return null;
   }
   for (const guild of guilds) {
     if (!guild.available) {
-      log.warn(`guild ${guild} is unavailable at this time`);
+      logger.log('warn', `guild ${guild} is unavailable at this time`);
       continue;
     }
     const channels = guild.channels.filter(channel => channel.name === nameOrId || channel.id === nameOrId);
@@ -133,10 +133,10 @@ function playAudioCommand(voiceConnections, command, channelId, vc) {
   const voiceConnection = vc || getChannelVoice(channelId, voiceConnections);
   const file = getFileForCommand(command);
   if (!voiceConnection) {
-    log.error(`We don't have a voice connection to channel with id ${channelId}`);
+    logger.log('error', `We don't have a voice connection to channel with id ${channelId}`);
     return;
   }
-  log.info(`Playing: ${file}`);
+  logger.log('info', `Playing: ${file}`);
   let { volume } = command;
   if (!volume) {
     volume = file.includes('Trilliax') || file.includes('MemeAudio') ? 0.25 : 1.5;
@@ -156,7 +156,7 @@ function getChannelVoice(channelId, voiceConnections) {
 
 function joinChannel(guilds, msg, channelNameOrId, callback) {
   if (!msg && !channelNameOrId) {
-    log.info('How did this even happen?\njoinChannel requires either a message or a channel ID');
+    logger.log('info', 'How did this even happen?\njoinChannel requires either a message or a channel ID');
     return;
   }
   // attempt to join channel based on given channel name or ID
@@ -164,15 +164,15 @@ function joinChannel(guilds, msg, channelNameOrId, callback) {
     const channel = findChannel(channelNameOrId, guilds);
     if (channel) {
       channel.join().then(callback).then(() => {
-        log.info(`joined channel: ${channel.name}`);
+        logger.log('info', `joined channel: ${channel.name}`);
       }).catch(utils.defaultErrorHandler);
       return;
     }
-    log.error(`Unable to find channel with name/id ${channelNameOrId}`);
+    logger.log('error', `Unable to find channel with name/id ${channelNameOrId}`);
 
     return;
   } else if (!msg) {
-    log.error(`unable to join channel with \nmsg ${msg}\nchannel name/id${channelNameOrId}`);
+    logger.log('error', `unable to join channel with \nmsg ${msg}\nchannel name/id${channelNameOrId}`);
   }
   if (!msg.guild) {
     sendMessage('There\'s no guild attached to this message', msg.channel);
@@ -182,7 +182,7 @@ function joinChannel(guilds, msg, channelNameOrId, callback) {
   const voiceChannel = getUserVoiceChannel(msg.guild, msg.author);
   if (voiceChannel) {
     voiceChannel.join().then(callback).then(() => {
-      log.info(`joined channel: ${voiceChannel.name}`);
+      logger.log('info', `joined channel: ${voiceChannel.name}`);
     }).catch(utils.defaultErrorHandler);
   } else {
     sendMessage('The guild which contains that channel is currently unavailable.', msg.channel);
@@ -249,7 +249,7 @@ function stopTalkingInGuild(guild, voiceConnections) {
     try {
       dispatcher.end();
     } catch (e) {
-      log.warn(`uncaught exception in stop: ${e}`);
+      logger.log('warn', `uncaught exception in stop: ${e}`);
     }
   }
 }
