@@ -154,6 +154,24 @@ function getChannelVoice(channelId, voiceConnections) {
   return connections && connections.size ? connections.first() : null;
 }
 
+function attachConnectionEventHandlers(connection, channel) {
+  connection.on('debug', (msg) => {
+    logger.log('debug', `debug from voice connection: ${msg}`);
+  });
+  connection.on('failed', () => {
+    logger.log('error', `Failed to connect to channel ${channel}`);
+  });
+  connection.on('reconnecting', () => {
+    logger.log(`Disconnected from voice channel ${channel}, attempting to reconnect`);
+  });
+  connection.on('error', (err) => {
+    logger.log('error', `Voice connection error in ${channel}: ${err}`)
+  });
+  connection.on('ready', () => {
+    logger.log('info', `Voice connection ready in ${channel}`)
+  });
+}
+
 function joinChannel(guilds, msg, channelNameOrId, callback) {
   if (!msg && !channelNameOrId) {
     logger.log('info', 'How did this even happen?\njoinChannel requires either a message or a channel ID');
@@ -163,8 +181,9 @@ function joinChannel(guilds, msg, channelNameOrId, callback) {
   if (!msg && channelNameOrId) {
     const channel = findChannel(channelNameOrId, guilds);
     if (channel) {
-      channel.join().then(callback).then(() => {
+      channel.join().then(callback).then((connection) => {
         logger.log('info', `joined channel: ${channel.name}`);
+        attachConnectionEventHandlers(connection, channelNameOrId);
       }).catch(utils.defaultErrorHandler);
       return;
     }

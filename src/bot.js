@@ -292,6 +292,9 @@ class Bot {
       case 'leave': {
         const connection = actions.getVoiceInGuild(this.bot.voiceConnections, msg.guild);
         if (connection) {
+          connection.on('disconnect', () => {
+            logger.log('info', 'Disconnected from voice');
+          });
           connection.disconnect();
         }
         break;
