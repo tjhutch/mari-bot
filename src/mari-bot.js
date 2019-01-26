@@ -1,4 +1,4 @@
-const TwitchWebhookHandler = require('./twitchWebhookHandler');
+// const TwitchWebhookHandler = require('./twitchWebhookHandler');
 const config = require('./configManager').getConfigManager();
 const Bot = require('./bot');
 const log = require('./logger').getLogger();
@@ -15,7 +15,7 @@ Promise.all([config.readCommands(),      // values[0]
 ]).then((values) => {
   values[0].commands.meme = values[1];
   bot = new Bot(values[0], values[2].discordToken, values[3], values[4]);
-  twitch = new TwitchWebhookHandler(values[2], bot);
+  // twitch = new TwitchWebhookHandler(values[2], bot);
 });
 
 function onExit() {

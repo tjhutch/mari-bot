@@ -24,6 +24,7 @@ const loggerOpts = {
     // - Write all logs error (and below) to `error.log`.
     //
     new transports.File({ filename: 'error.log', level: 'error' }),
+    new transports.File({ filename: 'debug.log', level: 'debug' }),
     new transports.File({ filename: 'combined.log' })
   ]
 };
