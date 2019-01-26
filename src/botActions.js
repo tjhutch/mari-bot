@@ -56,6 +56,7 @@ function levelUpUser(guildLevels, guildSettings, user, channel) {
     if (guildLevels[user.id].level !== level) {
       const messageTemplate = maxLevel ? guildSettings.maxLvlMessage : guildSettings.levelUpMessage;
       sendMessage(messageTemplate.replace('<user>', user.username).replace('<level>', level), channel);
+      logger.log('info', `leveled up ${user.name} to level ${level}`)
     }
     guildLevels[user.id] = {
       level,

@@ -47,11 +47,9 @@ class Bot {
     });
 
     this.bot.on('error', (e) => {
-      logger.log('error', 'ERROR bot crashed!: ');
-      for (const prop of e) {
-        logger.log('error', prop);
-      }
+      logger.log('error', `ERROR bot crashed!: ${e}`);
       try {
+        logger.log('info', 'attempting to reset bot');
         this.resetBot();
       } catch (error) {
         logger.log('error', `Could not reset the bot: ${error}`);

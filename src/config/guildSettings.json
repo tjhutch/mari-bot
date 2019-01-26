@@ -17,19 +17,19 @@
     "levels": [
       {
         "messagesRequired": 0,
-        "name": "1"
+        "name": "one"
       },
       {
         "messagesRequired": 5,
-        "name": "2"
+        "name": "two"
       },
       {
         "messagesRequired": 7,
-        "name": "3"
+        "name": "three"
       },
       {
         "messagesRequired": 9,
-        "name": "4",
+        "name": "four",
         "max": true
       }
     ],

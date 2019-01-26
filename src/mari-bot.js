@@ -1,7 +1,7 @@
 // const TwitchWebhookHandler = require('./twitchWebhookHandler');
 const config = require('./configManager').getConfigManager();
 const Bot = require('./bot');
-const log = require('./logger').getLogger();
+const logger = require('./logger').getLogger();
 
 let bot;
 let twitch;
@@ -22,9 +22,10 @@ function onExit() {
   if (!saved) {
     if (bot.commandsUpdated) {
       config.saveMemes(bot.commands.meme);
-      log.info('saved memes');
+      logger.log('info', 'saved memes');
     }
     config.saveGuildLevels(bot.guildLevels);
+    logger.log('info', 'Saved guild levels');
     if (twitch) {
       twitch.unsubFromAll();
     }
