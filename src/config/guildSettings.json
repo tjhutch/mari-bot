@@ -104,7 +104,7 @@
   },
   "Magnet's Den of Sin": {
     "channels": [
-      ""
+      "botcommands"
     ],
     "welcomeMessage": "Welcome to the sin fest, <user>",
     "welcomeChannel": "603039520367050764",
