@@ -101,5 +101,65 @@
     "levelUpMessage": "CONGRAGULATIONS <user>, YOU'VE LEVELED UP TO LEVEL <level>!",
     "maxLvlMessage": "GG <user>, YOU'VE REACHED MAX LEVEL!",
     "react": true
+  },
+  "Magnet's Den of Sin": {
+    "channels": [
+      ""
+    ],
+    "welcomeMessage": "Welcome to the sin fest, <user>",
+    "welcomeChannel": "603039520367050764",
+    "roles": [
+      "Mods"
+    ],
+    "levels": [
+      {
+        "messagesRequired": 0,
+        "name": "0"
+      },
+      {
+        "messagesRequired": 5,
+        "name": "1"
+      },
+      {
+        "messagesRequired": 10,
+        "name": "2"
+      },
+      {
+        "messagesRequired": 18,
+        "name": "3"
+      },
+      {
+        "messagesRequired": 30,
+        "name": "4"
+      },
+      {
+        "messagesRequired": 52,
+        "name": "5"
+      },
+      {
+        "messagesRequired": 90,
+        "name": "6"
+      },
+      {
+        "messagesRequired": 160,
+        "name": "7"
+      },
+      {
+        "messagesRequired": 280,
+        "name": "8"
+      },
+      {
+        "messagesRequired": 490,
+        "name": "9"
+      },
+      {
+        "messagesRequired": 850,
+        "name": "10",
+        "max": true
+      }
+    ],
+    "levelUpMessage": "CONGRAGULATIONS <user>, YOU'VE LEVELED UP TO LEVEL <level>!",
+    "maxLvlMessage": "GG <user>, YOU'VE REACHED MAX LEVEL!",
+    "react": true
   }
 }
