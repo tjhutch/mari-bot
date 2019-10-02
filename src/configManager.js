@@ -5,7 +5,7 @@ const COMMANDS = './src/config/commands.json';
 const TOKENS = './src/config/tokens.json';
 const TWITCH_STREAMERS = './src/config/twitchStreamers.json';
 const MEMES = './src/config/memes.json';
-const GUILD_SETTINGS = './src/config/guildSettings.json';
+const GUILD_SETTINGS = './src/config/guildSettings.js';
 
 class ConfigManager {
   readCommands() {
