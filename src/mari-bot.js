@@ -7,16 +7,17 @@ let bot;
 let twitch;
 let saved = false;
 
-Promise.all([config.readCommands(),      // values[0]
-             config.readMemes(),         // values[1]
-             config.readTokens(),        // values[2]
-             config.readGuildSettings(), // values[3]
-             config.readGuildLevels(),   // values[4]
-]).then((values) => {
-  values[0].commands.meme = values[1];
-  bot = new Bot(values[0], values[2].discordToken, values[3], values[4]);
-  // twitch = new TwitchWebhookHandler(values[2], bot);
-});
+
+async function startBot() {
+  const commands = await config.readCommands();
+  const memes = await config.readMemes();
+  const tokens = await config.readTokens();
+  const guildSettings = await config.readGuildSettings();
+  const guildLevels = await config.readGuildLevels();
+  commands.commands.meme = memes;
+  bot = new Bot(commands, tokens.discordToken, guildSettings, guildLevels);
+  // twitch = new TwitchWebhookHandler(tokens, bot);
+}
 
 function onExit() {
   if (!saved) {
@@ -37,3 +38,5 @@ function onExit() {
 process.on('SIGINT', onExit);
 process.on('SIGTERM', onExit);
 process.on('exit', onExit);
+
+startBot();
