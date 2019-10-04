@@ -37,7 +37,7 @@ export default {
     maxLvlMessage: 'GG <user>, you\'ve reached MAX LEVEL!',
     welcomeMessage: 'Welcome fellow human \'<user>\' to our testing area.',
     welcomeChannel: '265600449762033664',
-    addableRoles: [ 'TestRole1', 'TestRole2' ],
+    manageRoles: [ 'TestRole1', 'TestRole2' ],
     react: true
   },
   'MARI-BOTS': {

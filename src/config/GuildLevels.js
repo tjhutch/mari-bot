@@ -1,4 +1,4 @@
-{
+export default {
   "Bot Testing Grounds": {
     "99343549773926400": {
       "level": "2",

@@ -1,4 +1,4 @@
-{
+export default {
   "type": "meme",
   "urls": [
     "https://i.imgur.com/fbFwEej.gifv",

@@ -7,11 +7,12 @@ For the twitch webhooks API, this project uses the [twitch-webhook package](http
 ## Features
 * Playback audio clips
 * Respond with pre-configured messages
+* Add text commands on demand
 * Audio on multiple servers at once
 * Welcome new users to the server
 * User level-up system based on # of messages sent in the server
 * Meme collection and re-use
-* Hot reload configuration
+* NEW PHONE WHO DIS
 
 ## WIP Features
 * Send updates when configured streamers go live

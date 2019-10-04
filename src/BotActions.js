@@ -1,5 +1,5 @@
-const utils = require('./utils');
-const logger = require('./logger').getLogger();
+const utils = require('./Utils');
+const logger = require('./Logger').getLogger();
 
 function sendMessage(message, channel) {
   if (!(message && channel)) {
@@ -234,7 +234,7 @@ function sendHelpMessage(msg, commands) {
 
 function handleAudioCommand(command, msg, voiceConnections, guilds) {
   if (!msg.guild) {
-    msg.channel.send('You can\'t send voice commands from a PM');
+    msg.channel.send('You can\'t send voice CommandConfig from a PM');
     return;
   }
 
@@ -254,7 +254,7 @@ function handleAudioCommand(command, msg, voiceConnections, guilds) {
         }
         playAudioCommand(voiceConnections, command, userVoiceChannelId);
       } else {
-        msg.channel.send('You must be in a voice channel to use voice commands');
+        msg.channel.send('You must be in a voice channel to use voice CommandConfig');
       }
     } catch (e) {
       msg.channel.send('Failed to play audio command.');

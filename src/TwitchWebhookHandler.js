@@ -1,45 +1,26 @@
-const TwitchWebhook = require('twitch-webhook');
-const ngrok = require('ngrok');
-const logger = require('./logger').getLogger();
-const config = require('./configManager').getConfigManager();
+import TwitchWebhook from 'twitch-webhook';
+import LoggerFactory from 'Logger';
+import Tokens from 'config/Tokens';
+import Streamers from 'config/TwitchStreamers';
 
+const logger = LoggerFactory.getLogger();
 let twitchWebhook;
 
-module.exports = class TwitchWebhookHandler {
-  constructor(tokenData, bot) {
-    this.secret = tokenData.twitchToken;
-    this.clientId = tokenData.twitchClientId;
+export default class TwitchWebhookHandler {
+  constructor(bot) {
     this.bot = bot;
-
-    config.readStreamers().then((streamers) => {
-      this.streamers = streamers;
-      return new Promise(this.startTunnel);
-    }).then((url) => {
-      logger.log('info', 'Tunnel created');
-      this.callbackUrl = url;
+    try {
       this.subscribeToStreams();
-    }).catch((e) => {
+    } catch (e) {
       logger.log('error', `Error while setting up twitch webhooks: ${e}`);
-    });
-  }
-
-  startTunnel(resolve, reject) {
-    ngrok.connect(8492, (e, url) => {
-      if (e) {
-        logger.log('info', `failed to connect to ngrok: ${e}`);
-        reject(e);
-      } else {
-        logger.log('info', `ngrok connected at url ${url}`);
-        resolve(url);
-      }
-    });
+    }
   }
 
   subscribeToStreams() {
     twitchWebhook = new TwitchWebhook({
-      client_id: this.clientId,
-      callback: this.callbackUrl,
-      secret: this.secret,
+      client_id: Tokens.twitchClientId,
+      callback: Tokens.twitchCallbackUrl,
+      secret: Tokens.twitchToken,
       listen: {
         port: '8492',
         host: '127.0.0.1', // default: 0.0.0.0
@@ -81,7 +62,7 @@ module.exports = class TwitchWebhookHandler {
     });
 
     // subscribe to topic
-    this.streamers.every((streamer) => {
+    Streamers.every((streamer) => {
       twitchWebhook.subscribe('streams', {
         user_id: streamer.id,
       });
@@ -104,8 +85,5 @@ module.exports = class TwitchWebhookHandler {
       twitchWebhook.unsubscribe('*');
     }
     logger.log('info', 'Unsubbed from all twitch hooks');
-    ngrok.disconnect();
-    ngrok.kill();
-    logger.log('info', 'killed ngrok');
   }
 };

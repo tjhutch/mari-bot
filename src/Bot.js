@@ -1,19 +1,26 @@
-const Discord = require('discord.js');
-const utils = require('./utils');
-const actions = require('./botActions');
-const logger = require('./logger').getLogger();
-const config = require('./configManager').getConfigManager();
+import Discord from 'discord.js';
+import utils from 'Utils';
+import actions from 'BotActions';
+import loggerFactory from 'Logger';
+import CommandConfig from 'src/config/CommandConfig';
+import Memes from 'config/Memes';
+import Tokens from 'config/Tokens';
+import GuildSettings from 'config/GuildSettings';
+import GuildLevels from 'config/GuildLevels';
+
+const logger = loggerFactory.getLogger();
 
 class Bot {
-  constructor(commands, token, guildSettings, guildLevels) {
-    this.commands = commands.commands;
-    this.prefix = commands.prefix;
-    this.token = token;
-    this.guildSettings = guildSettings;
-    this.guildLevels = guildLevels;
+  constructor() {
+    CommandConfig.commands.meme = Memes;
+    this.commands = CommandConfig.commands;
+    this.prefix = CommandConfig.prefix;
+    this.token = Tokens.discordToken;
+    this.guildSettings = GuildSettings;
+    this.guildLevels = GuildLevels;
     this.blocking = false;
     this.configureBot();
-    this.resetBot();
+    this.reset();
   }
 
   // sets all the handlers for bot actions
@@ -50,7 +57,7 @@ class Bot {
       logger.log('error', `ERROR bot crashed!: ${e}`);
       try {
         logger.log('info', 'attempting to reset bot');
-        this.resetBot();
+        this.reset();
       } catch (error) {
         logger.log('error', `Could not reset the bot: ${error}`);
         process.exit(1);
@@ -64,7 +71,7 @@ class Bot {
     this.bot.on('disconnect', (closeEvent) => {
       logger.log('warn', `Websocket connection failed with error code ${closeEvent.code}! attempting to restart bot`);
       logger.log('warn', closeEvent.reason);
-      this.resetBot();
+      this.reset();
     });
 
     this.bot.on('debug', (info) => {
@@ -162,7 +169,7 @@ class Bot {
     }
   }
 
-  // handling of normal commands
+  // handling of normal CommandConfig
   // check if this channel allows the bot and if this user can use the bot in this server.
   // Then, if the message contains a command the bot can understand, handle it.
   // then pass along to the handler function
@@ -172,8 +179,8 @@ class Bot {
       return;
     }
 
-    // storing memes for later use
-    if (msg.channel && msg.channel.name && msg.channel.name.includes('memes')) {
+    // storing Memes for later use
+    if (msg.channel && msg.channel.name && msg.channel.name.includes('Memes')) {
       this.saveMeme(msg);
     }
 
@@ -204,7 +211,7 @@ class Bot {
         return;
       }
     }
-    // commands can't have spaces, remove anything beyond the first space
+    // CommandConfig can't have spaces, remove anything beyond the first space
     let [importantBit] = msg.content.split(' ');
     // cut out the prefix
     importantBit = importantBit.toLowerCase().slice(1);
@@ -242,7 +249,7 @@ class Bot {
 
   // Reset the bot (or start it if it's not already running)
   // if channel is given, notify that channel when reset is complete
-  resetBot(channel) {
+  reset(channel) {
     if (this.bot && this.bot.readyTimestamp) {
       this.bot.destroy().then(() => {
         this.bot.login(this.token).then(() => {
@@ -327,10 +334,17 @@ class Bot {
         }
         break;
       }
+      case 'addText': {
+        this.addTextCommand(msg);
+        break;
+      }
+      case 'createRoleMessage': {
+        //TODO: Add role message creation
+        actions.sendMessage('Sorry, this is not implemented yet', msg.channel);
+        break;
+      }
       case 'reset': {
-        config.readCommands().then((commands) => {
-          this.setConfigAndReset(commands, msg.channel);
-        });
+        this.reset(msg.channel);
         break;
       }
       default: {
@@ -340,6 +354,18 @@ class Bot {
     }
   }
 
+  addTextCommand(msg) {
+    const str = msg.content.split('!addText')[1].split(' ');
+    const name = str[0];
+    str[0] = '';
+    const response = str.join();
+    this.commands[name] = {
+      type: 'text',
+      response
+    };
+    this.commandsUpdated = true;
+  }
+
   saveMeme(msg) {
     const words = msg.content.split(' ');
     for (let i = 0; i < words.length; i += 1) {
@@ -347,7 +373,7 @@ class Bot {
       if (utils.isURL(meme)) {
         if (this.commands.meme.urls.indexOf(meme) === -1) {
           this.commands.meme.urls.push(meme);
-          this.commandsUpdated = true;
+          this.memesUpdated = true;
           logger.log('info', `Added a new meme to my collection: \n${meme}`);
         } else {
           logger.log('info', `Avoided duplicate meme: ${meme}`);
@@ -361,19 +387,6 @@ class Bot {
     for (const server of streamer.servers) {
       actions.sendMessage(msg, this.bot.guilds.get(server.id).channels.get(server.channel));
     }
-  }
-
-  setConfigAndReset(data, channel, memes) {
-    this.prefix = data.prefix;
-    const tempMemes = this.commands.meme;
-    this.commands = data.commands;
-    if (memes) {
-      this.commands.meme = memes;
-    } else {
-      this.commands.meme = tempMemes;
-    }
-    // start your engines!
-    this.resetBot(channel);
   }
 }
 

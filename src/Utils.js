@@ -1,4 +1,4 @@
-const log = require('./logger').getLogger();
+const log = require('./Logger').getLogger();
 
 function isURL(str) {
   const pattern = new RegExp('^(https?:\\/\\/)' + // protocol
