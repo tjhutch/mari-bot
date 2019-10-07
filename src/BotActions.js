@@ -171,24 +171,14 @@ function getChannelVoice(channelId, voiceConnections) {
 }
 
 function attachConnectionEventHandlers(connection, channel) {
-  connection.on('debug', (msg) => {
-    logger.log('debug', `debug from voice connection: ${msg}`);
-  });
-  connection.on('failed', () => {
-    logger.log('error', `Failed to connect to channel ${channel}`);
-  });
-  connection.on('reconnecting', () => {
-    logger.log(`Disconnected from voice channel ${channel}, attempting to reconnect`);
-  });
-  connection.on('error', (err) => {
-    logger.log('error', `Voice connection error in ${channel}: ${err}`)
-  });
-  connection.on('ready', () => {
-    logger.log('info', `Voice connection ready in ${channel}`)
-  });
+  connection.on('debug', msg => logger.log('debug', `debug from voice connection: ${msg}`));
+  connection.on('failed', () => logger.log('error', `Failed to connect to channel ${channel}`));
+  connection.on('reconnecting', () => logger.log(`Disconnected from voice channel ${channel}, attempting to reconnect`));
+  connection.on('error', err => logger.log('error', `Voice connection error in ${channel}: ${err}`));
+  connection.on('ready', () => logger.log('info', `Voice connection ready in ${channel}`));
 }
 
-function joinChannel(guilds, msg, channelNameOrId, callback) {
+async function joinChannel(guilds, msg, channelNameOrId, onJoin) {
   if (!msg && !channelNameOrId) {
     logger.log('info', 'How did this even happen?\njoinChannel requires either a message or a channel ID');
     return;
@@ -197,10 +187,14 @@ function joinChannel(guilds, msg, channelNameOrId, callback) {
   if (!msg && channelNameOrId) {
     const channel = findChannel(channelNameOrId, guilds);
     if (channel) {
-      channel.join().then(callback).then((connection) => {
+      try {
+        const connection = await channel.join();
+        onJoin(connection);
         logger.log('info', `joined channel: ${channel.name}`);
         attachConnectionEventHandlers(connection, channelNameOrId);
-      }).catch(utils.defaultErrorHandler);
+      } catch(e) {
+        logger.log('error', `Failed to join channel: ${e}`);
+      }
       return;
     }
     logger.log('error', `Unable to find channel with name/id ${channelNameOrId}`);
@@ -216,9 +210,13 @@ function joinChannel(guilds, msg, channelNameOrId, callback) {
   // attempt to join channel that the user who sent the message is currently in
   const voiceChannel = getUserVoiceChannel(msg.guild, msg.author);
   if (voiceChannel) {
-    voiceChannel.join().then(callback).then(() => {
+    try {
+      const channel = await voiceChannel.join();
+      onJoin(channel);
       logger.log('info', `joined channel: ${voiceChannel.name}`);
-    }).catch(utils.defaultErrorHandler);
+    } catch(e) {
+      logger.log('error', `Failed to join ${msg.author.username}'s channel: ${e}`);
+    }
   } else {
     sendMessage('The guild which contains that channel is currently unavailable.', msg.channel);
   }

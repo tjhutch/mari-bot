@@ -23,12 +23,12 @@ For the twitch webhooks API, this project uses the [twitch-webhook package](http
 1. Install node 12
 2. Clone the repo
 3. Install  libtool and autoconf
-    * for linux, `sudo apt-get install libtool` and `sudo apt-get install autoconf`
+    * for linux, `sudo apt-get install libtool` `sudo apt-get install autoconf`
     * for osx, `brew install libtool` `brew install autoconf`
     * for windows not sure, haven't tried yet
 4. Run `npm i` in the root of the repo
-5. Request the tokens.json file from [me](t.jhutch44@gmail.com)
-6. Copy the tokens.json file into src/config/
-7. Run the bot with `node src/mari-bot`
+5. Request src/config/Tokens.json file from [me](t.jhutch44@gmail.com) or add your own bot tokens
+6. Run the bot with `node src/mari-bot`
     * add `-l` or `--log-to-console` for console logging
     * logs will always be saved to `error.log` and `debug.log`
+    * add `-t` or `--twitch-notifications` for twitch streamer notifications (WIP)

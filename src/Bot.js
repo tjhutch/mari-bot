@@ -132,19 +132,69 @@ class Bot {
     }
   }
 
-  reactionAdded(reaction) {
+  async reactionAdded(reaction, user) {
     const { channel } = reaction.message;
     if (channel.guild && GuildSettings[channel.guild.name].react && reaction.emoji.name === '📢') {
       this.blocked(reaction);
-    }
-    const { currentGuildSettings } = actions.getGuildInfoFromMessage(reaction.message);
-    if (currentGuildSettings.managedRoles) {
-
+    } else {
+      this.managePermissions(reaction, user, true);
     }
   }
 
-  reactionRemoved(reaction) {
-    // TODO: Remove user from role if in list and they have role
+  async reactionRemoved(reaction, user) {
+    this.managePermissions(reaction, user, false);
+  }
+
+  async managePermissions(reaction, user, add) {
+    const { message } = reaction;
+    const { channel } = message;
+    if (!channel.guild.available) {
+      logger.log('error', `Got reaction, but guild ${channel.guild.name} is not available!`);
+      return;
+    }
+    const { currentGuildSettings } = actions.getGuildInfoFromMessage(reaction.message);
+    if (currentGuildSettings.managedRoles && message.id === currentGuildSettings.roleMessageID) {
+      try {
+        const role = this.matchRoleToReaction(reaction, user, currentGuildSettings);
+        const guildUser = await channel.guild.fetchMember(user);
+        const newUser = await (add ? guildUser.addRole(role) : guildUser.removeRole(role));
+        logger.log('info', `${add ? 'added' : 'removed'} the role ${role.name} for ${newUser.displayName}`);
+      } catch (e) {
+        logger.log('error', `Failed to give role to user: ${e}`);
+      }
+    }
+  }
+
+  matchRoleToReaction(reaction, user, currentGuildSettings) {
+    const { guild } = reaction.channel;
+    for(let i = 0; i < currentGuildSettings.roleReactions.length; i++) {
+      let roleReaction = currentGuildSettings.roleReactions[i];
+      if (roleReaction === reaction.emoji.name) {
+        try {
+          const roleName = currentGuildSettings.managedRoles[i];
+          return this.getRoleByName(guild, roleName);
+        } catch (e) {
+          logger.log('error', `Failed to get role for user: ${e}`)
+        }
+      }
+    }
+  }
+
+  getRoleByName(guild, roleName) {
+    return guild.roles.filter(role => role.name === roleName).first();
+  }
+
+  manageUserRoles(msg, add) {
+    const users = msg.mentions.members;
+    const role = this.getRoleByName(msg.split(' ')[1]);
+    try {
+      users.map(async user => {
+        const newUser = await (add ? user.addRole(role) : user.removeRole(role));
+        logger.log('info', `${add ? 'added' : 'removed'} role ${role.name} ${add ? 'to' : 'from'} ${newUser.username}`);
+      });
+    } catch (e) {
+      logger.log('error', `Failed to ${add ? 'add' : 'remove'} role ${add ? 'to' : 'from'} users in "${msg.content}": ${e}`);
+    }
   }
 
   // NEW PHONE WHO DIS
@@ -169,7 +219,7 @@ class Bot {
   // handling of normal CommandConfig
   // check if this channel allows the bot and if this user can use the bot in this server.
   // Then, if the message contains a command the bot can understand, handle it.
-  // then pass along to the handler function
+  // Then, pass along to the handler function
   onMessage(msg) {
     // don't respond to your own messages
     if (msg.author.username === 'mari-bot') {
@@ -334,11 +384,41 @@ class Bot {
         this.addTextCommand(msg);
         break;
       }
+      case 'addRole': {
+        const users = msg.mentions.members;
+        const role = this.getRoleByName(msg.split(' ')[1]);
+        try {
+          users.map(async user => {
+            const newUser = await user.addRole(role);
+            logger.log('info', `added role ${role.name} to ${newUser.username}`);
+          });
+        } catch (e) {
+          logger.log('error', `Failed to add role to users in "${msg.content}": ${e}`);
+        }
+        break;
+      }
+      case 'removeRole': {
+        break;
+      }
       case 'createRoleMessage': {
-        const guildSettings = msg.channel.guild ? GuildSettings[msg.channel.guild.name] : null;
+        const { guild } = msg.channel;
+        if (!guild.available) {
+          logger.log('error', `Could not create role message, ${guild.name} is not available.`);
+          return;
+        }
+        const guildSettings = guild ? GuildSettings[guild.name] : null;
+        if (guildSettings.roleMessageID && guildSettings.roleMessageChannel) {
+          const message = guild.channels.get(guildSettings.roleMessageChannel).fetchMessage(guildSettings.roleMessageID);
+          if (!message.deleted && message.deletable) {
+            message.delete();
+          } else if (!message.deletable) {
+            logger.log('Could not delete old role message as it is not deletable');
+          }
+        }
         if (guildSettings && guildSettings.roleMessage && !guildSettings.roleMessageID) {
           const message = await actions.sendMessage(guildSettings.roleMessage, msg.channel);
-          GuildSettings[msg.channel.guild.name].roleMessageID = message.id;
+          GuildSettings[guild.name].roleMessageID = message.id;
+          GuildSettings[guild.name].roleMessageChannel = message.channel.id;
         }
         break;
       }
