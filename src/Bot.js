@@ -184,7 +184,7 @@ class Bot {
     return guild.roles.filter(role => role.name === roleName).first();
   }
 
-  manageUserRoles(msg, add) {
+  manageRolesByMsg(msg, add) {
     const users = msg.mentions.members;
     const role = this.getRoleByName(msg.split(' ')[1]);
     try {
@@ -385,19 +385,11 @@ class Bot {
         break;
       }
       case 'addRole': {
-        const users = msg.mentions.members;
-        const role = this.getRoleByName(msg.split(' ')[1]);
-        try {
-          users.map(async user => {
-            const newUser = await user.addRole(role);
-            logger.log('info', `added role ${role.name} to ${newUser.username}`);
-          });
-        } catch (e) {
-          logger.log('error', `Failed to add role to users in "${msg.content}": ${e}`);
-        }
+        this.manageRolesByMsg(msg, true);
         break;
       }
       case 'removeRole': {
+        this.manageRolesByMsg(msg, false);
         break;
       }
       case 'createRoleMessage': {
