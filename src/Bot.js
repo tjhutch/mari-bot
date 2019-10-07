@@ -6,7 +6,6 @@ import CommandConfig from 'src/config/CommandConfig';
 import Memes from 'config/Memes';
 import Tokens from 'config/Tokens';
 import GuildSettings from 'config/GuildSettings';
-import GuildLevels from 'config/GuildLevels';
 
 const logger = loggerFactory.getLogger();
 
@@ -16,9 +15,7 @@ class Bot {
     this.commands = CommandConfig.commands;
     this.prefix = CommandConfig.prefix;
     this.token = Tokens.discordToken;
-    this.guildSettings = GuildSettings;
-    this.guildLevels = GuildLevels;
-    this.blocking = false;
+    this.typingStatus = {};
     this.configureBot();
     this.reset();
   }
@@ -26,31 +23,19 @@ class Bot {
   // sets all the handlers for bot actions
   configureBot() {
     this.bot = new Discord.Client();
-    this.bot.on('ready', () => {
-      logger.log('info', 'Mari bot ready for combat!');
-    });
-
-    this.bot.on('message', (msg) => {
-      this.handleMessage(msg);
-    });
-
+    this.bot.on('message',               this.onMessage.bind(this));
+    this.bot.on('voiceStateUpdate',      this.newPhoneWhoDis.bind(this));
+    this.bot.on('messageReactionAdd',    this.reactionAdded.bind(this));
+    this.bot.on('messageReactionRemove', this.reactionRemoved.bind(this));
+    this.bot.on('typingStart',           this.typingStart.bind(this));
+    this.bot.on('typingStop',            this.typingStop.bind(this));
+    this.bot.on('ready', () => logger.log('info', 'Mari bot ready for combat!'));
+    this.bot.on('warn', warning => logger.log('warn', `warning: ${warning}`));
     this.bot.on('guildMemberAdd', (member) => {
-      const guildSettings = this.guildSettings[member.guild.name];
+      const guildSettings = GuildSettings[member.guild.name];
       if (guildSettings && guildSettings.welcomeMessage && guildSettings.welcomeChannel) {
         actions.welcomeMember(member, guildSettings);
       }
-    });
-
-    this.bot.on('voiceStateUpdate', (newMember, oldMember) => {
-      this.newPhoneWhoDis(newMember, oldMember);
-    });
-
-    this.bot.on('messageReactionAdd', (reaction) => {
-      this.handleReactionAdded(reaction);
-    });
-
-    this.bot.on('messageReactionRemove', (reaction) => {
-      this.handleReactionRemoved(reaction);
     });
 
     this.bot.on('error', (e) => {
@@ -62,10 +47,6 @@ class Bot {
         logger.log('error', `Could not reset the bot: ${error}`);
         process.exit(1);
       }
-    });
-
-    this.bot.on('warn', (warning) => {
-      logger.log('warn', `warning: ${warning}`);
     });
 
     this.bot.on('disconnect', (closeEvent) => {
@@ -84,70 +65,86 @@ class Bot {
   }
 
   // send 'blocked' as a reaction to the message
-  blocked(msg) {
-    // 📢🇧🇱🇴🇨🇰🇪🇩
-    this.blocking = true;
-    msg.react('🇧').then(() => {
-      return msg.react('🇱');
-    }).then(() => {
-      return msg.react('🇴');
-    }).then(() => {
-      return msg.react('🇨');
-    }).then(() => {
-      return msg.react('🇰');
-    }).then(() => {
-      return msg.react('🇪');
-    }).then(() => {
-      return msg.react('🇩');
-    }).then(() => {
-      logger.log('info', 'sent \'blocked\' reaction');
-      this.blocking = false;
-    }).catch((e) => {
-      logger.log('error', `failed to send blocked: ${e}`);
-      this.blocking = false;
-    });
-  }
-
-  handleReactionAdded(reaction) {
-    // this means the bot has already added this reaction
-    if (reaction.me) {
-      return;
-    }
-    const { channel } = reaction.message;
-    if (!channel.guild || this.guildSettings[channel.guild.name].react) {
-      if (this.blocking) {
-        reaction.users.map((user) => {
-          reaction.remove(user);
-          user.send('Shhh I\'m working');
-        });
-        return;
-      }
-      if (reaction.emoji.name === '📢') {
-        this.blocked(reaction.message);
-      }
-      reaction.message.react(reaction.emoji).then(() => {
-        logger.log('info', `Reacted with ${reaction.emoji}`);
-      }).catch((e) => {
-        logger.log('error', `Failed to react to message: ${e}`);
+  async blocked(reaction) {
+    const { message } = reaction;
+    if (this.blockingMessage === message.id) {
+      reaction.users.map((user) => {
+        reaction.remove(user);
+        user.send('Shhh I\'m working');
       });
+      return;
+    }
+    // 📢🇧🇱🇴🇨🇰🇪🇩
+    this.blockingMessage = message.id;
+    try {
+      await message.react('🇧');
+      await message.react('🇱');
+      await message.react('🇴');
+      await message.react('🇨');
+      await message.react('🇰');
+      await message.react('🇪');
+      await message.react('🇩');
+      logger.log('info', 'sent \'blocked\' reaction');
+      this.blockingMessage = null;
+    } catch (e) {
+      logger.log('error', `failed to send blocked: ${e}`);
+      this.blockingMessage = null;
     }
   }
 
-  handleReactionRemoved(reaction) {
-    // don't remove until the bot is the only one left who's reacted
-    if (reaction.users.length > 1) {
-      return;
+  typingStart(channel) {
+    if (!this.typingStatus[channel.id]) {
+      this.typingStatus[channel.id] = {};
+      this.typingStatus[channel.id].count = 0;
     }
-    const { channel } = reaction.message;
-    if (!channel.guild || this.guildSettings[channel.guild.name].react) {
-      if (reaction.users.get(this.bot.user.id)) {
-        reaction.remove(this.bot.user).then(() => {
-          logger.log('info', `Removed reaction ${reaction.emoji}`);
-        }).catch((e) => {
-          logger.log('error', `Failed to remove reaction: ${e}`);
-        });
+    this.typingStatus[channel.id].count++;
+    if (this.typingStatus[channel.id].count >= 3) {
+      if (this.typingStatus[channel.id].count >= 6 && !this.typingStatus[channel.id].specialTimeout) {
+        // easter egg (shhhh)
+        channel.send('How many of you bastards are there!?');
+        this.typingStatus[channel.id].specialTimeout = true;
+        this.typingStatus[channel.id].timeout = true;
+        setTimeout(() => {
+          this.typingStatus[channel.id].specialTimeout = false;
+        }, 15000);
+      } else if (!this.typingStatus[channel.id].timeout) {
+        // send several people typing message if not timed out
+        channel.send('SEVERAL PEOPLE ARE TYPING');
+        this.typingStatus[channel.id].timeout = true;
+        // don't spam
+        setTimeout(() => {
+          this.typingStatus[channel.id].timeout = false;
+        }, 15000);
       }
     }
+  }
+
+  typingStop(channel) {
+    if (!this.typingStatus[channel.id]) {
+      this.typingStatus[channel.id] = {};
+      this.typingStatus[channel.id].count = 0;
+    } else {
+      if (this.typingStatus[channel.id].count > 0) {
+        this.typingStatus[channel.id].count--;
+      } else {
+        this.typingStatus[channel.id].count = 0;
+      }
+    }
+  }
+
+  reactionAdded(reaction) {
+    const { channel } = reaction.message;
+    if (channel.guild && GuildSettings[channel.guild.name].react && reaction.emoji.name === '📢') {
+      this.blocked(reaction);
+    }
+    const { currentGuildSettings } = actions.getGuildInfoFromMessage(reaction.message);
+    if (currentGuildSettings.managedRoles) {
+
+    }
+  }
+
+  reactionRemoved(reaction) {
+    // TODO: Remove user from role if in list and they have role
   }
 
   // NEW PHONE WHO DIS
@@ -173,7 +170,7 @@ class Bot {
   // check if this channel allows the bot and if this user can use the bot in this server.
   // Then, if the message contains a command the bot can understand, handle it.
   // then pass along to the handler function
-  handleMessage(msg) {
+  onMessage(msg) {
     // don't respond to your own messages
     if (msg.author.username === 'mari-bot') {
       return;
@@ -186,8 +183,7 @@ class Bot {
 
     // load data for current guild setup and user levels
     // no guild means message is PM, so guild restrictions are not applicable
-    const currentGuildSettings = msg.channel.guild ? this.guildSettings[msg.channel.guild.name] : null;
-    const currentGuildLevels = msg.channel.guild ? this.guildLevels[msg.channel.guild.name] : null;
+    const { currentGuildSettings, currentGuildLevels } = actions.getGuildInfoFromMessage(msg);
 
     // check if we should level up a user
     if (currentGuildSettings && currentGuildLevels) {
@@ -268,7 +264,7 @@ class Bot {
   }
 
   // breakout command types into their handler functions
-  handleCommand(command, msg, guildLevels, guildSettings) {
+  async handleCommand(command, msg, guildLevels, guildSettings) {
     const type = command.type.toLowerCase();
     switch (type) {
       case 'audio': {
@@ -339,8 +335,11 @@ class Bot {
         break;
       }
       case 'createRoleMessage': {
-        //TODO: Add role message creation
-        actions.sendMessage('Sorry, this is not implemented yet', msg.channel);
+        const guildSettings = msg.channel.guild ? GuildSettings[msg.channel.guild.name] : null;
+        if (guildSettings && guildSettings.roleMessage && !guildSettings.roleMessageID) {
+          const message = await actions.sendMessage(guildSettings.roleMessage, msg.channel);
+          GuildSettings[msg.channel.guild.name].roleMessageID = message.id;
+        }
         break;
       }
       case 'reset': {

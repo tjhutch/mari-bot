@@ -1,22 +1,37 @@
-const utils = require('./Utils');
+import utils from 'Utils';
+import GuildSettings from 'config/GuildSettings';
+import GuildLevels from 'config/GuildLevels';
 const logger = require('./Logger').getLogger();
 
-function sendMessage(message, channel) {
+async function sendMessage(message, channel) {
   if (!(message && channel)) {
     logger.log('info', `bad message attempt. Message: ${message}\nchannel: ${channel}`);
-    return;
+    return null;
   }
   // discord maximum message length is 2000
   // if the message is too long, break it up into 2000 character chunks
   if (message.length > 2000) {
+    const messages = [];
     channel.send(message.substr(0, 2000));
     for (let i = 2000; i < message.length; i += 2000) {
-      channel.send(message.substr(i, 2000));
+      messages.push(await channel.send(message.substr(i, 2000)));
     }
+    return messages;
   } else {
-    channel.send(message);
+    try {
+      return await channel.send(message);
+    } catch (e) {
+      logger.log('error', `Failed to send message: ${e}`);
+    }
   }
 }
+
+function getGuildInfoFromMessage(message) {
+  const currentGuildSettings = message.channel.guild ? GuildSettings[message.channel.guild.name] : null;
+  const currentGuildLevels = message.channel.guild ? GuildLevels[message.channel.guild.name] : null;
+  return { currentGuildSettings, currentGuildLevels}
+}
+
 function getUserVoiceChannel(guild, user) {
   if (!guild.available) {
     return null;
@@ -274,9 +289,10 @@ function stopTalkingInGuild(guild, voiceConnections) {
   }
 }
 
-module.exports = {
+export default {
   getChannelVoice,
   getVoiceInGuild,
+  getGuildInfoFromMessage,
   playAudioCommand,
   joinChannel,
   getLevelOfUser,
