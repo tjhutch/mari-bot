@@ -1,23 +1,29 @@
 import Discord from 'discord.js';
-import utils from 'Utils';
-import actions from 'BotActions';
-import loggerFactory from 'Logger';
-import CommandConfig from 'src/config/CommandConfig';
-import Memes from 'config/Memes';
-import Tokens from 'config/Tokens';
-import GuildSettings from 'config/GuildSettings';
+import utils from './Utils';
+import actions from './BotActions';
+import loggerFactory from './Logger';
+import CommandConfig from './config/CommandConfig';
+import Memes from './config/Memes';
+import Tokens from './config/Tokens';
+import GuildSettings from './config/GuildSettings';
+import GuildLevels from './config/GuildLevels';
+import util from 'util';
+
 
 const logger = loggerFactory.getLogger();
 
-class Bot {
+export default class Bot {
   constructor() {
     CommandConfig.commands.meme = Memes;
     this.commands = CommandConfig.commands;
     this.prefix = CommandConfig.prefix;
     this.token = Tokens.discordToken;
     this.typingStatus = {};
+    this.guildSettings = GuildSettings;
+    this.guildLevels = GuildLevels;
     this.configureBot();
     this.reset();
+    logger.log('info', `Commands[createrolemessage]: ${this.commands.createrolemessage}`);
   }
 
   // sets all the handlers for bot actions
@@ -133,6 +139,9 @@ class Bot {
   }
 
   async reactionAdded(reaction, user) {
+    if (user.bot) {
+      return;
+    }
     const { channel } = reaction.message;
     if (channel.guild && GuildSettings[channel.guild.name].react && reaction.emoji.name === '📢') {
       this.blocked(reaction);
@@ -142,6 +151,9 @@ class Bot {
   }
 
   async reactionRemoved(reaction, user) {
+    if (user.bot) {
+      return;
+    }
     this.managePermissions(reaction, user, false);
   }
 
@@ -152,10 +164,10 @@ class Bot {
       logger.log('error', `Got reaction, but guild ${channel.guild.name} is not available!`);
       return;
     }
-    const { currentGuildSettings } = actions.getGuildInfoFromMessage(reaction.message);
+    const currentGuildSettings = this.guildSettings[channel.guild.name];
     if (currentGuildSettings.managedRoles && message.id === currentGuildSettings.roleMessageID) {
       try {
-        const role = this.matchRoleToReaction(reaction, user, currentGuildSettings);
+        const role = this.matchRoleToReaction(reaction, user, channel.guild, currentGuildSettings);
         const guildUser = await channel.guild.fetchMember(user);
         const newUser = await (add ? guildUser.addRole(role) : guildUser.removeRole(role));
         logger.log('info', `${add ? 'added' : 'removed'} the role ${role.name} for ${newUser.displayName}`);
@@ -165,8 +177,7 @@ class Bot {
     }
   }
 
-  matchRoleToReaction(reaction, user, currentGuildSettings) {
-    const { guild } = reaction.channel;
+  matchRoleToReaction(reaction, user, guild, currentGuildSettings) {
     for(let i = 0; i < currentGuildSettings.roleReactions.length; i++) {
       let roleReaction = currentGuildSettings.roleReactions[i];
       if (roleReaction === reaction.emoji.name) {
@@ -233,7 +244,9 @@ class Bot {
 
     // load data for current guild setup and user levels
     // no guild means message is PM, so guild restrictions are not applicable
-    const { currentGuildSettings, currentGuildLevels } = actions.getGuildInfoFromMessage(msg);
+    const { guild } = msg.channel;
+    const currentGuildSettings = guild ? this.guildSettings[guild.name] : null;
+    const currentGuildLevels = guild ? this.guildLevels[guild.name] : null;
 
     // check if we should level up a user
     if (currentGuildSettings && currentGuildLevels) {
@@ -392,25 +405,33 @@ class Bot {
         this.manageRolesByMsg(msg, false);
         break;
       }
-      case 'createRoleMessage': {
+      case 'createrolemessage': {
         const { guild } = msg.channel;
         if (!guild.available) {
           logger.log('error', `Could not create role message, ${guild.name} is not available.`);
           return;
         }
-        const guildSettings = guild ? GuildSettings[guild.name] : null;
+        const guildSettings = guild ? this.guildSettings[guild.name] : null;
         if (guildSettings.roleMessageID && guildSettings.roleMessageChannel) {
           const message = guild.channels.get(guildSettings.roleMessageChannel).fetchMessage(guildSettings.roleMessageID);
-          if (!message.deleted && message.deletable) {
-            message.delete();
-          } else if (!message.deletable) {
-            logger.log('Could not delete old role message as it is not deletable');
-          }
+          const reactionCollector = message.createReactionCollector();
+          reactionCollector.on('collect', (obj) => {
+            logger.log('info', util.inspect(obj, {showHidden: false, depth: null}));
+          });
         }
         if (guildSettings && guildSettings.roleMessage && !guildSettings.roleMessageID) {
           const message = await actions.sendMessage(guildSettings.roleMessage, msg.channel);
-          GuildSettings[guild.name].roleMessageID = message.id;
-          GuildSettings[guild.name].roleMessageChannel = message.channel.id;
+          for (let reaction of guildSettings.roleReactions) {
+            try {
+              await message.react(reaction);
+            } catch (e) {
+              logger.log('error', `Failed to add starter reactions to role message: ${e}`)
+            }
+          }
+          logger.log('info', `saving role message/channel ids: ${message.id}, ${message.channel.id}`);
+          this.guildSettings[guild.name].roleMessageID = message.id;
+          this.guildSettings[guild.name].roleMessageChannel = message.channel.id;
+          this.commandsUpdated = true;
         }
         break;
       }
@@ -460,5 +481,3 @@ class Bot {
     }
   }
 }
-
-module.exports = Bot;

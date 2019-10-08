@@ -28,7 +28,7 @@ For the twitch webhooks API, this project uses the [twitch-webhook package](http
     * for windows not sure, haven't tried yet
 4. Run `npm i` in the root of the repo
 5. Request src/config/Tokens.json file from [me](t.jhutch44@gmail.com) or add your own bot tokens
-6. Run the bot with `node src/mari-bot`
+6. Run the bot with `node -r esm src/mari-bot`
     * add `-l` or `--log-to-console` for console logging
     * logs will always be saved to `error.log` and `debug.log`
     * add `-t` or `--twitch-notifications` for twitch streamer notifications (WIP)

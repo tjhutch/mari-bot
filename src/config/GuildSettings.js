@@ -1,7 +1,8 @@
 export default {
   'But Why Tho': {
     channels: [
-      'maribot_commandments'
+      'maribot_commandments',
+      'dankus-memus'
     ],
     roles: [
       'admin',
@@ -38,13 +39,14 @@ export default {
     welcomeMessage: 'Welcome fellow human \'<user>\' to our testing area.',
     welcomeChannel: '265600449762033664',
     managedRoles: [ 'TestRole1', 'TestRole2' ],
-    roleReactions: [ 'robot', 'clock' ],
+    roleReactions: [ '🤖', '🕰' ],
     roleMessage: 'React :robot: for role 1, and :clock: for role 2.',
     react: true
   },
   'MARI-BOTS': {
     channels: [
-      'botcommands'
+      'botcommands',
+      'filthy_memes'
     ],
     welcomeMessage: '<user> just joined MARI-BOTS! Let\'s have fun together!',
     welcomeChannel: '413407563099668501',

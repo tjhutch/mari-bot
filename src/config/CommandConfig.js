@@ -1042,8 +1042,8 @@ export default {
     addText: {
       type: 'addText'
     },
-    createRoleMessage:  {
-       type: 'createRoleMessage'
+    createrolemessage:  {
+       type: 'createrolemessage'
     }
   }
 }

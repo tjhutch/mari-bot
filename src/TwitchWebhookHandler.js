@@ -1,7 +1,7 @@
 import TwitchWebhook from 'twitch-webhook';
-import LoggerFactory from 'Logger';
-import Tokens from 'config/Tokens';
-import Streamers from 'config/TwitchStreamers';
+import LoggerFactory from './Logger';
+import Tokens from './config/Tokens';
+import Streamers from './config/TwitchStreamers';
 
 const logger = LoggerFactory.getLogger();
 let twitchWebhook;

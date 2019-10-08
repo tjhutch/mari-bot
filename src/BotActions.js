@@ -1,7 +1,9 @@
-import utils from 'Utils';
-import GuildSettings from 'config/GuildSettings';
-import GuildLevels from 'config/GuildLevels';
-const logger = require('./Logger').getLogger();
+import utils from './Utils';
+import GuildSettings from './config/GuildSettings';
+import GuildLevels from './config/GuildLevels';
+import LoggerFactory from './Logger';
+
+const logger = LoggerFactory.getLogger();
 
 async function sendMessage(message, channel) {
   if (!(message && channel)) {
@@ -71,7 +73,7 @@ function levelUpUser(guildLevels, guildSettings, user, channel) {
     if (guildLevels[user.id].level !== level) {
       const messageTemplate = maxLevel ? guildSettings.maxLvlMessage : guildSettings.levelUpMessage;
       sendMessage(messageTemplate.replace('<user>', user.username).replace('<level>', level), channel);
-      logger.log('info', `leveled up ${user.name} to level ${level}`)
+      logger.log('info', `leveled up ${user.username} to level ${level}`)
     }
     guildLevels[user.id] = {
       level,
@@ -189,7 +191,9 @@ async function joinChannel(guilds, msg, channelNameOrId, onJoin) {
     if (channel) {
       try {
         const connection = await channel.join();
-        onJoin(connection);
+        if (onJoin) {
+          onJoin(connection);
+        }
         logger.log('info', `joined channel: ${channel.name}`);
         attachConnectionEventHandlers(connection, channelNameOrId);
       } catch(e) {
@@ -211,8 +215,10 @@ async function joinChannel(guilds, msg, channelNameOrId, onJoin) {
   const voiceChannel = getUserVoiceChannel(msg.guild, msg.author);
   if (voiceChannel) {
     try {
-      const channel = await voiceChannel.join();
-      onJoin(channel);
+      const connection = await voiceChannel.join();
+      if (onJoin) {
+        onJoin(connection);
+      }
       logger.log('info', `joined channel: ${voiceChannel.name}`);
     } catch(e) {
       logger.log('error', `Failed to join ${msg.author.username}'s channel: ${e}`);
@@ -290,7 +296,6 @@ function stopTalkingInGuild(guild, voiceConnections) {
 export default {
   getChannelVoice,
   getVoiceInGuild,
-  getGuildInfoFromMessage,
   playAudioCommand,
   joinChannel,
   getLevelOfUser,

@@ -1,8 +1,8 @@
-import Bot from 'Bot';
-import LoggerFactory from 'src/Logger';
-import TwitchWebhookHandler from 'TwitchWebhookHandler';
-import ConfigManager from 'ConfigManager';
-import CommandConfig from 'config/CommandConfig';
+import Bot from './Bot';
+import LoggerFactory from './Logger';
+import TwitchWebhookHandler from './TwitchWebhookHandler';
+import ConfigManager from './ConfigManager';
+import CommandConfig from './config/CommandConfig';
 
 const logger = LoggerFactory.getLogger();
 
@@ -31,6 +31,8 @@ function onExit() {
       CommandConfig.commands = bot.commands;
       ConfigManager.saveCommands(CommandConfig);
     }
+    ConfigManager.saveGuildSettings(bot.guildSettings);
+    logger.log('info', 'Saved guild settings');
     ConfigManager.saveGuildLevels(bot.guildLevels);
     logger.log('info', 'Saved guild levels');
     if (twitch) {
