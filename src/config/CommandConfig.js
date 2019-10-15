@@ -1042,6 +1042,12 @@ export default {
     addText: {
       type: 'addText'
     },
+    addRole: {
+      type: 'addRole',
+    },
+    removeRole: {
+      type: 'removeRole',
+    },
     createrolemessage:  {
        type: 'createrolemessage'
     }

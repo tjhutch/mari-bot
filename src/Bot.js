@@ -1,16 +1,16 @@
 import Discord from 'discord.js';
 import utils from './Utils';
 import actions from './BotActions';
-import loggerFactory from './Logger';
+import LoggerFactory from './Logger';
 import CommandConfig from './config/CommandConfig';
 import Memes from './config/Memes';
 import Tokens from './config/Tokens';
+import RoleManagement from './RoleManagement';
 import GuildSettings from './config/GuildSettings';
 import GuildLevels from './config/GuildLevels';
 import util from 'util';
 
-
-const logger = loggerFactory.getLogger();
+const logger = LoggerFactory.getLogger();
 
 export default class Bot {
   constructor() {
@@ -146,7 +146,7 @@ export default class Bot {
     if (channel.guild && GuildSettings[channel.guild.name].react && reaction.emoji.name === '📢') {
       this.blocked(reaction);
     } else {
-      this.managePermissions(reaction, user, true);
+      await RoleManagement.managePermissions(reaction, user, this.guildSettings[channel.guild.name], true);
     }
   }
 
@@ -154,58 +154,7 @@ export default class Bot {
     if (user.bot) {
       return;
     }
-    this.managePermissions(reaction, user, false);
-  }
-
-  async managePermissions(reaction, user, add) {
-    const { message } = reaction;
-    const { channel } = message;
-    if (!channel.guild.available) {
-      logger.log('error', `Got reaction, but guild ${channel.guild.name} is not available!`);
-      return;
-    }
-    const currentGuildSettings = this.guildSettings[channel.guild.name];
-    if (currentGuildSettings.managedRoles && message.id === currentGuildSettings.roleMessageID) {
-      try {
-        const role = this.matchRoleToReaction(reaction, user, channel.guild, currentGuildSettings);
-        const guildUser = await channel.guild.fetchMember(user);
-        const newUser = await (add ? guildUser.addRole(role) : guildUser.removeRole(role));
-        logger.log('info', `${add ? 'added' : 'removed'} the role ${role.name} for ${newUser.displayName}`);
-      } catch (e) {
-        logger.log('error', `Failed to give role to user: ${e}`);
-      }
-    }
-  }
-
-  matchRoleToReaction(reaction, user, guild, currentGuildSettings) {
-    for(let i = 0; i < currentGuildSettings.roleReactions.length; i++) {
-      let roleReaction = currentGuildSettings.roleReactions[i];
-      if (roleReaction === reaction.emoji.name) {
-        try {
-          const roleName = currentGuildSettings.managedRoles[i];
-          return this.getRoleByName(guild, roleName);
-        } catch (e) {
-          logger.log('error', `Failed to get role for user: ${e}`)
-        }
-      }
-    }
-  }
-
-  getRoleByName(guild, roleName) {
-    return guild.roles.filter(role => role.name === roleName).first();
-  }
-
-  manageRolesByMsg(msg, add) {
-    const users = msg.mentions.members;
-    const role = this.getRoleByName(msg.split(' ')[1]);
-    try {
-      users.map(async user => {
-        const newUser = await (add ? user.addRole(role) : user.removeRole(role));
-        logger.log('info', `${add ? 'added' : 'removed'} role ${role.name} ${add ? 'to' : 'from'} ${newUser.username}`);
-      });
-    } catch (e) {
-      logger.log('error', `Failed to ${add ? 'add' : 'remove'} role ${add ? 'to' : 'from'} users in "${msg.content}": ${e}`);
-    }
+    await RoleManagement.managePermissions(reaction, user, this.guildSettings[reaction.message.channel.guild.name], false);
   }
 
   // NEW PHONE WHO DIS
@@ -227,7 +176,7 @@ export default class Bot {
     }
   }
 
-  // handling of normal CommandConfig
+  // handling of normal commands
   // check if this channel allows the bot and if this user can use the bot in this server.
   // Then, if the message contains a command the bot can understand, handle it.
   // Then, pass along to the handler function
@@ -262,7 +211,7 @@ export default class Bot {
     // if no registered settings assume no restrictions
     if (currentGuildSettings) {
       if (!this.botCanPostToChannel(currentGuildSettings.channels, msg.channel)) { // make sure this channel is ok to use
-        msg.author.send(`Sorry, you can't use mari-bot from ${msg.channel.name} in ${msg.channel.guild.name}`);
+        msg.author.send(`Sorry, you can't use mari-bot from the channel "${msg.channel.name}" in ${msg.channel.guild.name}`);
         return;
       }
       if (!this.userAllowedToUseBot(currentGuildSettings.roles, msg.member.roles)) { // make sure user is allowed to use bot
@@ -270,7 +219,7 @@ export default class Bot {
         return;
       }
     }
-    // CommandConfig can't have spaces, remove anything beyond the first space
+    // commands can't have spaces, therefore everything up to the first space is the command
     let [importantBit] = msg.content.split(' ');
     // cut out the prefix
     importantBit = importantBit.toLowerCase().slice(1);
@@ -398,11 +347,11 @@ export default class Bot {
         break;
       }
       case 'addRole': {
-        this.manageRolesByMsg(msg, true);
+        RoleManagement.manageRolesByMsg(msg, true);
         break;
       }
       case 'removeRole': {
-        this.manageRolesByMsg(msg, false);
+        RoleManagement.manageRolesByMsg(msg, false);
         break;
       }
       case 'createrolemessage': {
